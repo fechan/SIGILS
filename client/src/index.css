@@ -65,7 +65,7 @@ body,
   margin: 0;
 }
 
-.react-flow__edges {
+.react-flow__edges, .react-flow__edgelabel-renderer {
   z-index: 1001 !important;
 }
 
