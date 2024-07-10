@@ -66,7 +66,7 @@ local function handlePeriphAdd(request, factory, sendMessage)
   return diff
 end
 
-local function handlePeriphDel(request, factory, sengMessage)
+local function handlePeriphDel(request, factory, sendMessage)
   local diff = Factory.periphDel(factory, request.periphId)
   return diff
 end
