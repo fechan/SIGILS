@@ -1,6 +1,6 @@
 local Factory = require('sigils.factory')
-local Machine = require('sigils.machine')
 local Utils   = require('sigils.utils')
+local LOGGER  = require('sigils.logging').LOGGER
 
 local function handleFactoryGet (request, factory, sendMessage)
   local factoryGetRes = {
@@ -109,13 +109,26 @@ local function handlePeripheralDetach(periphId, factory, sendMessage)
   }))
 end
 
-
+---Forever listens for events that require a factory update, and sends
+---WebSocket messages to the client to inform it of the changes, if the channel
+---is available
 local function listenForCcpipesEvents (wsContext, factory)
-  while true do
-    local sendMessage = function (...) end
+
+  ---This function safely wraps the WebSocket send function so SIGILS doesn't crash
+  ---if the WebSocket is closed. The function signature is identical to
+  ---Websocket.send https://tweaked.cc/module/http.html#ty:Websocket:send
+  local sendMessage = function (message, binary)
     if wsContext.ws then
-      sendMessage = wsContext.ws.send
+      local ok, err = pcall(function () wsContext.ws.send(message, binary) end)
+      if not ok then
+        LOGGER:error('Error while sending WebSocket message: ' .. err)
+      end
+    else
+      LOGGER:warn('Attempted to send a WebSocket message on a closed channel.')
     end
+  end
+
+  while true do
     local event, message = os.pullEvent()
 
     local handlers = {
