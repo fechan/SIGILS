@@ -31,6 +31,7 @@ Using the SIGILS Editor on a web browser, virtual item pipes can be created betw
 
 ### Making and editing pipes
 1. In SIGILS, press E to enter editing mode and take note of the 4-letter session code
-2. In your web browser, go to [sigils.fredchan.org](https://sigils.fredchan.org) and enter the session code.
+2. In your web browser, go to [sigils.fredchan.org](https://sigils.fredchan.org) and enter the session code
 3. Press "Start editing"
 4. Click and drag from any red handle into any blue handle to pipe items from one inventory to another. Congratulations, you've made your first pipe!
+5. When you're all done, go back into your ComputerCraft computer and press E again to exit editing mode
