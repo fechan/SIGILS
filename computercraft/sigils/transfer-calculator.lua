@@ -1,4 +1,5 @@
 local CacheMap = require('sigils.CacheMap')
+local ItemDetailAndLimitCache = require('sigils.ItemDetailAndLimitCache')
 local Concurrent = require('sigils.concurrent')
 local Utils = require('sigils.utils')
 
@@ -29,18 +30,6 @@ local function getSlotsWithMatchingItems (group, filter, inventoryLists)
   return matchingSlots
 end
 
-local function getEmptySlots (group, inventoryLists)
-  local emptySlots = {}
-  for i, slot in pairs(group.slots) do
-    -- get the inv list from this slot's peripheral
-    local invList = inventoryLists[slot.periphId]
-    -- check if slot.slot is in that list
-    if invList ~= nil and invList[slot.slot] == nil then
-      table.insert(emptySlots, slot)
-    end
-  end
-  return emptySlots
-end
 
 local function popBestPossibleSlot (possibleSlotsEmpty, possibleSlotsFull)
   return table.remove(possibleSlotsFull, 1) or table.remove(possibleSlotsEmpty, 1)
@@ -95,27 +84,6 @@ local function getManyDetailedInvLists (periphs)
   return invLists
 end
 
-local function getManyItemLimits (groups, missingPeriphs)
-  local itemLimits = {} -- maps 'periphId/slotNbr' -> itemLimit
-  local runner = Concurrent.create_runner(64)
-
-  for i, group in ipairs(groups) do
-    for j, slot in ipairs(group.slots) do
-      if missingPeriphs[slot.periphId] == nil then
-        runner.spawn(
-          function ()
-            local periph = peripheral.wrap(slot.periphId)
-            itemLimits[slot.periphId .. "/" .. slot.slot] = periph.getItemLimit(slot.slot)
-          end
-        )
-      end
-    end
-  end
-
-  runner.run_until_done()
-  return itemLimits
-end
-
 local function getAllPeripheralIds (groups, missingPeriphs)
   local periphIdSet = {}
   for i, group in ipairs(groups) do
@@ -144,10 +112,12 @@ end
 local function getTransferOrders (origin, destination, missingPeriphs, filter)
   local orders = {}
 
-  local itemLimits = getManyItemLimits({destination}, missingPeriphs)
+  local inventoryInfo = ItemDetailAndLimitCache.new()
+  inventoryInfo:Fulfill({origin, destination})
+
   local inventoryLists = getManyDetailedInvLists(getAllPeripheralIds({origin, destination}, missingPeriphs))
 
-  local possibleSlotsEmpty = getEmptySlots(destination, inventoryLists)
+  local possibleSlotsEmpty = inventoryInfo:GetEmptySlots(destination)
   local shouldTransfer = getSlotsWithMatchingItems(origin, filter, inventoryLists)
   Utils.reverse(shouldTransfer) -- reverse list so table.remove(shouldTransfer) pops the head of the queue
 
@@ -181,7 +151,7 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
     local possibleDestSlot = popBestPossibleSlot(possibleSlotsEmpty, possibleSlotsFull)
 
     if possibleDestSlot ~= nil then
-      local destSlotStackLimit = itemLimits[possibleDestSlot.periphId .. "/" .. possibleDestSlot.slot]
+      local destSlotStackLimit = inventoryInfo:GetItemLimit(possibleDestSlot)
       local numExistingItemsAtDest = getNumExistingItemsAt(possibleDestSlot, inventoryLists)
 
       local transferLimit = destSlotStackLimit - numExistingItemsAtDest

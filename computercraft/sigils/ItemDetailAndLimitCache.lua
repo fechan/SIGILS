@@ -66,6 +66,21 @@ function ItemDetailAndLimitCache.new (initialMap)
     return o.map[getSlotId(slot)].itemDetail
   end
 
+  ---Get a Group's empty slots
+  ---@param group Group Group to get empty slots of
+  ---@return Slot[] emptySlots List of empty slots
+  function o:GetEmptySlots (group)
+    local emptySlots = {}
+
+    for _, slot in pairs(group.slots) do
+      if o:GetItemDetail(slot) == nil then
+        table.insert(emptySlots, slot)
+      end
+    end
+
+    return emptySlots
+  end
+
   return o
 end
 
