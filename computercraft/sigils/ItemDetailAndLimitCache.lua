@@ -25,7 +25,7 @@ function ItemDetailAndLimitCache.new (initialMap)
           o.map[slotId] = {}
         end
 
-        local periph = peripheral.warp(slot.periphId)
+        local periph = peripheral.wrap(slot.periphId)
 
         -- fulfill itemDetail
         runner.spawn(
@@ -39,8 +39,8 @@ function ItemDetailAndLimitCache.new (initialMap)
         -- fulfill itemLimit
         runner.spawn(
           function ()
-            if o.map[slotId].itemDetail == nil then
-              o.map[slotId].itemDetail = periph.getItemLimit(slot.slot)
+            if o.map[slotId].itemLimit == nil then
+              o.map[slotId].itemLimit = periph.getItemLimit(slot.slot)
             end
           end
         )
