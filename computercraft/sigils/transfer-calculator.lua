@@ -118,7 +118,7 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
   local inventoryLists = getManyDetailedInvLists(getAllPeripheralIds({origin, destination}, missingPeriphs))
 
   local possibleSlotsEmpty = inventoryInfo:GetEmptySlots(destination)
-  local shouldTransfer = getSlotsWithMatchingItems(origin, filter, inventoryLists)
+  local shouldTransfer = inventoryInfo:GetSlotsWithMatchingItems(origin, filter)
   Utils.reverse(shouldTransfer) -- reverse list so table.remove(shouldTransfer) pops the head of the queue
 
   local possibleSlotsFullByItem = CacheMap.new()

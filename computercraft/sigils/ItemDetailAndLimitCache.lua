@@ -81,6 +81,23 @@ function ItemDetailAndLimitCache.new (initialMap)
     return emptySlots
   end
 
+  ---Get slots in the given Group that match the filter.
+  ---@param group Group Group to check for matching slots
+  ---@param filter function Filter function accepting item details
+  ---@return Slot[] matchingSlots Slots with matching items
+  function o:GetSlotsWithMatchingItems (group, filter)
+    local matchingSlots = {}
+
+    for _, slot in pairs(group.slots) do
+      local itemDetail = o:GetItemDetail(slot)
+      if itemDetail and filter(itemDetail) then
+        table.insert(matchingSlots, slot)
+      end
+    end
+
+    return matchingSlots
+  end
+
   return o
 end
 
