@@ -14,7 +14,7 @@ function ItemDetailAndLimitCache.new (initialMap)
 
   ---Fulfills the item details for each slot in the given groups in parallel
   ---@param groups Group[] list of groups to fulfill item limits and details for
-  function o:FulfillItemLimitsAndDetails(groups)
+  function o:Fulfill(groups)
     local runner = Concurrent.create_runner(64)
 
     for _, group in pairs(groups) do
@@ -65,6 +65,8 @@ function ItemDetailAndLimitCache.new (initialMap)
   function o:GetItemDetail (slot)
     return o.map[getSlotId(slot)].itemDetail
   end
+
+  return o
 end
 
 return ItemDetailAndLimitCache
