@@ -98,6 +98,18 @@ function ItemDetailAndLimitCache.new (initialMap)
     return matchingSlots
   end
 
+
+  ---Get the number of items in the given slot
+  ---@param slot Slot Slot to get number of items in
+  ---@return number count Number of items in the slot
+  function o:GetNumExistingItemsAt (slot)
+    local itemDetail = o:GetItemDetail(slot)
+    if itemDetail then
+      return itemDetail.count
+    end
+    return 0
+  end
+
   return o
 end
 

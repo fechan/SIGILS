@@ -35,15 +35,6 @@ local function popBestPossibleSlot (possibleSlotsEmpty, possibleSlotsFull)
   return table.remove(possibleSlotsFull, 1) or table.remove(possibleSlotsEmpty, 1)
 end
 
-local function getNumExistingItemsAt (slot, itemLists)
-  local periphItemList = itemLists[slot.periphId]
-
-  if periphItemList[slot.slot] then
-    return periphItemList[slot.slot].count
-  end
-  return 0
-end
-
 ---Get a list of items in the given inventory peripheral, with all the details
 ---from getItemDetail.
 ---
@@ -130,7 +121,7 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
     local originItem = originPeriphList[originSlot.slot]
 
     -- originSlot.remainderStackSize is only defined if we tried to transfer this stack before but couldn't transfer all of it
-    local originStackSize = originSlot.remainderStackSize or getNumExistingItemsAt(originSlot, inventoryLists)
+    local originStackSize = originSlot.remainderStackSize or inventoryInfo:GetNumExistingItemsAt(originSlot)
 
     -- get possible slots where we can stack more items into it
     local possibleSlotsFull = possibleSlotsFullByItem:Get(originItem.name, function ()
@@ -152,7 +143,7 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
 
     if possibleDestSlot ~= nil then
       local destSlotStackLimit = inventoryInfo:GetItemLimit(possibleDestSlot)
-      local numExistingItemsAtDest = getNumExistingItemsAt(possibleDestSlot, inventoryLists)
+      local numExistingItemsAtDest = inventoryInfo:GetNumExistingItemsAt(possibleDestSlot)
 
       local transferLimit = destSlotStackLimit - numExistingItemsAtDest
 
