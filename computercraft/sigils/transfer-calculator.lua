@@ -117,8 +117,7 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
   while #shouldTransfer > 0 do
     local originSlot = table.remove(shouldTransfer)
 
-    local originPeriphList = inventoryLists[originSlot.periphId]
-    local originItem = originPeriphList[originSlot.slot]
+    local originItem = inventoryInfo:GetItemDetail(originSlot)
 
     -- originSlot.remainderStackSize is only defined if we tried to transfer this stack before but couldn't transfer all of it
     local originStackSize = originSlot.remainderStackSize or inventoryInfo:GetNumExistingItemsAt(originSlot)
