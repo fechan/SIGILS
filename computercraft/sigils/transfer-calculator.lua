@@ -28,7 +28,7 @@ end
 local function getTransferOrders (origin, destination, missingPeriphs, filter)
   local orders = {}
 
-  local inventoryInfo = ItemDetailAndLimitCache.new()
+  local inventoryInfo = ItemDetailAndLimitCache.new(missingPeriphs)
   inventoryInfo:Fulfill({origin, destination})
 
   local possibleSlotsEmpty = inventoryInfo:GetEmptySlots(destination)

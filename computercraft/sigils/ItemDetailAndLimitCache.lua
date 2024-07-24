@@ -7,43 +7,53 @@ local function getSlotId (slot)
   return slot.periphId .. '/' .. slot.slot
 end
 
-function ItemDetailAndLimitCache.new (initialMap)
+function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
   local o = {
     map = initialMap or {},
+    missingPeriphs = missingPeriphs or {},
   }
 
+  ---Return true if the slot is connected to the network (i.e. not missing)
+  ---@param slot Slot slot to check for
+  ---@return boolean isConnected True if connected
+  function o:slotConnected (slot)
+    return not o.missingPeriphs[slot.periphId]
+  end
+
   ---Fulfills the item details for each slot in the given groups in parallel
-  ---@param groups Group[] list of groups to fulfill item limits and details for
+  ---@param groups Group[] List of groups to fulfill item limits and details for
   function o:Fulfill(groups)
     local runner = Concurrent.create_runner(64)
 
     for _, group in pairs(groups) do
       for _, slot in pairs(group.slots) do
-        -- make a itemDetail and itemLimit data structure in the map for the slot if it's not there already
-        local slotId = getSlotId(slot)
-        if o.map[slotId] == nil then
-          o.map[slotId] = {}
+        if o:slotConnected(slot) then
+          -- make a itemDetail and itemLimit data structure in the map for the slot if it's not there already
+          local slotId = getSlotId(slot)
+          if o.map[slotId] == nil then
+            o.map[slotId] = {}
+          end
+
+          -- fulfill itemDetail
+          runner.spawn(
+            function ()
+              local periph = peripheral.wrap(slot.periphId)
+              if periph and o.map[slotId].itemDetail == nil then
+                o.map[slotId].itemDetail = periph.getItemDetail(slot.slot)
+              end
+            end
+          )
+
+          -- fulfill itemLimit
+          runner.spawn(
+            function ()
+              local periph = peripheral.wrap(slot.periphId)
+              if periph and o.map[slotId].itemLimit == nil then
+                o.map[slotId].itemLimit = periph.getItemLimit(slot.slot)
+              end
+            end
+          )
         end
-
-        local periph = peripheral.wrap(slot.periphId)
-
-        -- fulfill itemDetail
-        runner.spawn(
-          function ()
-            if o.map[slotId].itemDetail == nil then
-              o.map[slotId].itemDetail = periph.getItemDetail(slot.slot)
-            end
-          end
-        )
-
-        -- fulfill itemLimit
-        runner.spawn(
-          function ()
-            if o.map[slotId].itemLimit == nil then
-              o.map[slotId].itemLimit = periph.getItemLimit(slot.slot)
-            end
-          end
-        )
       end
     end
 
@@ -54,14 +64,14 @@ function ItemDetailAndLimitCache.new (initialMap)
   ---(This is max number of items holdable by the slot, regardless of whether
   ---an item is in the slot)
   ---@param slot Slot Slot to get item limit for
-  ---@return unknown
+  ---@return number itemLimit Slot item limit
   function o:GetItemLimit (slot)
     return o.map[getSlotId(slot)].itemLimit
   end
 
   ---Get the item detail of the given Slot, or nil if there's nothing in the Slot
   ---@param slot Slot Slot to get item details for
-  ---@return table ItemDetail Inventory peripheral ItemDetail objhect
+  ---@return table itemDetail Item details in slot
   function o:GetItemDetail (slot)
     return o.map[getSlotId(slot)].itemDetail
   end
@@ -73,7 +83,7 @@ function ItemDetailAndLimitCache.new (initialMap)
     local emptySlots = {}
 
     for _, slot in pairs(group.slots) do
-      if o:GetItemDetail(slot) == nil then
+      if o:slotConnected(slot) and o:GetItemDetail(slot) == nil then
         table.insert(emptySlots, slot)
       end
     end
@@ -89,15 +99,16 @@ function ItemDetailAndLimitCache.new (initialMap)
     local matchingSlots = {}
 
     for _, slot in pairs(group.slots) do
-      local itemDetail = o:GetItemDetail(slot)
-      if itemDetail and filter(itemDetail) then
-        table.insert(matchingSlots, slot)
+      if o:slotConnected(slot) then
+        local itemDetail = o:GetItemDetail(slot)
+        if itemDetail and filter(itemDetail) then
+          table.insert(matchingSlots, slot)
+        end
       end
     end
 
     return matchingSlots
   end
-
 
   ---Get the number of items in the given slot
   ---@param slot Slot Slot to get number of items in
