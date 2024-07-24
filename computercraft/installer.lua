@@ -5,6 +5,7 @@ local files = {
   'sigils/controller.lua',
   'sigils/factory.lua',
   'sigils/filter.lua',
+  'sigils/ItemDetailAndLimitCache.lua',
   'sigils/logging.lua',
   'sigils/machine.lua',
   'sigils/pipe.lua',
