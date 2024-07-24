@@ -38,12 +38,13 @@ end
 ---@param groupMap table<string, Group> A table mapping Group IDs to Groups
 ---@param missingPeriphs table<string, boolean> A set of peripherals that are missing
 local function processPipe (pipe, groupMap, missingPeriphs)
+  local filter = Filter.getFilterFn(pipe.filter)
+
   if groupMap[pipe.from].fluid then
-    processFluidPipe(pipe, groupMap, missingPeriphs, function () end)
+    processFluidPipe(pipe, groupMap, missingPeriphs, filter)
     return
   end
 
-  local filter = Filter.getFilterFn(pipe.filter)
   local ok, transferOrders = pcall(
     function ()
       return PipeModeNatural.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
