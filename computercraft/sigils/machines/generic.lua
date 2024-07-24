@@ -3,12 +3,13 @@ local AUTO_GROUP_NICKNAMES = {
   brewingStand = {'Bottle', 'Bottle', 'Bottle', 'Ingredient', 'Blaze Powder'},
 }
 
----Determine if the peripheral can be initialized as a generic machine.
----Always returns true.
+---Determine if the peripheral can be initialized as a generic machine with
+---an inventory.
 ---@param periphId string Peripheral ID to check
 ---@return true canInitialize Always true
 local function canInitialize (periphId)
-  return true
+  local periph = peripheral.wrap(periphId)
+  return periph.size and periph.size() > 0
 end
 
 ---Create a generic Machine for the given peripheral
@@ -16,18 +17,18 @@ end
 ---@param periphId any Peripheral ID to initialize as a Machine
 ---@return Machine machine New chest Machine
 ---@return Group[] groups List of groups in the Machine
-function initialize (periphId)
+local function initialize (periphId)
   local machine = {
     id = periphId,
     groups = {},
-    nickname = nickname,
+    nickname = nil,
   }
 
   local groups = {}
 
-  local peripheral = peripheral.wrap(periphId)
+  local periph = peripheral.wrap(periphId)
   -- create 1 group for each slot
-  for slotNbr=1, peripheral.size() do
+  for slotNbr=1, periph.size() do
     local slot = {
       periphId = periphId,
       slot = slotNbr,

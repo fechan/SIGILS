@@ -409,7 +409,11 @@ local function getPeripheralIds ()
   for i, periphId in ipairs(peripheral.getNames()) do
     -- add if the peripheral has an inventory and is connected via a modem
     local periph = peripheral.wrap(periphId)
-    if periph['pushItems'] and periph.size() >= 1 and string.match(periphId, ':') then
+
+    local isInventory = periph['pushItems'] and periph.size() >= 1
+    local isFluidTank = periph['tanks']
+
+    if (isInventory or isFluidTank) and string.match(periphId, ':') then
       table.insert(periphs, periphId)
     end
   end
@@ -441,10 +445,12 @@ local function autodetectFactory ()
   }
   for i, periphId in ipairs(getPeripheralIds()) do
     local machine, groups = Machine.fromPeriphId(periphId)
-    factory.machines[machine.id] = machine
+    if machine then
+      factory.machines[machine.id] = machine
 
-    for groupId, group in pairs(groups) do
-      factory.groups[groupId] = group
+      for groupId, group in pairs(groups) do
+        factory.groups[groupId] = group
+      end
     end
   end
 

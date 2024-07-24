@@ -5,14 +5,15 @@ local function canInitialize (periphId)
   local peripheral = peripheral.wrap(periphId)
 
   return not not (
-    string.find(periphId, 'minecraft:chest_') or
+    peripheral.size and
+    (string.find(periphId, 'minecraft:chest_') or
     string.find(periphId, 'minecraft:trapped_chest_') or
     string.find(periphId, 'minecraft:barrel_') or
     string.find(periphId, 'minecraft:dispenser_') or
     string.find(periphId, 'minecraft:dropper_') or
     string.find(periphId, 'minecraft:hopper_') or
     (string.find(periphId, 'minecraft:') and string.find(periphId, '_shulker_box_')) or
-    peripheral.size() >= 8
+    peripheral.size() >= 8)
   )
 end
 
@@ -25,7 +26,7 @@ function initialize (periphId)
   local machine = {
     id = periphId,
     groups = {},
-    nickname = nickname,
+    nickname = nil,
   }
 
   local groups = {}

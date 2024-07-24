@@ -12,6 +12,7 @@
 local machineTemplates = {
   require('sigils.machines.chest'),
   require('sigils.machines.generic'),
+  require('sigils.machines.fluidtank'),
 }
 
 local function addFluidTank (machine, periphId, groups)
