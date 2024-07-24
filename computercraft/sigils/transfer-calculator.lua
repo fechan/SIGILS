@@ -14,83 +14,8 @@ local Utils = require('sigils.utils')
 ---@field to Slot Desitnation slot
 ---@field limit number Number of items to transfer
 
----Get slots in the given Group that match the filter.
----@param group Group Group to check for matching slots
----@param filter function Filter function accepting item details
----@param inventoryLists table Detailed inventory lists (as fulfilled by getDetailedInvList)
----@return Slot[] matchingSlots Slots with matching items
-local function getSlotsWithMatchingItems (group, filter, inventoryLists)
-  local matchingSlots = {}
-  for i, slot in pairs(group.slots) do
-    local list = inventoryLists[slot.periphId]
-    if list ~= nil and list[slot.slot] and filter(list[slot.slot]) then
-      table.insert(matchingSlots, slot)
-    end
-  end
-  return matchingSlots
-end
-
-
 local function popBestPossibleSlot (possibleSlotsEmpty, possibleSlotsFull)
   return table.remove(possibleSlotsFull, 1) or table.remove(possibleSlotsEmpty, 1)
-end
-
----Get a list of items in the given inventory peripheral, with all the details
----from getItemDetail.
----
----This runs all the getItemDetail() calls in parallel, so it should take about
----50 ms more or less for all of them, even if the inventory is really big.
----@param periphId string Peripheral ID of inventory
----@return table detailedInvList Detailed item list
-local function getDetailedInvList (periphId, runner)
-  runner = runner or Concurrent.create_runner(64)
-  local detailedInvList = {} -- maps slot -> itemDetails
-  local periph = peripheral.wrap(periphId)
-
-  for slot, slotInfo in pairs(periph.list()) do
-    runner.spawn(
-      function ()
-        detailedInvList[slot] = periph.getItemDetail(slot)
-      end
-    )
-  end
-
-  runner.run_until_done()
-  return detailedInvList
-end
-
-local function getManyDetailedInvLists (periphs)
-  local invLists = {} -- maps periphId -> detailed inventory list
-  local runner = Concurrent.create_runner(64)
-
-  for i,periphId in ipairs(periphs) do
-    runner.spawn(
-      function ()
-        invLists[periphId] = getDetailedInvList(periphId)
-      end
-    )
-  end
-
-  runner.run_until_done()
-  return invLists
-end
-
-local function getAllPeripheralIds (groups, missingPeriphs)
-  local periphIdSet = {}
-  for i, group in ipairs(groups) do
-    for j, slot in ipairs(group.slots) do
-      if missingPeriphs[slot.periphId] == nil then
-        periphIdSet[slot.periphId] = true
-      end
-    end
-  end
-
-  local periphIdList = {}
-  for periphId, _ in pairs(periphIdSet) do
-    table.insert(periphIdList, periphId)
-  end
-
-  return periphIdList
 end
 
 ---Get the transfer orders needed to transfer as many items as possible from the
@@ -105,8 +30,6 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
 
   local inventoryInfo = ItemDetailAndLimitCache.new()
   inventoryInfo:Fulfill({origin, destination})
-
-  local inventoryLists = getManyDetailedInvLists(getAllPeripheralIds({origin, destination}, missingPeriphs))
 
   local possibleSlotsEmpty = inventoryInfo:GetEmptySlots(destination)
   local shouldTransfer = inventoryInfo:GetSlotsWithMatchingItems(origin, filter)
@@ -124,7 +47,7 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
 
     -- get possible slots where we can stack more items into it
     local possibleSlotsFull = possibleSlotsFullByItem:Get(originItem.name, function ()
-      return getSlotsWithMatchingItems(
+      return inventoryInfo:GetSlotsWithMatchingItems(
         destination,
         function (item)
           return (item.name == originItem.name and
@@ -132,8 +55,7 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
             item.durability == nil and
             item.maxCount > item.count
           )
-        end,
-        inventoryLists
+        end
       )
     end)
 
