@@ -12,7 +12,6 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
       for _, destSlot in ipairs(destination.slots) do
         if not missingPeriphs[destSlot.periphId] then
           table.insert(orders, {from=originSlot, to=destSlot})
-          print('from', originSlot.periphId, 'to', destSlot.periphId)
         end
       end
     end
