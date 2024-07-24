@@ -1,6 +1,5 @@
 local files = {
   'sigils.lua',
-  'sigils/CacheMap.lua',
   'sigils/concurrent.lua',
   'sigils/controller.lua',
   'sigils/factory.lua',

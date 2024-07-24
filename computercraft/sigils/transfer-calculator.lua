@@ -1,6 +1,4 @@
-local CacheMap = require('sigils.CacheMap')
 local ItemDetailAndLimitCache = require('sigils.ItemDetailAndLimitCache')
-local Concurrent = require('sigils.concurrent')
 local Utils = require('sigils.utils')
 
 ---An inventory slot on a peripheral in the network
@@ -40,8 +38,6 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
   local shouldTransfer = inventoryInfo:GetSlotsWithMatchingItems(origin, filter)
   Utils.reverse(shouldTransfer) -- reverse list so table.remove(shouldTransfer) pops the head of the queue
 
-  local possibleSlotsFullByItem = CacheMap.new()
-
   while #shouldTransfer > 0 do
     local originSlot = table.remove(shouldTransfer)
 
@@ -51,17 +47,14 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
     local originStackSize = originSlot.remainderStackSize or inventoryInfo:GetNumExistingItemsAt(originSlot)
 
     -- get possible slots where we can stack more items into it
-    local possibleSlotsFull = possibleSlotsFullByItem:Get(originItem.name, function ()
-      return inventoryInfo:GetSlotsWithMatchingItems(
-        destination,
-        function (item)
-          return (item.name == originItem.name and
-            item.nbt == nil and
-            item.durability == nil and
-            item.maxCount > item.count
-          )
-        end
-      )
+    local possibleSlotsFull = inventoryInfo:GetSlotsWithMatchingItems(
+      destination,
+      function (item)
+        return (item.name == originItem.name and
+          item.nbt == nil and
+          item.durability == nil and
+          item.maxCount > item.count
+        )
     end)
 
     -- start calculating how many of the item we can transfer
