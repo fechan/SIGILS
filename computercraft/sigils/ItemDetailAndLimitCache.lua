@@ -1,5 +1,6 @@
 local Concurrent = require('sigils.concurrent')
 
+---A class for storing itemDetail and itemLimits of slots in slot groups
 ---@class ItemDetailAndLimitCache
 local ItemDetailAndLimitCache = {}
 
@@ -7,13 +8,18 @@ local function getSlotId (slot)
   return slot.periphId .. '/' .. slot.slot
 end
 
+---Create a new ItemDetailAndLimitCache
+---@param missingPeriphs set Set of missing peripheral IDs
+---@param initialMap table Initial map of slot IDs and their item limits/details
+---@return ItemDetailAndLimitCache itemDetailAndLimitCache New cache
 function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
   local o = {
     map = initialMap or {},
     missingPeriphs = missingPeriphs or {},
   }
 
-  ---Return true if the slot is connected to the network (i.e. not missing)
+  ---Return true if the slot is connected to the network
+  ---(i.e. its peripheral is not missing)
   ---@param slot Slot slot to check for
   ---@return boolean isConnected True if connected
   function o:slotConnected (slot)
