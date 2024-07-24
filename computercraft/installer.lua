@@ -8,6 +8,8 @@ local files = {
   'sigils/ItemDetailAndLimitCache.lua',
   'sigils/logging.lua',
   'sigils/machine.lua',
+  'sigils/machines/chest.lua',
+  'sigils/machines/generic.lua',
   'sigils/pipe.lua',
   'sigils/transfer-calculator.lua',
   'sigils/utils.lua',
