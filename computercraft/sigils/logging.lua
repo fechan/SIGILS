@@ -27,14 +27,14 @@ end
 
 function LOGGER:warn (text)
   if self.level >= LEVELS.WARN then
-    print(text)
+    print('[WARN]', os.epoch('utc'), text)
   end
   self:writeLogLine(text)
 end
 
 function LOGGER:error (text)
   if self.level >= LEVELS.ERROR then
-    print(text)
+    print('[ERROR]', os.epoch('utc'), text)
   end
   self:writeLogLine(text)
 end
