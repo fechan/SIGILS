@@ -18,7 +18,9 @@ local function popBestPossibleSlot (possibleSlotsEmpty, possibleSlotsFull)
 end
 
 ---Get the transfer orders needed to transfer as many items as possible from the
----origin inventory to the destination
+---origin inventory to the destination.
+---This uses a "natural" destination slot priority. That is, it tries to mimic
+---Minecraft's shift-click behavior in inventory GUIs.
 ---@param origin Group Origin group to transfer from
 ---@param destination Group Destination group to transfer to
 ---@param missingPeriphs table Set of missing peripherals by ID

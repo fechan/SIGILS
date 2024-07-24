@@ -4,7 +4,7 @@
 ---A data structure for a Pipe matching `/server/src/types/core-types.ts#Pipe`
 ---@class Pipe
 
-local TransferCalculator = require('sigils.transfer-calculator')
+local PipeModeNatural = require('sigils.pipeModes.natural')
 local PipeModeFluid = require('sigils.pipeModes.fluid')
 local Filter = require('sigils.filter')
 local LOGGER = require('sigils.logging').LOGGER
@@ -46,7 +46,7 @@ local function processPipe (pipe, groupMap, missingPeriphs)
   local filter = Filter.getFilterFn(pipe.filter)
   local ok, transferOrders = pcall(
     function ()
-      return TransferCalculator.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
+      return PipeModeNatural.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
     end
   )
 
