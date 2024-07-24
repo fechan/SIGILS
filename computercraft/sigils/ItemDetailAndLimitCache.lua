@@ -9,8 +9,8 @@ local function getSlotId (slot)
 end
 
 ---Create a new ItemDetailAndLimitCache
----@param missingPeriphs set Set of missing peripheral IDs
----@param initialMap table Initial map of slot IDs and their item limits/details
+---@param missingPeriphs table Set of missing peripheral IDs
+---@param initialMap? table? Initial map of slot IDs and their item limits/details
 ---@return ItemDetailAndLimitCache itemDetailAndLimitCache New cache
 function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
   local o = {

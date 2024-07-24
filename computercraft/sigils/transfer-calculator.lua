@@ -21,7 +21,7 @@ end
 ---origin inventory to the destination
 ---@param origin Group Origin group to transfer from
 ---@param destination Group Destination group to transfer to
----@param missingPeriphs Table Set of missing peripherals by ID
+---@param missingPeriphs table Set of missing peripherals by ID
 ---@param filter function Filter function that accepts the result of inventory.getItemDetail()
 ---@return TransferOrder[] transferOrders List of transfer orders
 local function getTransferOrders (origin, destination, missingPeriphs, filter)
