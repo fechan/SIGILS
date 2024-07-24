@@ -20,7 +20,7 @@ export function getHeight(numSlots: number) {
 
 export function GroupNode({ id, selected }: NodeProps) {
   const dropTarget = useDropTargetStore(state => state.dropTarget);
-  const { nickname, numSlots, slots } = useFactoryStore(useShallow(state => ({
+  const { nickname, numSlots, slots, fluid } = useFactoryStore(useShallow(state => ({
     ...state.factory.groups[id],
     numSlots: state.factory.groups[id]?.slots.length,
   })));
@@ -43,8 +43,9 @@ export function GroupNode({ id, selected }: NodeProps) {
   return (
     <div
       className={
-        "react-flow__node-default w-full h-full bg-mcgui-bg p-0 rounded-sm " + 
+        "react-flow__node-default w-full h-full p-0 rounded-sm " + 
         "border border-mcgui-group-border " +
+        (fluid ? " bg-blue-800 text-white " : " bg-mcgui-bg") + 
         (dropTarget?.id === id ? " !bg-green-200" : "") +
         (selected ? " !bg-blue-200" : "")
       }
