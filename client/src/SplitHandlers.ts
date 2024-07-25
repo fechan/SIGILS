@@ -28,6 +28,7 @@ export function splitSlotFromGroup(slotData: ItemSlotDragData, intersections: No
     const newGroupId = uuidv4();
     const newGroup: Group = {
       id: newGroupId,
+      nickname: oldGroup.nickname,
       slots: [slot],
       x: initialPosition.x,
       y: initialPosition.y,
