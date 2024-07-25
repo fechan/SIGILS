@@ -31,21 +31,35 @@ function combineMachines(sourceMachineIds: MachineId[], targetMachineId: Machine
   const messages: Request[] = [];
 
   const namedGroups: {[nick: string]: GroupId[]} = {}; // named groups with the same nickname will be combined into the first group of that name encountered
+  const namedFluidGroups: {[nick: string]: GroupId[]} = {};
   const unnamedGroups: GroupId[] = []; // unnamed groups will just be added to the target without changing its slots
   for (let machineId of [targetMachineId].concat(sourceMachineIds)) {
     for (let groupId of machines[machineId].groups) {
       const group = groups[groupId];
+
+    console.log(namedFluidGroups, group)
+
 
       if (!group.nickname) {
         unnamedGroups.push(groupId);
         continue;
       }
 
-      if (!(group.nickname in namedGroups)) {
-        namedGroups[group.nickname] = [];
+      if (group.fluid) {
+        if (!(group.nickname in namedFluidGroups)) {
+          namedFluidGroups[group.nickname] = [];
+        }
+      } else {
+        if (!(group.nickname in namedGroups)) {
+          namedGroups[group.nickname] = [];
+        }
       }
 
-      namedGroups[group.nickname].push(groupId);
+      if (group.fluid) {
+        namedFluidGroups[group.nickname].push(groupId);
+      } else {
+        namedGroups[group.nickname].push(groupId);
+      }
     }
   }
 
@@ -56,13 +70,21 @@ function combineMachines(sourceMachineIds: MachineId[], targetMachineId: Machine
     }
     finalNamedGroups.push(groupIds[0]);
   }
+
+  const finalNamedFluidGroups: GroupId[] = []; // named fluid groups that have been combined
+  for (const groupIds of Object.values(namedFluidGroups)) {
+    if (groupIds.length > 1) {
+      messages.push(...combineGroups(groupIds.slice(1), groupIds[0], groups))
+    }
+    finalNamedFluidGroups.push(groupIds[0]);
+  }
   
   messages.push({
     type: "MachineEdit",
     reqId: uuidv4(),
     machineId: targetMachineId,
     edits: {
-      groups: [...finalNamedGroups, ...unnamedGroups],
+      groups: [...finalNamedGroups, ...finalNamedFluidGroups, ...unnamedGroups],
     }
   } as MachineEditReq);
 
