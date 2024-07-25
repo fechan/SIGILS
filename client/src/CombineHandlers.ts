@@ -80,6 +80,9 @@ function combineMachines(sourceMachineIds: MachineId[], targetMachineId: Machine
 function combineGroups(sourceGroupIds: GroupId[], targetGroupId: GroupId, groups: GroupMap) {
   const messages: Request[] = [];
 
+  // only try to combine fluid groups into fluid groups and vice versa
+  sourceGroupIds = sourceGroupIds.filter(sourceGroupId => Boolean(groups[sourceGroupId].fluid) === Boolean(groups[targetGroupId].fluid))
+
   // get the group's slots and tell cc to add them to the target group's slot list
   const combinedSlotList: Slot[] = sourceGroupIds.reduce(
     (combinedList, sourceGroupId) => [...combinedList, ...groups[sourceGroupId].slots],
