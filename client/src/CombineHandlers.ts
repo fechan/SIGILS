@@ -1,4 +1,4 @@
-import { GroupId, GroupMap, MachineId, MachineMap, Slot } from "@server/types/core-types";
+import { Group, GroupId, GroupMap, MachineId, MachineMap, Slot } from "@server/types/core-types";
 import { GroupDelReq, GroupEditReq, MachineDelReq, MachineEditReq, Request } from "@server/types/messages";
 import { v4 as uuidv4 } from "uuid";
 
@@ -6,6 +6,16 @@ import { v4 as uuidv4 } from "uuid";
  * The CCPipes messages that need to be sent to ComputerCraft to enact a
  * combining operation, and the final React Flow node state after combining.
  */
+
+/***
+ * Determine whether the source Group can combine with the target Group
+ * @param source Source group
+ * @param target Target group
+ * @returns True if they can combine
+ */
+function canCombine(source: Group, target: Group) {
+  return Boolean(source.fluid) === Boolean(target.fluid)
+}
 
 /**
  * Combine 1 or more source machines into a target Machine.
@@ -81,7 +91,7 @@ function combineGroups(sourceGroupIds: GroupId[], targetGroupId: GroupId, groups
   const messages: Request[] = [];
 
   // only try to combine fluid groups into fluid groups and vice versa
-  sourceGroupIds = sourceGroupIds.filter(sourceGroupId => Boolean(groups[sourceGroupId].fluid) === Boolean(groups[targetGroupId].fluid))
+  sourceGroupIds = sourceGroupIds.filter(sourceGroupId => canCombine(groups[sourceGroupId], groups[targetGroupId]));
 
   // get the group's slots and tell cc to add them to the target group's slot list
   const combinedSlotList: Slot[] = sourceGroupIds.reduce(
