@@ -25,8 +25,12 @@ function onEdgesDelete(
   }
 }
 
-function onConnect(connection: Connection, setTempEdge: Dispatch<SetStateAction<Edge|null>>, setEdges: Dispatch<SetStateAction<Edge[]>>) {
+function onConnect(connection: Connection, setTempEdge: Dispatch<SetStateAction<Edge|null>>, setEdges: Dispatch<SetStateAction<Edge[]>>, factory: Factory) {
   if (!connection.source || !connection.target) return;
+
+  if (Boolean(factory.groups[connection.source].fluid) !== Boolean(factory.groups[connection.target].fluid)) {
+    return;
+  }
   
   const tempEdge: Edge = {
     id: uuidv4(),

@@ -54,6 +54,14 @@ end
 ---@param filter string Filter to match
 ---@return boolean match True if match, false otherwise
 local function displayNameMatch (itemDetail, filter)
+  if not itemDetail.displayName then -- HACK: this IF block is for fluids ONLY, which don't have displayName because CC doesn't give it to us
+    local itemId = string.lower(itemDetail.name)
+    return string.match(
+      itemId,
+      string.sub(filter, 2)
+    ) ~= nil
+  end
+
   local displayName = string.lower(itemDetail.displayName)
   return string.match(displayName, filter) ~= nil
 end

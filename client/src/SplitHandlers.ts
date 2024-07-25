@@ -28,9 +28,11 @@ export function splitSlotFromGroup(slotData: ItemSlotDragData, intersections: No
     const newGroupId = uuidv4();
     const newGroup: Group = {
       id: newGroupId,
+      nickname: oldGroup.nickname,
       slots: [slot],
       x: initialPosition.x,
       y: initialPosition.y,
+      fluid: oldGroup.fluid,
     };
     const groupAddReq: GroupAddReq = {
       type: "GroupAdd",
@@ -105,6 +107,7 @@ export function splitPeripheralFromMachine(peripheralData: PeripheralBadgeDragDa
           id: uuidv4(),
           nickname: oldGroup.nickname,
           slots: slotsFromPeripheral,
+          fluid: oldGroup.fluid,
         }
       };
       messages.push(groupAddReq);

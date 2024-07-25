@@ -77,8 +77,8 @@ export default function App() {
    * Handlers for React Flow events
    */
   const onConnect: OnConnect = useCallback(
-    (connection) => GraphUpdateCallbacks.onConnect(connection, setTempEdge, setEdges),
-    [setEdges, setTempEdge]
+    (connection) => GraphUpdateCallbacks.onConnect(connection, setTempEdge, setEdges, factory),
+    [setEdges, setTempEdge, factory]
   );
 
   const onEdgesDelete: OnEdgesDelete = useCallback(

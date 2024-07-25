@@ -69,6 +69,7 @@ export interface Group {
     nickname?: string,
     x?: number,
     y?: number,
+    fluid?: boolean,
 };
 
 export type MachineId = string;
