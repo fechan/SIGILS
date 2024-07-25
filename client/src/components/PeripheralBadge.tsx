@@ -38,7 +38,7 @@ export function PeripheralBadge({ periphId, machineId }: PeripheralBadgeProps) {
       }}
       onDragStart={ onDragStart }
     >
-      { periphId.split(":")[1] }
+      { periphId.split(":")[1] || periphId }
     </span>
   );
 }
