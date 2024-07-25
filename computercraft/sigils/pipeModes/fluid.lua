@@ -3,7 +3,7 @@
 ---@param filter function<table, boolean> Filter function accepting a fluid
 ---@return boolean hasMatch Whether there's a fluid matching the filter
 local function tankHasMatchingFluid(periph, filter)
-  for _, fluid in ipairs(periph.tanks()) do
+  for _, fluid in pairs(periph.tanks()) do
     if filter(fluid) then
       return true
     end
