@@ -17,7 +17,7 @@ export function MissingPeripheralBadge({ periphId }: MissingPeripheralBadgeProps
       onMouseOver={ () => setHover(true) }
       onMouseOut={ () => setHover(false) }
     >
-      <span>{ hover ? "Remove" : periphId.split(":")[1] }</span>
+      <span>{ hover ? "Remove" : (periphId.split(":")[1] || periphId) }</span>
     </div>
   );
 }

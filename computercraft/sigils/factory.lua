@@ -410,10 +410,10 @@ local function getPeripheralIds ()
     -- add if the peripheral has an inventory and is connected via a modem
     local periph = peripheral.wrap(periphId)
 
-    local isInventory = periph['pushItems'] and periph.size() >= 1
-    local isFluidTank = periph['tanks']
+    local isInventory = periph['pushItems'] ~= nil and periph.size() >= 1
+    local isFluidTank = periph['tanks'] ~= nil
 
-    if (isInventory or isFluidTank) and string.match(periphId, ':') then
+    if isInventory or isFluidTank then
       table.insert(periphs, periphId)
     end
   end
