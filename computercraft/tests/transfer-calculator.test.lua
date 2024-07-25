@@ -6,7 +6,7 @@ local destList = require('tests.mock.dest') -- dispenser
 peripheral = {
   wrap = function (periphId)
     return {
-      getItemLimit = function () return 64 end,
+      getItemLimit = function (slot) return 64 end,
       getItemDetail = function (slot)
         if string.match(periphId, 'dropper') then
           return originList[slot] or nil

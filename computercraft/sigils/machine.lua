@@ -35,8 +35,8 @@ end
 
 ---Initialize a new Machine from the given peripheral ID
 ---@param periphId string Peripheral ID to initialize as a Machine
----@return Machine machine Newly initialized Machine
----@return Group[] groups Newly initialized Groups in the Machine
+---@return Machine|nil machine Newly initialized Machine
+---@return Group[]|nil groups Newly initialized Groups in the Machine
 local function fromPeriphId (periphId)
   for _, template in pairs(machineTemplates) do
     if template.canInitialize(periphId) then
