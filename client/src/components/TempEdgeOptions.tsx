@@ -9,10 +9,9 @@ export interface TempEdgeOptionsProps {
   tempEdge: (Edge | null),
   setTempEdge: Dispatch<SetStateAction<Edge | null>>,
   onCancel: () => void,
-  addReqNeedingLayout: (reqId: string) => void,
 };
 
-export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel, addReqNeedingLayout }: TempEdgeOptionsProps) {
+export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel }: TempEdgeOptionsProps) {
   const [ nickname, setNickname ] = useState("");
   const [ filter, setFilter ] = useState("");
 
@@ -33,7 +32,6 @@ export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel, 
     if (nickname !== "") pipeAddReq.pipe.nickname = nickname;
     if (filter !== "") pipeAddReq.pipe.filter = filter;
 
-    addReqNeedingLayout(reqId);
     setTempEdge(null);
     sendMessage(JSON.stringify(pipeAddReq));
   }
