@@ -115,7 +115,7 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
         <div className="text-right box-border">
           <button
             className="mcui-button bg-red-700 w-32 h-10 me-3"
-            onClick={ () => GraphUpdateCallbacks.onEdgesDelete(selectedEdges, sendMessage, addReqNeedingLayout) }
+            onClick={ () => GraphUpdateCallbacks.onEdgesDelete(selectedEdges, sendMessage) }
           >
             Delete
           </button>
