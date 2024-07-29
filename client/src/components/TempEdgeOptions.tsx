@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { SendMessage } from "react-use-websocket";
 import { Edge } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
+import { FilterSyntax } from "./FilterSyntax";
 
 export interface TempEdgeOptionsProps {
   sendMessage: SendMessage,
@@ -65,6 +66,7 @@ export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel }
             value={ filter }
             onInput={ e => setFilter((e.target as HTMLInputElement).value) }
           />
+          <FilterSyntax />
         </div>
 
         <div className="text-right box-border">

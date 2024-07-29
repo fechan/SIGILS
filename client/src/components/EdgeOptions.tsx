@@ -4,13 +4,13 @@ import { SendMessage } from "react-use-websocket";
 import { Edge, useOnSelectionChange, useStoreApi } from "reactflow";
 import { GraphUpdateCallbacks } from "../GraphUpdateCallbacks";
 import { useFactoryStore } from "../stores/factory";
+import { FilterSyntax } from "./FilterSyntax";
 
 interface EdgeOptionsProps {
   sendMessage: SendMessage,
-  addReqNeedingLayout: (reqId: string) => void,
 };
 
-export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsProps) {
+export function EdgeOptions({ sendMessage }: EdgeOptionsProps) {
   const [ selectedEdges, setSelectedEdges ] = useState([] as Edge[]);
 
   const pipes = useFactoryStore(state => state.factory.pipes);
@@ -88,28 +88,7 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
             value={ filter }
             onInput={ e => setFilter((e.target as HTMLInputElement).value) }
           />
-          <details className="text-sm text-neutral-700 mt-1 w-full">
-            <summary className="cursor-pointer">Advanced syntax</summary>
-
-            <p>
-              Prefix a term with an exclamation mark (!) to exclude it:
-              <blockquote className="ps-5">!cobblestone</blockquote>
-            </p>
-
-            <p>
-              Filter supports JEI prefixes for:
-              <ul className="list-disc ps-5">
-                <li>@mod_name</li>
-                <li>&item_id</li>
-                <li>$ore_dict</li>
-              </ul>
-            </p>
-
-            <p>
-              To match multiple filters, use the pipe (|) character:
-              <blockquote className="ps-5">iron ore | dirt | cobblestone</blockquote>
-            </p>
-          </details>
+          <FilterSyntax />
         </div>
 
         <div className="text-right box-border">
