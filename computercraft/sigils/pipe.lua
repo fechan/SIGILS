@@ -62,7 +62,9 @@ local function processPipe (pipe, groupMap, missingPeriphs)
       end
       table.insert(coros, coro)
     end
-    parallel.waitForAll(unpack(coros))
+    if #coros > 0 then
+      parallel.waitForAll(unpack(coros))
+    end
   else
     LOGGER:warn("pipe.lua#processPipe() caught error " .. transferOrders)
   end
