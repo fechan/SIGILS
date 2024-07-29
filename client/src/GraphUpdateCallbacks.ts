@@ -11,7 +11,6 @@ import { AvailablePeripheralBadgeDragData } from "./components/AvailablePeripher
 function onEdgesDelete(
   edges: Edge[],
   sendMessage: SendMessage,
-  addReqNeedingLayout: (reqId: string) => void
 ) {
   for (let edge of edges) {
     const reqId = uuidv4();
@@ -20,7 +19,6 @@ function onEdgesDelete(
       reqId: reqId,
       pipeId: edge.id,
     };
-    addReqNeedingLayout(reqId);
     sendMessage(JSON.stringify(pipeDelReq));
   }
 }
@@ -53,7 +51,6 @@ function onEdgeUpdate(
   oldEdge: Edge,
   newConnection: Connection,
   sendMessage: SendMessage,
-  addReqNeedingLayout: (reqId: string) => void
 ) {
   if (newConnection.source !== null && newConnection.target !== null) {
     const reqId = uuidv4();
@@ -66,7 +63,6 @@ function onEdgeUpdate(
         to: newConnection.target,
       }
     };
-    addReqNeedingLayout(reqId);
     sendMessage(JSON.stringify(pipeEditReq));
   }
 }

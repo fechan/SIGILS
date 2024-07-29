@@ -82,12 +82,12 @@ export default function App() {
   );
 
   const onEdgesDelete: OnEdgesDelete = useCallback(
-    (edges) => GraphUpdateCallbacks.onEdgesDelete(edges, sendMessage, addReqNeedingLayout),
+    (edges) => GraphUpdateCallbacks.onEdgesDelete(edges, sendMessage),
     [sendMessage, addReqNeedingLayout]
   );
 
   const onEdgeUpdate: OnEdgeUpdateFunc = useCallback(
-    (oldEdge, newConnection) => GraphUpdateCallbacks.onEdgeUpdate(oldEdge, newConnection, sendMessage, addReqNeedingLayout),
+    (oldEdge, newConnection) => GraphUpdateCallbacks.onEdgeUpdate(oldEdge, newConnection, sendMessage),
     [sendMessage, setEdges, addReqNeedingLayout]
   );
 
@@ -250,7 +250,6 @@ export default function App() {
         />
       }
       { tempEdge && <TempEdgeOptions
-          addReqNeedingLayout={ addReqNeedingLayout }
           sendMessage={ sendMessage }
           setTempEdge={ setTempEdge }
           tempEdge={ tempEdge }
