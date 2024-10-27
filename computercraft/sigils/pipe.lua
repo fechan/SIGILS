@@ -47,7 +47,11 @@ local function processPipe (pipe, groupMap, missingPeriphs)
 
   local ok, transferOrders = pcall(
     function ()
-      return PipeModeNatural.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
+      if pipe.mode == "natural" then -- you can add more item pipe modes with more if/else statements
+        return PipeModeNatural.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
+      else -- natural is the default
+        return PipeModeNatural.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
+      end
     end
   )
 
