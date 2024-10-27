@@ -28,5 +28,8 @@ As long as you're using those versions, your changes will likely work on higher 
 7. Modify `server` in `sigils-config.json` to the address of your dev server (probably `ws://localhost:3000`).
 8. Restart SIGILS and check that it actually connects to your dev server. If it does, congratulations! You can start developing.
 
+## Crediting
+When you make your pull request, remind me to credit you! I want to make sure everyone's contributions are recognized.
+
 ## Contributor License Agreement
 By contributing code to SIGILS you agree to assign the copyright of your contributions to Frederick Chan, the creator of SIGILS. The SIGILS source code is then licensed to the public under the terms in the `LICENSE` file in the project root (as of 27 Oct 2024, it is GPL v3, an Open Source license).
