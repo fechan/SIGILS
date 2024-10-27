@@ -22,7 +22,7 @@ As long as you're using those versions, your changes will likely work on higher 
 2. From `/client`, run `npm run dev` to start the client/editor.
 3. Take note of the address that appears after starting the client and open that in your browser.
 4. You will want to somehow keep the contents `/computercraft` synced to a ComputerCraft computer, so that changes you make to it can be tested in-game.
-  * The way I do this is to create a symlink to the `/computercraft` inside the ComputerCraft filesystem at `.minecraft/saves/<world-name>/computercraft/computer/<computer-id>`.
+  * The way I do this is to create a symlink in the ComputerCraft filesystem at `.minecraft/saves/<world-name>/computercraft/computer/<computer-id>` that points to the `/computercraft` folder.
 5. Make sure ComputerCraft can access the SIGILS server. If you are running it on localhost, you will need to [allow access to local IPs](https://tweaked.cc/guide/local_ips.html).
 6. Run SIGILS and close it. This will create `sigils-config.json` in the same directory.
 7. Modify `server` in `sigils-config.json` to the address of your dev server (probably `ws://localhost:3000`).
