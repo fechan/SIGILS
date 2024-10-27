@@ -1,4 +1,4 @@
-import { Pipe } from "@server/types/core-types";
+import { Pipe, PipeMode } from "@server/types/core-types";
 import { useState } from "react";
 import { SendMessage } from "react-use-websocket";
 import { Edge, useOnSelectionChange, useStoreApi } from "reactflow";
@@ -17,12 +17,14 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
 
   const [ nickname, setNickname ] = useState("");
   const [ filter, setFilter ] = useState("");
+  const [ mode, setMode ] = useState(undefined as string | undefined);
 
   useOnSelectionChange({
     onChange: ({ edges }) => {
       setSelectedEdges(edges);
       setFilter(edges.length === 1 ? (pipes[edges[0].id].filter || "") : "...");
       setNickname(edges.length === 1 ? (pipes[edges[0].id].nickname || "") : "...");
+      setMode(edges.length === 1 ? pipes[edges[0].id].mode : "...");
     }
   });
 
@@ -37,6 +39,11 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
     
     if (filter !== "...") {
       edits.filter = filter;
+      changes = true;
+    }
+
+    if (mode && mode !== "...") {
+      edits.mode = mode as PipeMode;
       changes = true;
     }
 
@@ -80,8 +87,11 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
         
         <div className="flex flex-col mb-5">
           <label htmlFor="mode" className="mb-1">Mode</label>
-          <select>
-            <option value="natural">natural</option>
+          <select
+            defaultValue={ mode }
+            onInput={ e => setMode((e.target as HTMLInputElement).value) }
+          >
+            <option value="natural">Natural (default)</option>
           </select>
         </div>
 
