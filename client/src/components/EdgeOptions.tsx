@@ -88,8 +88,8 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
         <div className="flex flex-col mb-5">
           <label htmlFor="mode" className="mb-1">Mode</label>
           <select
-            defaultValue={ mode }
-            onInput={ e => setMode((e.target as HTMLInputElement).value) }
+            value={ mode }
+            onChange={ e => setMode(e.target.value) }
           >
             <option value="natural">Natural (default)</option>
           </select>
