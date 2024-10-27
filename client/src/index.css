@@ -30,6 +30,7 @@
   .mcui-button {
     @apply bg-neutral-500;
     @apply text-white;
+    @apply outline-white;
     @apply border-2;
     @apply border-t-mcgui-slot-border-light;
     @apply border-s-mcgui-slot-border-light;
@@ -42,10 +43,10 @@
     @apply disabled:bg-stone-800;
 
     @apply hover:border-white;
-    @apply hover:border-4;
+    @apply hover:outline;
     
     @apply active:border-white;
-    @apply active:border-4;
+    @apply active:outline-2;
     @apply active:bg-stone-700;
 
     text-shadow: 1.5px 1.5px 0px #373737;

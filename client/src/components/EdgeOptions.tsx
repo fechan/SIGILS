@@ -1,4 +1,4 @@
-import { Pipe } from "@server/types/core-types";
+import { Pipe, PipeMode } from "@server/types/core-types";
 import { useState } from "react";
 import { SendMessage } from "react-use-websocket";
 import { Edge, useOnSelectionChange, useStoreApi } from "reactflow";
@@ -14,15 +14,20 @@ export function EdgeOptions({ sendMessage }: EdgeOptionsProps) {
   const [ selectedEdges, setSelectedEdges ] = useState([] as Edge[]);
 
   const pipes = useFactoryStore(state => state.factory.pipes);
+  const groups = useFactoryStore(state => state.factory.groups);
 
   const [ nickname, setNickname ] = useState("");
   const [ filter, setFilter ] = useState("");
+  const [ isFluid, setIsFluid ] = useState(false);
+  const [ mode, setMode ] = useState(undefined as string | undefined);
 
   useOnSelectionChange({
     onChange: ({ edges }) => {
       setSelectedEdges(edges);
       setFilter(edges.length === 1 ? (pipes[edges[0].id].filter || "") : "...");
       setNickname(edges.length === 1 ? (pipes[edges[0].id].nickname || "") : "...");
+      setMode(edges.length === 1 ? pipes[edges[0].id].mode : "...");
+      setIsFluid(edges.length > 0 && groups[pipes[edges[0].id].from].fluid === true);
     }
   });
 
@@ -37,6 +42,11 @@ export function EdgeOptions({ sendMessage }: EdgeOptionsProps) {
     
     if (filter !== "...") {
       edits.filter = filter;
+      changes = true;
+    }
+
+    if (mode && mode !== "...") {
+      edits.mode = mode as PipeMode;
       changes = true;
     }
 
@@ -78,7 +88,7 @@ export function EdgeOptions({ sendMessage }: EdgeOptionsProps) {
           />
         </div>
 
-        <div className="flex flex-col mb-5">
+        <div className="flex flex-col mb-3">
           <label htmlFor="pipeFilter" className="mb-1">Item filter</label>
           <input
             type="text"
@@ -90,6 +100,20 @@ export function EdgeOptions({ sendMessage }: EdgeOptionsProps) {
           />
           <FilterSyntax />
         </div>
+
+        { !isFluid &&
+          <div className="mb-5">
+            <label htmlFor="mode" className="block mb-1">Mode</label>
+            <select
+              value={ mode }
+              onChange={ e => setMode(e.target.value) }
+              className="mcui-button p-2 w-full h-10"
+            >
+              <option value="natural">Natural (default)</option>
+            </select>
+          </div>
+        }
+        
 
         <div className="text-right box-border">
           <button
