@@ -12,7 +12,10 @@ As long as you're using those versions, your changes will likely work on higher 
   * When in editing mode, it asks the server to start an editing session with a certain code. If the code is available, it is shown to the user.
 * `/server` contains the editor session server that relays messages between ComputerCraft and the SIGILS editor, written in TypeScript. It also has the TypeScript definitions that are used everywhere in `/server/src/types`.
   * `core-types.ts` is the most important because these are the data types for Factory, Machine, Slot, Group, and Pipe. These types can be serialized into JSON and given to ComputerCraft to unserialize into a table.
-* `/client` contains the editor, written in React, React Flow (the library for building the flowchart editor), and TypeScript.
+* `/client` contains the editor, written in React, React Flow (the library for building the flowchart editor), Zustand (for storing the Factory state as to comes in from the server), and TypeScript.
+  * Initially, the client asks the server for the full state of the Factory from ComputerCraft. ComputerCraft will send JSON and the server will relay it to the client.
+  * Whenever the user makes an edit, the client sends an edit message in JSON and the server will relay it to ComputerCraft.
+  * If ComputerCraft changes the state of the Factory, it will send JSON consisting of only the changes.
 
 ## Running in the development environment
 1. From `/server`, run `npm run dev` to start the server.
