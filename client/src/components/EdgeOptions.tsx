@@ -77,6 +77,13 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
             onInput={ e => setNickname((e.target as HTMLInputElement).value) }
           />
         </div>
+        
+        <div className="flex flex-col mb-5">
+          <label htmlFor="mode" className="mb-1">Mode</label>
+          <select>
+            <option value="natural">natural</option>
+          </select>
+        </div>
 
         <div className="flex flex-col mb-5">
           <label htmlFor="pipeFilter" className="mb-1">Item filter</label>
