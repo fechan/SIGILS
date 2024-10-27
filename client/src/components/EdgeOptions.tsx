@@ -85,11 +85,12 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
           />
         </div>
         
-        <div className="flex flex-col mb-5">
-          <label htmlFor="mode" className="mb-1">Mode</label>
+        <div className="mb-5">
+          <label htmlFor="mode" className="block mb-1">Mode</label>
           <select
             value={ mode }
             onChange={ e => setMode(e.target.value) }
+            className="mcui-button p-2 w-full h-10"
           >
             <option value="natural">Natural (default)</option>
           </select>
