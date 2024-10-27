@@ -29,4 +29,4 @@ As long as you're using those versions, your changes will likely work on higher 
 8. Restart SIGILS and check that it actually connects to your dev server. If it does, congratulations! You can start developing.
 
 ## Contributor License Agreement
-By contributing code to SIGILS you agree to assign the copyright of your contributions to Frederick Chan. The SIGILS source code is then licensed to the public under the terms in the `LICENSE` file in the project root (as of 27 Oct 2024, it is GPL v3).
+By contributing code to SIGILS you agree to assign the copyright of your contributions to Frederick Chan, the creator of SIGILS. The SIGILS source code is then licensed to the public under the terms in the `LICENSE` file in the project root (as of 27 Oct 2024, it is GPL v3, an Open Source license).
