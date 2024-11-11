@@ -110,6 +110,7 @@ export function EdgeOptions({ sendMessage }: EdgeOptionsProps) {
               className="mcui-button p-2 w-full h-10"
             >
               <option value="natural">Natural (default)</option>
+              <option value="spread">Spread</option>
             </select>
           </div>
         }
