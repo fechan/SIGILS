@@ -20,6 +20,23 @@ local function getAmountStackable(originStack, destStack, destItemLimit)
   end
 end
 
+---Get the transfer orders needed to spread items from the origin inventory throughout
+---the destination inventory.
+---
+---This emulates the spreading behavior of Minecraft. For instance, if you drag
+---a stack of items in your cursor into several slots on a chest, the stack is
+---divided evenly, and each portion is added to the destination slots.
+---The remainder remains in your cursor, in addition to any items that couldn't
+---be fully transferred.
+---
+---This function uses slots in the origin inventory as the "cursor," which is
+---why some remainder items stay in the origin inventory after a single pass.
+---
+---@param origin Group Origin group to transfer from
+---@param destination Group Destination group to transfer to
+---@param missingPeriphs table Set of missing peripherals by ID
+---@param filter function Filter function that accepts the result of inventory.getItemDetail()
+---@return TransferOrder[] transferOrders List of transfer orders
 local function getTransferOrders (origin, destination, missingPeriphs, filter)
   local orders = {}
 
