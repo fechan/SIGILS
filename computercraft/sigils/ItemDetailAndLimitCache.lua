@@ -45,7 +45,8 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
             function ()
               local periph = peripheral.wrap(slot.periphId)
               if periph and o.map[slotId].itemDetail == nil then
-                o.map[slotId].itemDetail = periph.getItemDetail(slot.slot)
+                local getItemDetail = periph.getItemDetail or periph.getItemMeta
+                o.map[slotId].itemDetail = getItemDetail(slot.slot)
               end
             end
           )
@@ -55,7 +56,8 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
             function ()
               local periph = peripheral.wrap(slot.periphId)
               if periph and o.map[slotId].itemLimit == nil then
-                o.map[slotId].itemLimit = periph.getItemLimit(slot.slot)
+                local getItemLimit = periph.getItemLimit or function () return 64 end
+                o.map[slotId].itemLimit = getItemLimit(slot.slot)
               end
             end
           )

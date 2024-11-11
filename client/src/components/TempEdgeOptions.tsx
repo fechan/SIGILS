@@ -3,16 +3,16 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { SendMessage } from "react-use-websocket";
 import { Edge } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
+import { FilterSyntax } from "./FilterSyntax";
 
 export interface TempEdgeOptionsProps {
   sendMessage: SendMessage,
   tempEdge: (Edge | null),
   setTempEdge: Dispatch<SetStateAction<Edge | null>>,
   onCancel: () => void,
-  addReqNeedingLayout: (reqId: string) => void,
 };
 
-export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel, addReqNeedingLayout }: TempEdgeOptionsProps) {
+export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel }: TempEdgeOptionsProps) {
   const [ nickname, setNickname ] = useState("");
   const [ filter, setFilter ] = useState("");
 
@@ -33,7 +33,6 @@ export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel, 
     if (nickname !== "") pipeAddReq.pipe.nickname = nickname;
     if (filter !== "") pipeAddReq.pipe.filter = filter;
 
-    addReqNeedingLayout(reqId);
     setTempEdge(null);
     sendMessage(JSON.stringify(pipeAddReq));
   }
@@ -67,6 +66,7 @@ export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel, 
             value={ filter }
             onInput={ e => setFilter((e.target as HTMLInputElement).value) }
           />
+          <FilterSyntax />
         </div>
 
         <div className="text-right box-border">

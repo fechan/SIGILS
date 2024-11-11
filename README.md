@@ -13,25 +13,4 @@ Using the SIGILS Editor on a web browser, virtual item pipes can be created betw
 * (Optional) Networking cable (from CC: Tweaked)
 
 ## Installation and usage
-
-### Connecting machines to your ComputerCraft computer
-1. Put down your computer somewhere convenient
-2. Put a wired modem next to the computer.
-    * If the modem has no red on it, right click it to add it to the computer's network
-3. Place wired modems next to any machines you want to pipe items to/from
-    * Again, if the modem block has no red on it, right click it
-4. Connect up the modems using either networking cable or more modems
-    * As long as the computer and the machines are connected by modems and cables, SIGILS will detect it
-5. If you need to add more machines later, connect them up to the existing network with more modems. You can do this regardless of whether SIGILS is running or not
-
-### Installing SIGILS on your ComputerCraft computer
-1. In a ComputerCraft computer (can be basic or advanced, turtle or regular) type `wget run https://sigils.fredchan.org/install` and press Enter
-2. If prompted to make SIGILS run on startup, press Y
-3. After installation finishes, type `sigils` and press Enter
-
-### Making and editing pipes
-1. In SIGILS, press E to enter editing mode and take note of the 4-letter session code
-2. In your web browser, go to [sigils.fredchan.org](https://sigils.fredchan.org) and enter the session code
-3. Press "Start editing"
-4. Click and drag from any red handle into any blue handle to pipe items from one inventory to another. Congratulations, you've made your first pipe!
-5. When you're all done, go back into your ComputerCraft computer and press E again to exit editing mode
+See [How to use SIGILS](https://fredchan.org/blog/how-to-use-sigils/).

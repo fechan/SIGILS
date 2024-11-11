@@ -1,28 +1,33 @@
-import { Pipe } from "@server/types/core-types";
+import { Pipe, PipeMode } from "@server/types/core-types";
 import { useState } from "react";
 import { SendMessage } from "react-use-websocket";
 import { Edge, useOnSelectionChange, useStoreApi } from "reactflow";
 import { GraphUpdateCallbacks } from "../GraphUpdateCallbacks";
 import { useFactoryStore } from "../stores/factory";
+import { FilterSyntax } from "./FilterSyntax";
 
 interface EdgeOptionsProps {
   sendMessage: SendMessage,
-  addReqNeedingLayout: (reqId: string) => void,
 };
 
-export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsProps) {
+export function EdgeOptions({ sendMessage }: EdgeOptionsProps) {
   const [ selectedEdges, setSelectedEdges ] = useState([] as Edge[]);
 
   const pipes = useFactoryStore(state => state.factory.pipes);
+  const groups = useFactoryStore(state => state.factory.groups);
 
   const [ nickname, setNickname ] = useState("");
   const [ filter, setFilter ] = useState("");
+  const [ isFluid, setIsFluid ] = useState(false);
+  const [ mode, setMode ] = useState(undefined as string | undefined);
 
   useOnSelectionChange({
     onChange: ({ edges }) => {
       setSelectedEdges(edges);
       setFilter(edges.length === 1 ? (pipes[edges[0].id].filter || "") : "...");
       setNickname(edges.length === 1 ? (pipes[edges[0].id].nickname || "") : "...");
+      setMode(edges.length === 1 ? pipes[edges[0].id].mode : "...");
+      setIsFluid(edges.length > 0 && groups[pipes[edges[0].id].from].fluid === true);
     }
   });
 
@@ -37,6 +42,11 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
     
     if (filter !== "...") {
       edits.filter = filter;
+      changes = true;
+    }
+
+    if (mode && mode !== "...") {
+      edits.mode = mode as PipeMode;
       changes = true;
     }
 
@@ -78,7 +88,7 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
           />
         </div>
 
-        <div className="flex flex-col mb-5">
+        <div className="flex flex-col mb-3">
           <label htmlFor="pipeFilter" className="mb-1">Item filter</label>
           <input
             type="text"
@@ -88,34 +98,27 @@ export function EdgeOptions({ sendMessage, addReqNeedingLayout }: EdgeOptionsPro
             value={ filter }
             onInput={ e => setFilter((e.target as HTMLInputElement).value) }
           />
-          <details className="text-sm text-neutral-700 mt-1 w-full">
-            <summary className="cursor-pointer">Advanced syntax</summary>
-
-            <p>
-              Prefix a term with an exclamation mark (!) to exclude it:
-              <blockquote className="ps-5">!cobblestone</blockquote>
-            </p>
-
-            <p>
-              Filter supports JEI prefixes for:
-              <ul className="list-disc ps-5">
-                <li>@mod_name</li>
-                <li>&item_id</li>
-                <li>$ore_dict</li>
-              </ul>
-            </p>
-
-            <p>
-              To match multiple filters, use the pipe (|) character:
-              <blockquote className="ps-5">iron ore | dirt | cobblestone</blockquote>
-            </p>
-          </details>
+          <FilterSyntax />
         </div>
+
+        { !isFluid &&
+          <div className="mb-5">
+            <label htmlFor="mode" className="block mb-1">Mode</label>
+            <select
+              value={ mode }
+              onChange={ e => setMode(e.target.value) }
+              className="mcui-button p-2 w-full h-10"
+            >
+              <option value="natural">Natural (default)</option>
+            </select>
+          </div>
+        }
+        
 
         <div className="text-right box-border">
           <button
             className="mcui-button bg-red-700 w-32 h-10 me-3"
-            onClick={ () => GraphUpdateCallbacks.onEdgesDelete(selectedEdges, sendMessage, addReqNeedingLayout) }
+            onClick={ () => GraphUpdateCallbacks.onEdgesDelete(selectedEdges, sendMessage) }
           >
             Delete
           </button>

@@ -31,6 +31,8 @@ export interface Factory {
 export type PipeId = string;
 export type PipeMap = { [key: PipeId]: Pipe };
 
+export type PipeMode = 'natural' | 'spread';
+
 /**
  * Data structure representing a pipe for transferring items between two Groups
  */
@@ -38,6 +40,7 @@ export interface Pipe {
     id: PipeId,
     from: GroupId,
     to: GroupId
+    mode?: PipeMode,
     nickname?: string,
     filter?: string,
 };
