@@ -26,7 +26,7 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
   local inventoryInfo = ItemDetailAndLimitCache.new(missingPeriphs)
   inventoryInfo:Fulfill({origin, destination})
 
-  for _, originSlot in pairs(origin.slots) do
+  for _, originSlot in pairs(inventoryInfo:GetSlotsWithMatchingItems(origin, filter)) do
     local originStack = inventoryInfo:GetItemDetail(originSlot)
     if originStack then
       local toTransfer = originStack.count
