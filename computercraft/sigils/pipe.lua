@@ -4,10 +4,14 @@
 ---A data structure for a Pipe matching `/server/src/types/core-types.ts#Pipe`
 ---@class Pipe
 
-local PipeModeNatural = require('sigils.pipeModes.natural')
 local PipeModeFluid = require('sigils.pipeModes.fluid')
 local Filter = require('sigils.filter')
 local LOGGER = require('sigils.logging').LOGGER
+
+local ITEM_PIPE_MODES = {
+  natural = require('sigils.pipeModes.natural'),
+  spread = require('sigils.pipeModes.spread'),
+}
 
 local function processFluidPipe (pipe, groupMap, missingPeriphs, filter)
   local ok, transferOrders = pcall(
@@ -47,11 +51,8 @@ local function processPipe (pipe, groupMap, missingPeriphs)
 
   local ok, transferOrders = pcall(
     function ()
-      if pipe.mode == "natural" then -- you can add more item pipe modes with more if/else statements
-        return PipeModeNatural.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
-      else -- natural is the default
-        return PipeModeNatural.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
-      end
+      local pipeMode = ITEM_PIPE_MODES[pipe.mode] or ITEM_PIPE_MODES["natural"]
+      return pipeMode.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
     end
   )
 
