@@ -4,17 +4,17 @@ local ItemDetailAndLimitCache = require('sigils.ItemDetailAndLimitCache')
 ---destination item stack.
 ---@param originStack table ItemDetail of the origin item stack
 ---@param destStack table ItemDetail of the destination item stack
+---@param destItemLimit table Item limit of the destination item stack
 ---@return number Number Number of items that can be moved. 0 if destination full or unstackable.
-local function getAmountStackable(originStack, destStack)
+local function getAmountStackable(originStack, destStack, destItemLimit)
   local isCompatibleItem = (
     destStack.name == originStack.name and
     destStack.nbt == nil and
-    destStack.durability == nil and
-    destStack.maxCount > originStack.count
+    destStack.durability == nil
   )
 
   if isCompatibleItem then
-    return destStack.maxCount - originStack.count
+    return math.min(destStack.maxCount - destStack.count, originStack.count, destItemLimit)
   else
     return 0
   end
@@ -41,11 +41,12 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
       for writeHead=1, numDestinationSlots do
         local destSlot = destination.slots[writeHead]
         local destStack = inventoryInfo:GetItemDetail(destSlot)
+        local destItemLimit = inventoryInfo:GetItemLimit(destSlot)
 
-        if destStack == nil or getAmountStackable(originStack, destStack) > 0 then
+        if destStack == nil or getAmountStackable(originStack, destStack, destItemLimit) > 0 then
           local transferLimit = transferAmount
           if destStack ~= nil then
-            transferLimit = math.min(getAmountStackable(originStack, destStack), transferAmount)
+            transferLimit = math.min(getAmountStackable(originStack, destStack, destItemLimit), transferAmount)
           end
           actualTransferred = actualTransferred + transferLimit
 
