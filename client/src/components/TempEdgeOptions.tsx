@@ -4,6 +4,8 @@ import { SendMessage } from "react-use-websocket";
 import { Edge } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import { FilterSyntax } from "./FilterSyntax";
+import { useFactoryStore } from "../stores/factory";
+import { PipeMode } from "@server/types/core-types";
 
 export interface TempEdgeOptionsProps {
   sendMessage: SendMessage,
@@ -15,6 +17,11 @@ export interface TempEdgeOptionsProps {
 export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel }: TempEdgeOptionsProps) {
   const [ nickname, setNickname ] = useState("");
   const [ filter, setFilter ] = useState("");
+  const [ mode, setMode ] = useState("");
+
+  const groups = useFactoryStore(state => state.factory.groups);
+
+  const isFluid = tempEdge && groups[tempEdge.source].fluid;
 
   function onCommit() {
     if (!(tempEdge && tempEdge.source && tempEdge.target)) return;
@@ -32,6 +39,7 @@ export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel }
 
     if (nickname !== "") pipeAddReq.pipe.nickname = nickname;
     if (filter !== "") pipeAddReq.pipe.filter = filter;
+    if (mode !== "") pipeAddReq.pipe.mode = mode as PipeMode;
 
     setTempEdge(null);
     sendMessage(JSON.stringify(pipeAddReq));
@@ -56,7 +64,7 @@ export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel }
           />
         </div>
 
-        <div className="flex flex-col mb-5">
+        <div className="flex flex-col mb-3">
           <label htmlFor="pipeFilter" className="mb-1">Item filter</label>
           <input
             type="text"
@@ -68,6 +76,20 @@ export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel }
           />
           <FilterSyntax />
         </div>
+
+        { !isFluid &&
+          <div className="mb-5">
+            <label htmlFor="mode" className="block mb-1">Mode</label>
+            <select
+              value={ mode }
+              onChange={ e => setMode(e.target.value) }
+              className="mcui-button p-2 w-full h-10"
+            >
+              <option value="natural">Natural (default)</option>
+              <option value="spread">Spread</option>
+            </select>
+          </div>
+        }
 
         <div className="text-right box-border">
           <button
