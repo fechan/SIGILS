@@ -26,23 +26,27 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
   local inventoryInfo = ItemDetailAndLimitCache.new(missingPeriphs)
   inventoryInfo:Fulfill({origin, destination})
 
-  local emptySlotQueue = inventoryInfo:GetEmptySlots()
-
   for _, originSlot in pairs(origin.slots) do
-    local originStack = inventoryInfo:GetItemDetail(originSlot) -- TODO: expecting this to be nil if the destSlot is empty. Is this true?
+    local originStack = inventoryInfo:GetItemDetail(originSlot)
     if originStack then
       local toTransfer = originStack.count
       local actualTransferred = 0
 
-      local numDestinationSlots = min(slot_count, #destination.slots)
-      local transferAmount = floor(toTransfer / numDestinationSlots) -- we'll try to transfer this many items to each destination slot
+      local numDestinationSlots = math.min(#destination.slots, #destination.slots)
+      local transferAmount = math.floor(toTransfer / numDestinationSlots) -- we'll try to transfer this many items to each destination slot
+      if transferAmount == 0 then
+        transferAmount = 1
+      end
 
       for writeHead=1, numDestinationSlots do
         local destSlot = destination.slots[writeHead]
-        local destStack = inventoryInfo:GetItemDetail(destSlot) -- TODO: expecting this to be nil if the destSlot is empty. Is this true?
+        local destStack = inventoryInfo:GetItemDetail(destSlot)
 
-        if destStack or getAmountStackable(originStack, destStack) then
-          local transferLimit = min(inventoryInfo:GetItemLimit(destSlot) - destStack.count, transferAmount)
+        if destStack == nil or getAmountStackable(originStack, destStack) > 0 then
+          local transferLimit = transferAmount
+          if destStack ~= nil then
+            transferLimit = math.min(getAmountStackable(originStack, destStack), transferAmount)
+          end
           actualTransferred = actualTransferred + transferLimit
 
           table.insert(orders, {from=originSlot, to=destSlot, limit=transferLimit})
