@@ -14,6 +14,7 @@ local files = {
   'sigils/pipe.lua',
   'sigils/pipeModes/fluid.lua',
   'sigils/pipeModes/natural.lua',
+  'sigils/pipeModes/spread.lua',
   'sigils/utils.lua',
   'sigils/websocket.lua',
   'sigils/sigils-config.dist.json',
