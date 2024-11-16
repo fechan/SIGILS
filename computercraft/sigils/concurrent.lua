@@ -123,5 +123,5 @@ end
 return {
   create_future = create_future,
   create_runner = create_runner,
-  default_runner = create_runner(128),
+  default_runner = create_runner(32),
 }
