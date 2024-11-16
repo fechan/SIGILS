@@ -29,7 +29,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
   ---Fulfills the item details for each slot in the given groups in parallel
   ---@param groups Group[] List of groups to fulfill item limits and details for
   function o:Fulfill(groups)
-    local runner = Concurrent.create_runner(64)
+    local runner = Concurrent.default_runner
 
     for _, group in pairs(groups) do
       for _, slot in pairs(group.slots) do
