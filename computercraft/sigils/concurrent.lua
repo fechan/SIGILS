@@ -110,22 +110,6 @@ local function create_runner(max_size)
     end
   end
 
-  ---Run an array of functions in parallel and wait for all of them to finish
-  ---@param fns function[] List of functions to wait for the completion of
-  function await_batch_tasks(fns)
-    local awaits = {}
-    for _, task in pairs(fns) do
-      local resolve, await = create_future()
-      table.insert(awaits, await)
-      spawn(function ()
-        task()
-        resolve()
-      end)
-    end
-
-    parallel.waitForAll(table.unpack(awaits))
-  end
-
   --- A coroutine executor.
   -- @type Runner
   return {
@@ -133,7 +117,6 @@ local function create_runner(max_size)
     has_work = has_work,
     run_until_done = run_until_done,
     run_forever = run_forever,
-    await_all_tasks = await_all_tasks,
   }
 end
 

@@ -30,7 +30,6 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
   ---@param groups Group[] List of groups to fulfill item limits and details for
   function o:Fulfill(groups)
     local runner = Concurrent.default_runner
-    local parallelTasks = {}
 
     for _, group in pairs(groups) do
       for _, slot in pairs(group.slots) do
@@ -42,8 +41,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
           end
 
           -- fulfill itemDetail
-          table.insert(
-            parallelTasks,
+          runner.spawn(
             function ()
               local periph = peripheral.wrap(slot.periphId)
               if periph and o.map[slotId].itemDetail == nil then
@@ -54,8 +52,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
           )
 
           -- fulfill itemLimit
-          table.insert(
-            parallelTasks,
+          runner.spawn(
             function ()
               local periph = peripheral.wrap(slot.periphId)
               if periph and o.map[slotId].itemLimit == nil then
@@ -68,7 +65,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
       end
     end
 
-    runner.await_batch_tasks(parallelTasks)
+    runner.run_until_done()
   end
 
   ---Get the item limit of the given Slot
