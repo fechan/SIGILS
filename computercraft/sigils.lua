@@ -4,6 +4,7 @@ local Pipe = require('sigils.pipe')
 local WebSocket = require('sigils.websocket')
 local Utils = require('sigils.utils')
 local Logging = require('sigils.logging')
+local Concurrent = require('sigils.concurrent')
 
 local DEFAULT_SERVER_URL = 'wss://sigils.fredchan.org'
 
@@ -81,6 +82,7 @@ local function init ()
     function () WebSocket.doWebSocket(wsContext) end,
     function () Controller.listenForCcpipesEvents(wsContext, factory) end,
     function () Pipe.processAllPipesForever(factory) end,
+    function () Concurrent.default_runner.run_forever() end,
     function () waitForQuitKey(wsContext) end,
     function () while true do os.sleep(0.05) end end -- forces the OS not to lock up
   )
