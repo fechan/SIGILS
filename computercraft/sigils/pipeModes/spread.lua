@@ -34,14 +34,11 @@ end
 ---
 ---@param origin Group Origin group to transfer from
 ---@param destination Group Destination group to transfer to
----@param missingPeriphs table Set of missing peripherals by ID
+---@param inventoryInfo table Inventory detail and item limit cache
 ---@param filter function Filter function that accepts the result of inventory.getItemDetail()
 ---@return TransferOrder[] transferOrders List of transfer orders
-local function getTransferOrders (origin, destination, missingPeriphs, filter)
+local function getTransferOrders (origin, destination, inventoryInfo, filter)
   local orders = {}
-
-  local inventoryInfo = ItemDetailAndLimitCache.new(missingPeriphs)
-  inventoryInfo:Fulfill({origin, destination})
 
   for _, originSlot in pairs(inventoryInfo:GetSlotsWithMatchingItems(origin, filter)) do
     local originStack = inventoryInfo:GetItemDetail(originSlot)

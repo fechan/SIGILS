@@ -68,6 +68,24 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
     runner.run_until_done()
   end
 
+  ---Fulfills the item details for all groups that are the origin or destination
+  ---of a set of pipes
+  ---
+  ---NOTE: This function will try to fulfill the same slot multiple times if
+  ---there are any pipes passed in that operate on the same groups, which isn't
+  ---efficient. For now, this doesn't matter because the only place this cache
+  ---is needed is running the pipes, which are separated via the edge coloring
+  ---algo.
+  ---@param pipes Pipe[] Array of pipes whose origin/destinations groups should be fulfilled
+  function o:FulfillPipes (pipes, groupMap)
+    local groups = {}
+    for _, pipe in pairs(pipes) do
+      table.insert(groups, groupMap[pipe.from])
+      table.insert(groups, groupMap[pipe.to])
+    end
+    o:Fulfill(groups)
+  end
+
   ---Get the item limit of the given Slot
   ---(This is max number of items holdable by the slot, regardless of whether
   ---an item is in the slot)
