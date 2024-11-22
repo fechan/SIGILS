@@ -13,7 +13,9 @@ local ITEM_PIPE_MODES = {
   spread = require('sigils.pipeModes.spread'),
 }
 
-local function processFluidPipe (pipe, groupMap, missingPeriphs, filter)
+local function processFluidPipe (pipe, groupMap, missingPeriphs)
+  local filter = Filter.getFilterFn(pipe.filter)
+
   local ok, transferOrders = pcall(
     function ()
       return PipeModeFluid.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
@@ -43,11 +45,6 @@ end
 ---@param missingPeriphs table<string, boolean> A set of peripherals that are missing
 local function processPipe (pipe, groupMap, missingPeriphs)
   local filter = Filter.getFilterFn(pipe.filter)
-
-  if groupMap[pipe.from].fluid then
-    processFluidPipe(pipe, groupMap, missingPeriphs, filter)
-    return
-  end
 
   local ok, transferOrders = pcall(
     function ()
@@ -93,7 +90,11 @@ local function processAllPipes (factory)
       local pipe = factory.pipes[pipeId]
       if groupIdsInBatch[pipe.from] == nil and groupIdsInBatch[pipe.to] == nil then
         table.insert(pipeCoros, function ()
-          processPipe(pipe, factory.groups, factory.missing)
+          if factory.groups[pipe.from].fluid then
+            processFluidPipe(pipe, factory.groups, factory.missing)
+          else
+            processPipe(pipe, factory.groups, factory.missing)
+          end
         end)
         numPipesToProcess = numPipesToProcess - 1
         pipesToProcess[pipeId] = nil
