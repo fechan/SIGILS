@@ -1,3 +1,5 @@
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -17,6 +19,9 @@ export default {
         "mcgui-group-border": "#969696",
         "mcgui-group-border-light": "#dbdbdb",
         "mcgui-group-border-dark": "#b3b3b3",
+      },
+      fontFamily: {
+        'sans': ['Minecraft', ...defaultTheme.fontFamily.sans],
       },
       fontSize: {
         xs: "0.6rem",

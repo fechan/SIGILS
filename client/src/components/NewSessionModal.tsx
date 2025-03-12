@@ -34,12 +34,12 @@ export function NewSessionModal({ sendMessage, sessionId, setSessionId, addReqNe
               Welcome to the SIGILS editor!
             </header>
             <label className="mb-3" htmlFor="sessionCode">Enter the code displayed on the ComputerCraft computer:</label>
-            <div>
+            <div className="w-full flex">
               <input
                 name="sessionCode"
                 id="sessionCode"
                 type="text"
-                className="p-2.5 me-3 h-10 mcui-input"
+                className="p-2.5 me-3 h-10 mcui-input grow"
                 onInput={ e => setSessionId((e.target as HTMLInputElement).value.toUpperCase()) }
                 value={ sessionId }
               />
@@ -51,9 +51,19 @@ export function NewSessionModal({ sendMessage, sessionId, setSessionId, addReqNe
                 Start editing
               </button>
             </div>
+
+            <aside className="mt-3 text-sm">
+              <p className="mb-3">
+                To install SIGILS on a CC Computer, run:
+                <code className="font-sans text-green-800 block">wget run https://sigils.fredchan.org/install</code>
+              </p>
+              <p>
+                Don't know how to use SIGILS? Check out the <a href="https://fredchan.org/blog/how-to-use-sigils/" className="hover:underline text-blue-800">SIGILS&nbsp;tutorial</a>.
+              </p>
+            </aside>
           </div>
         </div>
-        <div className="border-t border-neutral-500 mt-5 pt-3 text-sm flex">
+        <footer className="border-t border-neutral-500 mt-5 pt-3 text-sm flex">
           <img src={ shackIndustries } alt="" className="h-10 me-5" />
           <div className="ms-3">
             <p>
@@ -61,7 +71,7 @@ export function NewSessionModal({ sendMessage, sessionId, setSessionId, addReqNe
               <a href="https://fredchan.org/" className="hover:underline text-blue-800">Frederick Chan</a>
             </p>
           </div>
-        </div>
+        </footer>
       </div>
     </div>
   );
