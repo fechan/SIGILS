@@ -75,5 +75,21 @@ return {
       groups = { "minecraft:dispenser_1:g1" }
     }
   },
-  pipes = { }
+  pipes = {
+    ["pipe1"] = {
+      id = "pipe1",
+      from = "minecraft:dropper_1:g1",
+      to = "minecraft:dispenser_1:g1",
+    },
+    ["pipe2"] = {
+      id = "pipe2",
+      from = "minecraft:dropper_1:g1",
+      to = "minecraft:dispenser_1:g1",
+    },
+    ["pipe3"] = {
+      id = "pipe3",
+      from = "minecraft:dropper_1:g1",
+      to = "minecraft:dispenser_1:g1",
+    },
+  }
 }

@@ -14,6 +14,7 @@ local files = {
   'sigils/machines/generic.lua',
   'sigils/PipeGraph.lua',
   'sigils/PipeSaturation.lua',
+  'sigils/Set.lua',
   'sigils/pipe.lua',
   'sigils/pipeModes/fluid.lua',
   'sigils/pipeModes/natural.lua',

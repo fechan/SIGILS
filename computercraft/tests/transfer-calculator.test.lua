@@ -31,7 +31,8 @@ peripheral = {
 -- END TESTING SCAFFOLD
 
 local function test ()
-  local transferCalculator = require('transfer-calculator')
+  local transferCalculator = require('pipeModes.natural')
+  local ItemDetailAndLimitCache = require('ItemDetailAndLimitCache')
 
   local testFactory = require('tests.mock.factory')
   local from = testFactory.groups['minecraft:dropper_1:g1']
