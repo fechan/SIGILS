@@ -30,10 +30,10 @@ function PipeSaturation.new (numNeighbors, pipeId)
   }
 
   function o:addNeighborColor (color)
-    self.degreeColorless = degreeColorless - 1
-    if not neigborColors[color] then
-      neigborColors[color] = true
-      self.saturation = saturation + 1
+    self.degreeColorless = self.degreeColorless - 1
+    if not self.neighborColors[color] then
+      self.neighborColors[color] = true
+      self.saturation = self.saturation + 1
     end
   end
 
