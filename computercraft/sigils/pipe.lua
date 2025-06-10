@@ -125,7 +125,7 @@ local function processAllPipes (factory)
 
   local inventoryInfo = ItemDetailAndLimitCache.new(factory.missing)
   for _, batchedPipeIds in pairs(batches) do
-    local itemPipes = {} -- TODO: map the Pipe IDs in batchedPipeIds to Pipe objects
+    local itemPipes = {}
 
     for pipeId, _ in pairs(batchedPipeIds) do
       local pipe = factory.pipes[pipeId]
