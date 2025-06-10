@@ -30,16 +30,14 @@ function PipeGraph.new (factory)
 
     -- put neighbors in set
     for _, neighbor in pairs(self.groupConnectedPipes[pipe.from]:toList()) do
-      if neighbor ~= pipeId then
         neighbors:add(neighbor)
-      end
     end
 
     for _, neighbor in pairs(self.groupConnectedPipes[pipe.to]:toList()) do
-      if neighbor ~= pipeId then
         neighbors:add(neighbor)
-      end
     end
+
+    neighbors:remove(pipeId)
 
     return neighbors:toList()
   end

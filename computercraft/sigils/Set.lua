@@ -19,7 +19,7 @@ function Set.new (iterable)
     end
   end
 
-  function o:remove()
+  function o:remove(elem)
     if self.hashTable[elem] then
       self.len = self.len - 1
       self.hashTable[elem] = nil
