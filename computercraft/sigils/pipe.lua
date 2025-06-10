@@ -95,7 +95,7 @@ local function batchPipes (factory)
 
   -- start running DSatur
   local pipeColors = {} -- Maps color IDs to sets of pipe IDs of the same color
-  
+
   while not heap:isEmpty() do
     local pipeSatData = heap:pop() -- get the most saturated pipe
 
@@ -123,8 +123,8 @@ end
 local function processAllPipes (factory)
   local batches = batchPipes(factory)
 
-  local inventoryInfo = ItemDetailAndLimitCache.new(factory.missing)
   for _, batchedPipeIds in pairs(batches) do
+    local inventoryInfo = ItemDetailAndLimitCache.new(factory.missing)
     local itemPipes = {}
 
     for pipeId, _ in pairs(batchedPipeIds) do
