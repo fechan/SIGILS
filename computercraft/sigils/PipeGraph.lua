@@ -28,7 +28,6 @@ function PipeGraph.new (factory)
     local pipe = self.pipes[pipeId]
     local neighbors = Set.new()
 
-    -- put neighbors in set
     for _, neighbor in pairs(self.groupConnectedPipes[pipe.from]:toList()) do
         neighbors:add(neighbor)
     end
@@ -38,7 +37,6 @@ function PipeGraph.new (factory)
     end
 
     neighbors:remove(pipeId)
-
     return neighbors:toList()
   end
 
