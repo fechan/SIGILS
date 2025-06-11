@@ -7,6 +7,7 @@
 local ItemDetailAndLimitCache = require('sigils.ItemDetailAndLimitCache')
 local PipeModeFluid = require('sigils.pipeModes.fluid')
 local Filter = require('sigils.filter')
+local PipeBatcher = require('sigils.pipeBatcher')
 local LOGGER = require('sigils.logging').LOGGER
 
 local ITEM_PIPE_MODES = {
@@ -74,40 +75,25 @@ local function processPipe (pipe, groupMap, missingPeriphs)
 end
 
 local function processAllPipes (factory)
-  -- build a set of pipe IDs needing processing
-  local pipesToProcess = {}
-  local numPipesToProcess = 0
-  for pipeId,_ in pairs(factory.pipes) do
-    pipesToProcess[pipeId] = true
-    numPipesToProcess = numPipesToProcess + 1
-  end
+  local batches = PipeBatcher.batchPipes(factory)
 
-  local groupIdsInBatch = {} -- set of group IDs that are affected during this batch of pipe runs
-
-  while numPipesToProcess > 0 do
-    local itemPipes = {}
-    local pipeCoros = {}
+  for _, batchedPipeIds in pairs(batches) do
     local inventoryInfo = ItemDetailAndLimitCache.new(factory.missing)
+    local itemPipes = {}
 
-    for pipeId, _ in pairs(pipesToProcess) do
+    for pipeId, _ in pairs(batchedPipeIds) do
       local pipe = factory.pipes[pipeId]
-      if groupIdsInBatch[pipe.from] == nil and groupIdsInBatch[pipe.to] == nil then
-        if factory.groups[pipe.from].fluid then
-          table.insert(pipeCoros, function () processFluidPipe(pipe, factory.groups, factory.missing) end)
-        else
-          table.insert(pipeCoros, function () processPipe(pipe, factory.groups, inventoryInfo) end)
-          table.insert(itemPipes, pipe)
-        end
-        numPipesToProcess = numPipesToProcess - 1
-        pipesToProcess[pipeId] = nil
-        groupIdsInBatch[pipe.from] = true
-        groupIdsInBatch[pipe.to] = true
+
+      if factory.groups[pipe.from].fluid then
+        table.insert(pipeCoros, function () processFluidPipe(pipe, factory.groups, factory.missing) end)
+      else
+        table.insert(pipeCoros, function () processPipe(pipe, factory.groups, inventoryInfo) end)
+        table.insert(itemPipes, pipe)
       end
     end
 
     inventoryInfo:FulfillPipes(itemPipes, factory.groups)
     parallel.waitForAll(unpack(pipeCoros))
-    groupIdsInBatch = {}
   end
 end
 
