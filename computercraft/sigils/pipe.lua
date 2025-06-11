@@ -80,8 +80,9 @@ local function processAllPipes (factory)
   for _, batchedPipeIds in pairs(batches) do
     local inventoryInfo = ItemDetailAndLimitCache.new(factory.missing)
     local itemPipes = {}
+    local pipeCoros = {}
 
-    for pipeId, _ in pairs(batchedPipeIds) do
+    for _, pipeId in pairs(batchedPipeIds) do
       local pipe = factory.pipes[pipeId]
 
       if factory.groups[pipe.from].fluid then
