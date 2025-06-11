@@ -15,7 +15,7 @@ local function batchPipes (factory)
   for pipeId, _ in pairs(factory.pipes) do
     local degree = connectedPipes:getDegree(pipeId)
     local pipeSatData = PipeSaturation.new(degree, pipeId)
-    local node = heap:insert(pipeSatData, pipeSatData)
+    local node = heap:insert(pipeSatData:toString(), pipeSatData)
     heapNodes[pipeId] = node
   end
 
@@ -23,7 +23,7 @@ local function batchPipes (factory)
   local pipeColors = {} -- Maps color IDs to sets of pipe IDs of the same color
 
   while not heap:isEmpty() do
-    local pipeSatData = heap:pop() -- get the most saturated pipe
+    local pipeSatData = heap:pop().object -- get the most saturated pipe
 
     -- find the color with the lowest number not used by any of its neighbors
     local colorNbr = 0
@@ -39,7 +39,7 @@ local function batchPipes (factory)
     for _, neighborPipeId in pairs(connectedPipes:getNeighbors(pipeSatData.pipeId)) do
       local node = heapNodes[neighborPipeId]
       node.object:addNeighborColor(colorNbr)
-      heap:decreaseKey(node, node.object)
+      heap:decreaseKey(node, node.object:toString())
     end
   end
 

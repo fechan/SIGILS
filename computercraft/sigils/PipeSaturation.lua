@@ -1,24 +1,5 @@
 local PipeSaturation = {}
 
-local metatable = {
-  __eq = function (lhs, rhs)
-    return (
-      lhs.saturation == rhs.saturation and
-      lhs.degreeColorless == rhs.degreeColorless
-    )
-  end,
-
-  --- This function is REVERSED because pipe.lua uses a min heap, but we actually
-  --- want to pop the pipe with the max saturation
-  __lt = function (lhs, rhs)
-    if lhs.saturation > rhs.saturation then
-      return true
-    else
-      return lhs.degreeColorless > rhs.degreeColorless
-    end
-  end
-}
-
 function PipeSaturation.new (numNeighbors, pipeId)
   local o = {
     neighborColors = {},
@@ -41,7 +22,9 @@ function PipeSaturation.new (numNeighbors, pipeId)
     return self.neighborColors[color] ~= nil
   end
 
-  setmetatable(o, metatable)
+  function o:toString ()
+    return self.saturation .. ' ' .. self.degreeColorless
+  end
 
   return o
 end
