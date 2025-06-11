@@ -63,7 +63,9 @@ return {
         periphId = "minecraft:dispenser_1",
         slot = 9
       } },
-    }
+    },
+    ["minecraft:dropper_2:g1"] = { id="minecraft:dropper_2:g1" },
+    ["minecraft:dropper_3:g1"] = { id="minecraft:dropper_3:g1" },
   },
   machines = {
     ["minecraft:dropper_1"] = {
@@ -73,7 +75,7 @@ return {
     ["minecraft:dispenser_1"] = {
       id = "minecraft:dispenser_1",
       groups = { "minecraft:dispenser_1:g1" }
-    }
+    },
   },
   pipes = {
     ["pipe1"] = {
@@ -90,6 +92,16 @@ return {
       id = "pipe3",
       from = "minecraft:dropper_1:g1",
       to = "minecraft:dispenser_1:g1",
+    },
+    ["pipe4"] = {
+      id = "pipe4",
+      from = "minecraft:dispenser_2:g1",
+      to = "minecraft:dispenser_3:g1",
+    },
+    ["pipe5"] = {
+      id = "pipe5",
+      from = "minecraft:dispenser_2:g1",
+      to = "minecraft:dispenser_4:g1",
     },
   }
 }
