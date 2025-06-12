@@ -74,11 +74,10 @@ local function processPipe (pipe, groupMap, missingPeriphs)
   end
 end
 
-local function processAllPipes (factory)
+local function processAllPipes (factory, inventoryInfo)
   local batches = PipeBatcher.batchPipes(factory)
 
   for _, batchedPipeIds in pairs(batches) do
-    local inventoryInfo = ItemDetailAndLimitCache.new(factory.missing)
     local itemPipes = {}
     local pipeCoros = {}
 
@@ -93,14 +92,16 @@ local function processAllPipes (factory)
       end
     end
 
-    inventoryInfo:FulfillPipes(itemPipes, factory.groups)
+    inventoryInfo:FulfillPipes(itemPipes, factory.groups, true)
     parallel.waitForAll(unpack(pipeCoros))
   end
 end
 
 local function processAllPipesForever (factory)
+  local inventoryInfo = ItemDetailAndLimitCache.new(factory.missing)
+
   while true do
-    local ok, err = pcall(function () processAllPipes(factory) end)
+    local ok, err = pcall(function () processAllPipes(factory, inventoryInfo) end)
     if not ok then
       LOGGER:warn("pipe.lua#processAllPipesForever() caught error " .. err)
     end

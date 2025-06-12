@@ -28,7 +28,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
 
   ---Fulfills the item details for each slot in the given groups in parallel
   ---@param groups Group[] List of groups to fulfill item limits and details for
-  function o:Fulfill(groups)
+  function o:Fulfill(groups, forceDetail)
     local runner = Concurrent.default_runner
 
     for _, group in pairs(groups) do
@@ -41,26 +41,30 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
           end
 
           -- fulfill itemDetail
-          runner.spawn(
-            function ()
-              local periph = peripheral.wrap(slot.periphId)
-              if periph and o.map[slotId].itemDetail == nil then
-                local getItemDetail = periph.getItemDetail or periph.getItemMeta
-                o.map[slotId].itemDetail = getItemDetail(slot.slot)
+          if forceDetail or o.map[slotId].itemDetail == nil then
+            runner.spawn(
+              function ()
+                local periph = peripheral.wrap(slot.periphId)
+                if periph then
+                  local getItemDetail = periph.getItemDetail or periph.getItemMeta
+                  o.map[slotId].itemDetail = getItemDetail(slot.slot)
+                end
               end
-            end
-          )
+            )
+          end
 
           -- fulfill itemLimit
-          runner.spawn(
-            function ()
-              local periph = peripheral.wrap(slot.periphId)
-              if periph and o.map[slotId].itemLimit == nil then
-                local getItemLimit = periph.getItemLimit or function () return 64 end
-                o.map[slotId].itemLimit = getItemLimit(slot.slot)
+          if o.map[slotId].itemLimit == nil then
+            runner.spawn(
+              function ()
+                local periph = peripheral.wrap(slot.periphId)
+                if periph then
+                  local getItemLimit = periph.getItemLimit or function () return 64 end
+                  o.map[slotId].itemLimit = getItemLimit(slot.slot)
+                end
               end
-            end
-          )
+            )
+          end
         end
       end
     end
@@ -77,13 +81,13 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
   ---is needed is running the pipes, which are separated via the edge coloring
   ---algo.
   ---@param pipes Pipe[] Array of pipes whose origin/destinations groups should be fulfilled
-  function o:FulfillPipes (pipes, groupMap)
+  function o:FulfillPipes (pipes, groupMap, forceDetail)
     local groups = {}
     for _, pipe in pairs(pipes) do
       table.insert(groups, groupMap[pipe.from])
       table.insert(groups, groupMap[pipe.to])
     end
-    o:Fulfill(groups)
+    o:Fulfill(groups, forceDetail)
   end
 
   ---Get the item limit of the given Slot
