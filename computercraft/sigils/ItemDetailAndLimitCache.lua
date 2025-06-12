@@ -28,6 +28,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
 
   ---Fulfills the item details for each slot in the given groups in parallel
   ---@param groups Group[] List of groups to fulfill item limits and details for
+  ---@param forceDetail boolean True if item details should be requested even if cached
   function o:Fulfill(groups, forceDetail)
     local runner = Concurrent.default_runner
 
@@ -81,6 +82,8 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
   ---is needed is running the pipes, which are separated via the edge coloring
   ---algo.
   ---@param pipes Pipe[] Array of pipes whose origin/destinations groups should be fulfilled
+  ---@param groupMap table<string, Group> Maps Group IDs to Groups in the factory
+  ---@param forceDetail boolean True if item details should be requested even if cached
   function o:FulfillPipes (pipes, groupMap, forceDetail)
     local groups = {}
     for _, pipe in pairs(pipes) do
