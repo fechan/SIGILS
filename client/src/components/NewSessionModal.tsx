@@ -41,6 +41,7 @@ export function NewSessionModal({ sendMessage, sessionId, setSessionId, addReqNe
                 type="text"
                 className="p-2.5 me-3 h-10 mcui-input grow"
                 onInput={ e => setSessionId((e.target as HTMLInputElement).value.toUpperCase()) }
+                onKeyDown={ e => { if (e.key === 'Enter') joinSession() } }
                 value={ sessionId }
               />
               <button
