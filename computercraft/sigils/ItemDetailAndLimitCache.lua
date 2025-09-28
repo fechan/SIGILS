@@ -60,6 +60,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
 
   ---Fulfills the item details for each slot in the given groups in parallel
   ---@param groups Group[] List of groups to fulfill item limits and details for
+  ---@param invLists table A map from peripheral names to non-detailed lists of items from Inventory.list()
   ---@param forceDetail boolean True if item details should be requested even if cached
   function o:Fulfill(groups, invLists, forceDetail)
     local runner = Concurrent.default_runner
@@ -88,7 +89,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
                     local getItemDetail = periph.getItemDetail or periph.getItemMeta
                     local itemDetail = getItemDetail(slot.slot)
                     o.map[slotId].itemDetail = itemDetail
-                    o.detailsByItemId[getFullItemId(item.name, item.nbt)] = itemDetail
+                    o.detailsByItemId[fullItemId] = itemDetail
                   end
                 end
               )
