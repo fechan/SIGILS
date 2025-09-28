@@ -61,8 +61,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
   ---Fulfills the item details for each slot in the given groups in parallel
   ---@param groups Group[] List of groups to fulfill item limits and details for
   ---@param invLists table A map from peripheral names to non-detailed lists of items from Inventory.list()
-  ---@param forceDetail boolean True if item details should be requested even if cached
-  function o:Fulfill(groups, invLists, forceDetail)
+  function o:Fulfill(groups, invLists)
     local runner = Concurrent.default_runner
 
     for _, group in pairs(groups) do
@@ -78,10 +77,12 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
           local item = invLists[slot.periphId][slot.slot]
           if item ~= nil then
             local fullItemId = getFullItemId(item.name, item.nbt)
+
+            -- retrieve cached itemDetail is possible
             if o.detailsByItemId[fullItemId] ~= nil then
               o.map[slotId].itemDetail = Utils.freezeTable(o.detailsByItemId[fullItemId])
               o.map[slotId].itemDetail.count = item.count
-            elseif (forceDetail or o.map[slotId].itemDetail == nil) then
+            else
               runner.spawn(
                 function ()
                   local periph = peripheral.wrap(slot.periphId)
@@ -128,8 +129,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
   ---algo.
   ---@param pipes Pipe[] Array of pipes whose origin/destinations groups should be fulfilled
   ---@param groupMap table<string, Group> Maps Group IDs to Groups in the factory
-  ---@param forceDetail boolean True if item details should be requested even if cached
-  function o:FulfillPipes (pipes, groupMap, forceDetail)
+  function o:FulfillPipes (pipes, groupMap)
     local groups = {}
     for _, pipe in pairs(pipes) do
       table.insert(groups, groupMap[pipe.from])
@@ -138,7 +138,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
 
     local invLists = o:FetchInvLists(groups)
 
-    o:Fulfill(groups, invLists, forceDetail)
+    o:Fulfill(groups, invLists)
   end
 
   ---Get the item limit of the given Slot

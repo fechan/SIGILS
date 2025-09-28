@@ -92,7 +92,7 @@ local function processAllPipes (factory, inventoryInfo)
       end
     end
 
-    inventoryInfo:FulfillPipes(itemPipes, factory.groups, true)
+    inventoryInfo:FulfillPipes(itemPipes, factory.groups)
     parallel.waitForAll(unpack(pipeCoros))
   end
 end
