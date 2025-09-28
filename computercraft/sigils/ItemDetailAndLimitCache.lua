@@ -26,10 +26,36 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
     return not o.missingPeriphs[slot.periphId]
   end
 
+  ---Fetches the non-detailed item lists for each inventory in the group
+  function o:FetchInvLists(groups)
+    local invLists = {}
+    local seenInvs = {}
+    local runner = Concurrent.default_runner
+
+    for _, group in pairs(groups) do
+      for _, slot in pairs(group.slots) do
+        if seenInvs[slot.periphId] == nil then
+          seenInvs[slot.periphId] = true
+          runner.spawn(
+            function ()
+              local periph = peripheral.wrap(slot.periphId)
+              if periph then
+                invLists[slot.periphId] = periph.list()
+              end
+            end
+          )
+        end
+      end
+    end
+
+    runner.run_until_done()
+    return invLists
+  end
+
   ---Fulfills the item details for each slot in the given groups in parallel
   ---@param groups Group[] List of groups to fulfill item limits and details for
   ---@param forceDetail boolean True if item details should be requested even if cached
-  function o:Fulfill(groups, forceDetail)
+  function o:Fulfill(groups, invLists, forceDetail)
     local runner = Concurrent.default_runner
 
     for _, group in pairs(groups) do
@@ -41,17 +67,22 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
             o.map[slotId] = {}
           end
 
-          -- fulfill itemDetail
-          if forceDetail or o.map[slotId].itemDetail == nil then
-            runner.spawn(
-              function ()
-                local periph = peripheral.wrap(slot.periphId)
-                if periph then
-                  local getItemDetail = periph.getItemDetail or periph.getItemMeta
-                  o.map[slotId].itemDetail = getItemDetail(slot.slot)
+          -- fulfill itemDetail if there are items in the slot
+          -- print(textutils.serialise(invLists[slot.periphId]))
+          if invLists[slot.periphId][slot.slot] ~= nil then
+            if (forceDetail or o.map[slotId].itemDetail == nil) then
+              runner.spawn(
+                function ()
+                  local periph = peripheral.wrap(slot.periphId)
+                  if periph then
+                    local getItemDetail = periph.getItemDetail or periph.getItemMeta
+                    o.map[slotId].itemDetail = getItemDetail(slot.slot)
+                  end
                 end
-              end
-            )
+              )
+            end
+          else
+            o.map[slotId].itemDetail = nil
           end
 
           -- fulfill itemLimit
@@ -66,6 +97,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
               end
             )
           end
+
         end
       end
     end
@@ -90,7 +122,10 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
       table.insert(groups, groupMap[pipe.from])
       table.insert(groups, groupMap[pipe.to])
     end
-    o:Fulfill(groups, forceDetail)
+
+    local invLists = o:FetchInvLists(groups)
+
+    o:Fulfill(groups, invLists, forceDetail)
   end
 
   ---Get the item limit of the given Slot
@@ -104,9 +139,13 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
 
   ---Get the item detail of the given Slot, or nil if there's nothing in the Slot
   ---@param slot Slot Slot to get item details for
-  ---@return table itemDetail Item details in slot
+  ---@return table? itemDetail Item details in slot
   function o:GetItemDetail (slot)
-    return o.map[getSlotId(slot)].itemDetail
+    local slotData = o.map[getSlotId(slot)]
+    if slotData == nil then
+      return nil
+    end
+    return slotData.itemDetail
   end
 
   ---Get a Group's empty slots
