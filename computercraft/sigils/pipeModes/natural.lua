@@ -1,5 +1,4 @@
 local CacheMap = require('sigils.CacheMap')
-local ItemDetailAndLimitCache = require('sigils.ItemDetailAndLimitCache')
 local Utils = require('sigils.utils')
 
 ---An inventory slot on a peripheral in the network

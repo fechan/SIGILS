@@ -1,5 +1,3 @@
-local ItemDetailAndLimitCache = require('sigils.ItemDetailAndLimitCache')
-
 ---Get the amount of items from the origin item stack that can be moved to the
 ---destination item stack.
 ---@param originStack table ItemDetail of the origin item stack
