@@ -1,4 +1,5 @@
 local Concurrent = require('sigils.concurrent')
+local Utils = require('sigils.utils')
 
 ---A class for storing itemDetail and itemLimits of slots in slot groups
 ---@class ItemDetailAndLimitCache
@@ -6,6 +7,10 @@ local ItemDetailAndLimitCache = {}
 
 local function getSlotId (slot)
   return slot.periphId .. '/' .. slot.slot
+end
+
+local function getFullItemId (itemId, nbtHash)
+  return itemId .. '/' .. (nbtHash or '')
 end
 
 ---Create a new ItemDetailAndLimitCache
@@ -16,6 +21,7 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
   local o = {
     map = initialMap or {},
     missingPeriphs = missingPeriphs or {},
+    detailsByItemId = {},
   }
 
   ---Return true if the slot is connected to the network
@@ -68,15 +74,21 @@ function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
           end
 
           -- fulfill itemDetail if there are items in the slot
-          -- print(textutils.serialise(invLists[slot.periphId]))
-          if invLists[slot.periphId][slot.slot] ~= nil then
-            if (forceDetail or o.map[slotId].itemDetail == nil) then
+          local item = invLists[slot.periphId][slot.slot]
+          if item ~= nil then
+            local fullItemId = getFullItemId(item.name, item.nbt)
+            if o.detailsByItemId[fullItemId] ~= nil then
+              o.map[slotId].itemDetail = Utils.freezeTable(o.detailsByItemId[fullItemId])
+              o.map[slotId].itemDetail.count = item.count
+            elseif (forceDetail or o.map[slotId].itemDetail == nil) then
               runner.spawn(
                 function ()
                   local periph = peripheral.wrap(slot.periphId)
                   if periph then
                     local getItemDetail = periph.getItemDetail or periph.getItemMeta
-                    o.map[slotId].itemDetail = getItemDetail(slot.slot)
+                    local itemDetail = getItemDetail(slot.slot)
+                    o.map[slotId].itemDetail = itemDetail
+                    o.detailsByItemId[getFullItemId(item.name, item.nbt)] = itemDetail
                   end
                 end
               )

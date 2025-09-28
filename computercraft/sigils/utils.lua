@@ -39,7 +39,7 @@ local function shallowCopy (tbl)
   return t2
 end
 
-function concatArrays (...)
+local function concatArrays (...)
   local arrays = {...} -- in some versions of CC, arg is overwritten by the program's args
   local t = {}
 
@@ -57,7 +57,7 @@ function concatArrays (...)
   return t
 end
 
-function freezeTable (tbl)
+local function freezeTable (tbl)
   return textutils.unserialize(textutils.serialize(tbl))
 end
 
