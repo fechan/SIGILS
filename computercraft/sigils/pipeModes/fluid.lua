@@ -2,13 +2,17 @@
 ---@param periph table CC Tweaked fluid_storage peripheral
 ---@param filter function<table, boolean> Filter function accepting a fluid
 ---@return boolean hasMatch Whether there's a fluid matching the filter
+---@return table List of matching fluids
 local function tankHasMatchingFluid(periph, filter)
+  local matchingFluids = {}
+  local hasMatches = false
   for _, fluid in pairs(periph.tanks()) do
     if filter(fluid) then
-      return true
+      hasMatches = true
+      table.insert(matchingFluids, fluid)
     end
   end
-  return false
+  return hasMatches, matchingFluids
 end
 
 ---Get the transfer orders needed to transfer fluids from the origin fluid tanks
@@ -24,10 +28,13 @@ local function getTransferOrders (origin, destination, missingPeriphs, filter)
     if not missingPeriphs[originSlot.periphId] then
       local originPeriph = peripheral.wrap(originSlot.periphId)
 
-      if tankHasMatchingFluid(originPeriph, filter) then
+      local hasMatches, matchingFluids = tankHasMatchingFluid(originPeriph, filter)
+      if hasMatches then
         for _, destSlot in ipairs(destination.slots) do
           if not missingPeriphs[destSlot.periphId] then
-            table.insert(orders, {from=originSlot, to=destSlot})
+            for _, fluid in pairs(matchingFluids) do
+              table.insert(orders, {from=originSlot, to=destSlot, fluidName=fluid.name})
+            end
           end
         end
       end
