@@ -30,7 +30,7 @@ local function processFluidPipe (pipe, groupMap, missingPeriphs)
       local fromPeriph = peripheral.wrap(order.from.periphId)
       local coro = function ()
         pcall(function ()
-          fromPeriph.pushFluid(order.to.periphId)
+          fromPeriph.pushFluid(order.to.periphId, nil, order.fluidName)
         end)
       end
       table.insert(coros, coro)
