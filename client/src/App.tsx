@@ -78,7 +78,7 @@ export default function App() {
    */
   const onConnect: OnConnect = useCallback(
     (connection) => GraphUpdateCallbacks.onConnect(connection, setTempEdge, setEdges, factory),
-    [setEdges, setTempEdge, factory]
+    [factory]
   );
 
   const onEdgesDelete: OnEdgesDelete = useCallback(
@@ -88,17 +88,17 @@ export default function App() {
 
   const onEdgeUpdate: OnEdgeUpdateFunc = useCallback(
     (oldEdge, newConnection) => GraphUpdateCallbacks.onEdgeUpdate(oldEdge, newConnection, sendMessage),
-    [sendMessage, setEdges, addReqNeedingLayout]
+    [sendMessage, addReqNeedingLayout]
   );
 
   const onNodeDrag: NodeDragHandler = useCallback(
     (mouseEvent: MouseEvent, node: Node) => GraphUpdateCallbacks.onNodeDrag(mouseEvent, node, getIntersectingNodes, reactFlowInstance, setDropTarget),
-    [getIntersectingNodes, reactFlowInstance, setDropTarget]
+    [getIntersectingNodes, reactFlowInstance]
   );
 
   const onNodeDragStop: NodeDragHandler = useCallback(
     (mouseEvent: MouseEvent, node: Node) => GraphUpdateCallbacks.onNodeDragStop(mouseEvent, node, dropTarget, clearDropTarget, sendMessage, reactFlowInstance, factory, addReqNeedingLayout),
-    [setNodes, clearDropTarget, dropTarget, sendMessage, reactFlowInstance, factory, addReqNeedingLayout]
+    [clearDropTarget, dropTarget, sendMessage, reactFlowInstance, factory, addReqNeedingLayout]
   );
 
   const onDragOver: DragEventHandler = useCallback(
@@ -108,7 +108,7 @@ export default function App() {
 
   const onDrop: DragEventHandler = useCallback(
     (event: DragEvent) => GraphUpdateCallbacks.onDrop(event, reactFlowInstance, factory, sendMessage, addReqNeedingLayout),
-    [reactFlowInstance, factory, sendMessage, setNodes, addReqNeedingLayout]
+    [reactFlowInstance, factory, sendMessage, addReqNeedingLayout]
   );
 
   const beforeNodesChange = useCallback(
