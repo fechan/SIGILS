@@ -20,15 +20,15 @@ export type MessageType = (
   "FactoryGet" | "FactoryGetResponse" |
   FactoryUpdateRequest |
   "CcUpdatedFactory"
-);
+)
 
 export interface Message {
   type: MessageType,
-};
+}
 
 export interface Request extends Message {
   reqId: string,
-};
+}
 
 /**
  * A series of requests for ComputerCraft to execute in order.
@@ -57,7 +57,7 @@ export interface ConfirmationResponse extends Message {
   respondingTo: MessageType,
   reqId?: string,
   ok: boolean,
-};
+}
 
 export interface SuccessResponse extends ConfirmationResponse {
   ok: true,
@@ -83,7 +83,7 @@ export interface IdleTimeout extends Message {
 export interface SessionCreateReq extends Request {
   type: "SessionCreate",
   sessionId: SessionId,
-};
+}
 
 export interface SessionCreateRes extends ConfirmationResponse {
   ccReconnectToken: string,
