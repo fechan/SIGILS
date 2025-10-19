@@ -1,5 +1,5 @@
 import { WebSocket, WebSocketServer } from "ws";
-import { ConfirmationResponse, FailResponse, IdleTimeout, Message, MessageType, Request, SessionCreateReq, SessionCreateRes, SessionJoinReq, SessionRejoinReq, SuccessResponse } from "./types/messages";
+import { ConfirmationResponse, FailResponse, IdleTimeout, Message, MessageType, Request, SessionCloseReq, SessionCreateReq, SessionCreateRes, SessionJoinReq, SessionRejoinReq, SuccessResponse } from "./types/messages";
 import { Session, SessionId } from "./types/session";
 import { v4 as uuidv4 } from "uuid";
 import {createServer} from "http";
@@ -86,7 +86,13 @@ wss.on("connection", function connection(ws) {
             sessionId = rejoinSession(message as SessionRejoinReq, ws);
             if (sessionId) role = 'CC';
             break;
-        
+          
+          case "SessionClose":
+            if (role === 'CC' && session) {
+              closeSession(request as SessionCloseReq, session);
+            }
+            break;
+
           default:
             const destination = role === 'CC' ? 'editor' : 'CC';
             if (role === 'CC' && !session.editor) {
@@ -328,6 +334,20 @@ function createSession({ reqId, sessionId }: SessionCreateReq, computerCraft: We
   computerCraft.send(JSON.stringify(res));
 
   return sessionId as SessionId;
+}
+
+function closeSession(request: SessionCloseReq, session: Session) {
+  if (session.editor) {
+    const closeMsg = {
+      type: "SessionClose",
+      reqId: request.reqId,
+    } as SessionCloseReq;
+
+    session.editor.send(JSON.stringify(closeMsg));
+    session.editor.close();
+  }
+
+  delete sessions[session.id];
 }
 
 /**

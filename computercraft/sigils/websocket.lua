@@ -26,6 +26,17 @@ local MESSAGE_TYPES = {
   PeriphDel = true
 }
 
+---Close the editor session
+---@param wsContext table WebSocket context
+local function closeSession (wsContext)
+  local req = {
+    type = 'SessionClose',
+    reqId = Utils.randomString(20),
+  }
+
+  wsContext.ws.send(textutils.serializeJSON(req))
+end
+
 ---Request a session from the editor session server once, or reconnect if
 ---there's a reconnect token
 ---@param wsContext table WebSocket context
@@ -193,6 +204,7 @@ local function doWebSocket (wsContext)
             'Editor session closed. Press E to create a new editing session ' ..
             'or press Q to stop all pipes and quit.'
           )
+          closeSession(wsContext)
           wsContext.reconnectToken = nil
           wsContext.ws.close()
           wsContext.ws = nil

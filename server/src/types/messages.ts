@@ -16,7 +16,7 @@ export type MessageType = (
   "BatchRequest" |
   "ConfirmationResponse" |
   "IdleTimeout" |
-  "SessionCreate" | "SessionJoin" | "SessionRejoin" |
+  "SessionCreate" | "SessionJoin" | "SessionRejoin" | "SessionClose" |
   "FactoryGet" | "FactoryGetResponse" |
   FactoryUpdateRequest |
   "CcUpdatedFactory"
@@ -104,6 +104,10 @@ export interface SessionRejoinReq extends Request {
   type: "SessionRejoin",
   ccReconnectToken: string,
   sessionId: SessionId,
+}
+
+export interface SessionCloseReq extends Request {
+  type: "SessionClose",
 }
 
 /**

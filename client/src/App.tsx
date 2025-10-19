@@ -233,6 +233,13 @@ export default function App() {
           showDismiss
         />, { duration: Infinity });
         return;
+      } else if (message.type === "SessionClose") {
+        toast.custom((t) => <Toast
+          toastObj={t}
+          text={`Editor session closed by player from in-game.`}
+          showDismiss
+        />, { duration: Infinity });
+        return;
       }
 
     }
