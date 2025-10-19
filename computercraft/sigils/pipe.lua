@@ -44,14 +44,14 @@ end
 ---Transfer items or fluids across a single pipe
 ---@param pipe Pipe Pipe to transfer items or fluids across
 ---@param groupMap table<string, Group> A table mapping Group IDs to Groups
----@param missingPeriphs table<string, boolean> A set of peripherals that are missing
-local function processPipe (pipe, groupMap, missingPeriphs)
+---@param inventoryInfo ItemDetailAndLimitCache Item detail and limit cache for entire network
+local function processPipe (pipe, groupMap, inventoryInfo)
   local filter = Filter.getFilterFn(pipe.filter)
 
   local ok, transferOrders = pcall(
     function ()
       local pipeMode = ITEM_PIPE_MODES[pipe.mode] or ITEM_PIPE_MODES["natural"]
-      return pipeMode.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], missingPeriphs, filter)
+      return pipeMode.getTransferOrders(groupMap[pipe.from], groupMap[pipe.to], inventoryInfo, filter)
     end
   )
 
