@@ -121,40 +121,19 @@ end
 ---@param factory Factory Factory the group is in
 ---@param groupId string ID of group to edit
 ---@param edits table Map of keys to edit -> new values
----@return table diffs List of jsondiffpatch Deltas for the factory
 local function groupEdit (factory, groupId, edits)
   local group = factory.groups[groupId]
 
-  local diff = {
-    groups = {
-      [groupId] = {}
-    }
-  }
-
   for k, v in pairs(edits) do
-    diff.groups[groupId][k] = {
-      nil,
-      v
-    }
     group[k] = v
   end
-
-  return {diff}
 end
 
 ---Add a machine to a factory
 ---@param factory Factory Factory to add to
 ---@param machine Machine Machine to add
----@return table diffs List of jsondiffpatch Deltas for the factory
 local function machineAdd (factory, machine)
   factory.machines[machine.id] = machine
-
-  local diff = {
-    machines = {
-      [machine.id] = {machine}
-    }
-  }
-  return {diff}
 end
 
 ---Add a peripheral to the missing peripherals set
