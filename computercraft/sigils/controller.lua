@@ -79,8 +79,8 @@ local function createConfirmationResponse(request, ok, factory)
 end
 
 local function handlePeripheralAttach(periphId, factory, sendMessage)
-  local diff = Factory.updateWithPeriphChanges(factory)
-  if #diff == 0 then return false end
+  local factoryChanged = Factory.updateWithPeriphChanges(factory)
+  if not factoryChanged then return false end
 
   sendMessage(textutils.serializeJSON({
     type = "CcUpdatedFactory",
@@ -90,8 +90,8 @@ local function handlePeripheralAttach(periphId, factory, sendMessage)
 end
 
 local function handlePeripheralDetach(periphId, factory, sendMessage)
-  local diff = Factory.updateWithPeriphChanges(factory)
-  if #diff == 0 then return false end
+  local factoryChanged = Factory.updateWithPeriphChanges(factory)
+  if not factoryChanged then return false end
 
   sendMessage(textutils.serializeJSON({
     type = "CcUpdatedFactory",
