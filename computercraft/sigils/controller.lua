@@ -71,13 +71,13 @@ local function handlePeriphDel(request, factory, sendMessage)
   return diff
 end
 
-local function createConfirmationResponse(request, ok, diff)
+local function createConfirmationResponse(request, ok, factory)
   return {
     type = 'ConfirmationResponse',
     respondingTo = request.type,
     reqId = request.reqId,
     ok = ok,
-    diff = diff
+    factory = factory,
   }
 end
 
@@ -87,7 +87,7 @@ local function handlePeripheralAttach(periphId, factory, sendMessage)
 
   sendMessage(textutils.serializeJSON({
     type = "CcUpdatedFactory",
-    diff = diff
+    factory = factory
   }))
 end
 
@@ -97,7 +97,7 @@ local function handlePeripheralDetach(periphId, factory, sendMessage)
 
   sendMessage(textutils.serializeJSON({
     type = "CcUpdatedFactory",
-    diff = diff
+    factory = factory
   }))
 end
 
@@ -150,11 +150,11 @@ local function listenForCcpipesEvents (wsContext, factory)
         end
       end
       diffs = Utils.concatArrays(unpack(diffs))
-      sendMessage(textutils.serializeJSON(createConfirmationResponse(message, true, diffs)))
+      sendMessage(textutils.serializeJSON(createConfirmationResponse(message, true, factory)))
     elseif handlers[event] then
       local diff = handlers[event](message, factory, sendMessage)
       if (diff ~= nil) then
-        sendMessage(textutils.serializeJSON(createConfirmationResponse(message, true, diff)))
+        sendMessage(textutils.serializeJSON(createConfirmationResponse(message, true, factory)))
       end
     elseif event == 'peripheral' then
       handlePeripheralAttach(message, factory, sendMessage)

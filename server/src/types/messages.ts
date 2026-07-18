@@ -1,7 +1,6 @@
 import { Factory, Group, GroupId, Machine, MachineId, PeriphId, Pipe, PipeId } from "./core-types"
 import { ErrorType } from "./errors";
 import { SessionId } from "./session";
-import { Delta } from "jsondiffpatch";
 
 export const FACTORY_UPDATE_REQUEST_TYPES = [
   "PipeAdd", "PipeEdit", "PipeDel",
@@ -141,7 +140,7 @@ export interface FactoryGetRes extends SuccessResponse {
 export interface FactoryUpdateRes extends SuccessResponse {
   respondingTo: FactoryUpdateRequest,
   reqId: string,
-  diff: Delta[],
+  factory: Factory,
 }
 
 /**
@@ -268,5 +267,5 @@ export interface PeriphDelReq extends Request {
  */
 export interface CcUpdatedFactory extends Message {
   type: "CcUpdatedFactory",
-  diff: Delta[],
+  factory: Factory,
 }

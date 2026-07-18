@@ -53,7 +53,7 @@ export default function App() {
   });
   const [ showNewSessionModal, setShowNewSessionModal ] = useState(true);
 
-  const { factory, version, setFactory, patchFactory } = useFactoryStore();
+  const { factory, version, setFactory } = useFactoryStore();
 
   
   // reqsNeedingLayout keys: Request IDs that, when fulfilled, should trigger graph layouting
@@ -191,12 +191,12 @@ export default function App() {
             return;
           }
 
-          if ("diff" in successRes) {
+          if ("factory" in successRes) {
             const factoryUpdateRes = successRes as FactoryUpdateRes;
             if (factoryUpdateRes.respondingTo in reqsNeedingLayout) {
               setReqsNeedingLayout({...reqsNeedingLayout, [factoryUpdateRes.reqId]: true});
             }
-            patchFactory(factoryUpdateRes.diff);
+            setFactory(factoryUpdateRes.factory);
             return;
           }
         } else {
@@ -223,7 +223,7 @@ export default function App() {
         // I have no idea why this is necessary, because the race condition doesn't happen
         // when I need to update both states in other situations, like after receiving
         // a FactoryUpdateRes
-        setTimeout(() => patchFactory(ccUpdatedFactory.diff), 100);
+        setTimeout(() => setFactory(ccUpdatedFactory.factory), 100);
         return;
       } else if (message.type === "IdleTimeout") {
         const idleTimeout = message as IdleTimeout;

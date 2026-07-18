@@ -1,5 +1,4 @@
 import { Factory, GroupId, MachineId } from "@server/types/core-types";
-import { Delta, patch } from "jsondiffpatch";
 import { create } from "zustand";
 
 interface FactoryStore {
@@ -10,7 +9,6 @@ interface FactoryStore {
   /** Version counter that increments every time the factory is updated */
   version: number,
   setFactory: (factory: Factory) => void,
-  patchFactory: (diffs: Delta[]) => void,
 };
 
 const emptyFactory: Factory = {
@@ -47,17 +45,5 @@ export const useFactoryStore = create<FactoryStore>()(set => ({
   setFactory: factory => set(() => ({
     factory: factory,
     groupParents: getGroupParents(factory),
-  })),
-  patchFactory: diffs => set(state => {
-    let updatedFactory = state.factory;
-    for (let diff of diffs) {
-      updatedFactory = patch(updatedFactory, diff) as Factory;
-    }
-
-    return {
-      factory: updatedFactory,
-      groupParents: getGroupParents(updatedFactory),
-      version: state.version + 1,
-    };
-  })
+  }))
 }));
