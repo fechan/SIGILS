@@ -23,55 +23,27 @@ end
 ---Add a pipe to a factory
 ---@param factory Factory Factory to add to
 ---@param pipe Pipe Pipe to add
----@return table diffs List of jsondiffpatch Deltas for the factory
 local function pipeAdd (factory, pipe)
   factory.pipes[pipe.id] = pipe
-
-  local diff = {
-    pipes = {
-      [pipe.id] = {pipe}
-    }
-  }
-  return {diff}
 end
 
 ---Delete a pipe from the factory
 ---@param factory Factory Factory to delete from
 ---@param pipeId string ID of pipe to remove
----@return table diffs List of jsondiffpatch Deltas for the factory
 local function pipeDel (factory, pipeId)
   factory.pipes[pipeId] = nil
-
-  local diff = {
-    pipes = {
-      [pipeId] = {
-        nil, 0, 0
-      }
-    }
-  }
-  return {diff}
 end
 
 ---Edit a pipe in the factory
 ---@param factory Factory Factory the pipe is in
 ---@param pipeId string ID of pipe to edit
 ---@param edits table Map of keys to edit -> new values
----@return table diffs List of jsondiffpatch Deltas for the factory
 local function pipeEdit (factory, pipeId, edits)
   local pipe = factory.pipes[pipeId]
 
-  local diff = {
-    pipes = {
-      [pipeId] = {}
-    }
-  }
-
   for k, v in pairs(edits) do
-    diff.pipes[pipe.id][k] = {nil, v}
     pipe[k] = v
   end
-
-  return {diff}
 end
 
 
@@ -79,25 +51,12 @@ end
 ---@param factory Factory Factory the machine is in
 ---@param machineId string ID of machine to edit
 ---@param edits table Map of keys to edit -> new values
----@return table diffs List of jsondiffpatch Deltas for the factory
 local function machineEdit (factory, machineId, edits)
   local machine = factory.machines[machineId]
 
-  local diff = {
-    machines = {
-      [machineId] = {}
-    }
-  }
-
   for k, v in pairs(edits) do
-    diff.machines[machineId][k] = {
-      nil,
-      v
-    }
     machine[k] = v
   end
-
-  return {diff}
 end
 
 ---Add a newly created group to a machine in the factory
