@@ -17,6 +17,7 @@ export type MessageType = (
   "IdleTimeout" |
   "SessionCreate" | "SessionJoin" | "SessionRejoin" | "SessionClose" |
   "FactoryGet" | "FactoryGetResponse" |
+  "FactoryPut" |
   FactoryUpdateRequest |
   "CcUpdatedFactory"
 )
@@ -128,6 +129,17 @@ export interface FactoryGetReq extends Request {
 export interface FactoryGetRes extends SuccessResponse {
   respondingTo: "FactoryGet"
   reqId: string,
+  factory: Factory,
+}
+
+/**
+ * Request from editor to replace the factory on the CC
+ * 
+ * - Not emitted from CC
+ * - Emitted from the editor if the user makes and commits changes
+ */
+export interface FactoryPutReq extends Request {
+  type: "FactoryPut",
   factory: Factory,
 }
 
