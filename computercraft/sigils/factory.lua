@@ -129,112 +129,6 @@ local function groupEdit (factory, groupId, edits)
   end
 end
 
----Add a machine to a factory
----@param factory Factory Factory to add to
----@param machine Machine Machine to add
-local function machineAdd (factory, machine)
-  factory.machines[machine.id] = machine
-end
-
----Add a peripheral to the missing peripherals set
----@param factory Factory Factory to add to
----@param periphId string CC Peripheral ID
----@param skipPresenceCheck? boolean Whether to skip checking for if the periphId is already in the factory
----@return table diffs List of jsondiffpatch Deltas for the factory
-local function missingAdd (factory, periphId, skipPresenceCheck)
-  if skipPresenceCheck then
-    factory.missing[periphId] = true
-
-    local diff = {
-      missing = {
-        [periphId] = {true}
-      }
-    }
-    return {diff}
-  end
-
-  -- try to find periphId in the factory. if it's not there, it doesn't matter
-  -- if it's missing, so we don't change anything.
-  for _, group in pairs(factory.groups) do
-    for _, slot in pairs(group.slots) do
-      if periphId == slot.periphId then
-        factory.missing[periphId] = true
-
-        local diff = {
-          missing = {
-            [periphId] = {true}
-          }
-        }
-        return {diff}
-      end
-    end
-  end
-
-  return {}
-end
-
----Delete a peripheral from the missing peripherals set
----@param factory Factory Factory to delete from to
----@param periphId string CC Peripheral ID
----@return table diffs List of jsondiffpatch Deltas for the factory
-local function missingDel (factory, periphId)
-  factory.missing[periphId] = nil
-
-  local diff = {
-    missing = {
-      [periphId] = {
-        nil, 0, 0
-      }
-    }
-  }
-  return {diff}
-end
-
----Add a peripheral to the available peripherals set
----@param factory Factory Factory to add to
----@param periphId string CC Peripheral ID
----@param skipPresenceCheck? boolean Whether to skip checking for if the periphId is already in the factory
----@return table diffs List of jsondiffpatch Deltas for the factory
-local function availableAdd (factory, periphId, skipPresenceCheck)
-  -- try to find periphId in the factory. if it's there, it doesn't matter
-  -- because it's in a machine already, so we don't change anything.\
-  if not skipPresenceCheck then
-    for _, group in pairs(factory.groups) do
-      for _, slot in pairs(group.slots) do
-        if periphId == slot.periphId then
-          return {}
-        end
-      end
-    end
-  end
-
-  factory.available[periphId] = true
-
-  local diff = {
-    available = {
-      [periphId] = {true}
-    }
-  }
-  return {diff}
-end
-
----Delete a peripheral from the available peripherals set
----@param factory Factory Factory to delete from to
----@param periphId string CC Peripheral ID
----@return table diffs List of jsondiffpatch Deltas for the factory
-local function availableDel (factory, periphId)
-  factory.available[periphId] = nil
-
-  local diff = {
-    available = {
-      [periphId] = {
-        nil, 0, 0
-      }
-    }
-  }
-  return {diff}
-end
-
 ---Add a peripheral to the factory as a new machine
 ---@param factory Factory Factory to add the peripheral to
 ---@param periphId string Peripheral to add
@@ -319,7 +213,7 @@ local function getPeripheralIds ()
   return periphs
 end
 
----Get the list of peripheral IDs that are represented in the factory
+---Get the set of peripheral IDs that are represented in the factory
 ---@param factory Factory Factory containing peripherals
 ---@return table periphs List of peripheral IDs represented in the factory
 local function getPeripheralIdsInFactory (factory)
@@ -361,7 +255,7 @@ end
 ---available peripheral set.
 ---@param factory Factory Factory to update with peripheral changes
 local function updateWithPeriphChanges (factory)
-  local diffs = {}
+  local factoryChanged = false
 
   local currentPeriphSet = {}
   for i, periphId in ipairs(getPeripheralIds()) do
@@ -374,7 +268,8 @@ local function updateWithPeriphChanges (factory)
   -- (any periphId in oldPeriphSet that's not in currentPeriphSet goes into missing)
   for oldPeriphId, _ in pairs(oldPeriphSet) do
     if currentPeriphSet[oldPeriphId] == nil then
-      table.insert(diffs, missingAdd(factory, oldPeriphId, true))
+      factory.missing[oldPeriphId] = true
+      factoryChanged = true
     end
   end
 
@@ -382,25 +277,28 @@ local function updateWithPeriphChanges (factory)
   -- (any periphId in currentPeriphSet that's not in oldPeriphSet goes into available)
   for currentPeriphId, _ in pairs(currentPeriphSet) do
     if oldPeriphSet[currentPeriphId] == nil then
-      table.insert(diffs, availableAdd(factory, currentPeriphId, true))
+      factory.available[currentPeriphId] = true
+      factoryChanged = true
     end
   end
 
   -- remove peripherals from missing peripheral list are connected now
   for periphId, _ in pairs(factory.missing) do
     if currentPeriphSet[periphId] then
-      table.insert(diffs, missingDel(factory, periphId))
+      factory.missing[periphId] = nil
+      factoryChanged = true
     end
   end
 
   -- remove peripherals from available peripheral list that are not longer connected
   for periphId, _ in pairs(factory.available) do
     if currentPeriphSet[periphId] == nil then
-      table.insert(diffs, availableDel(factory, periphId))
+      factory.available[periphId] = nil
+      factoryChanged = true
     end
   end
 
-  return Utils.concatArrays(unpack(diffs))
+  return factoryChanged
 end
 
 return {
@@ -415,10 +313,6 @@ return {
   groupEdit = groupEdit,
   periphAdd = periphAdd,
   periphDel = periphDel,
-  missingAdd = missingAdd,
-  missingDel = missingDel,
-  availableAdd = availableAdd,
-  availableDel = availableDel,
   autodetectFactory = autodetectFactory,
   updateWithPeriphChanges = updateWithPeriphChanges,
   saveFactory = saveFactory,
