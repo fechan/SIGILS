@@ -76,24 +76,13 @@ end
 ---Delete a machine from the factory
 ---@param factory Factory Factory to delete from
 ---@param machineId string ID of the machine to delete
----@return table diffs List of jsondiffpatch Deltas for the factory
 local function machineDel (factory, machineId)
   factory.machines[machineId] = nil
-
-  local diff = {
-    machines = {
-      [machineId] = {
-        nil, 0, 0
-      }
-    }
-  }
-  return {diff}
 end
 
 ---Delete a group from the factory
 ---@param factory Factory Factory the group is in
 ---@param groupId string ID of group to remove
----@return table diffs List of jsondiffpatch Deltas for the factory
 local function groupDel (factory, groupId)
   local oldGroup = factory.groups[groupId]
   factory.groups[groupId] = nil
