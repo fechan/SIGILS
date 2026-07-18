@@ -133,7 +133,7 @@ end
 ---@param factory Factory Factory to add the peripheral to
 ---@param periphId string Peripheral to add
 ---@param initialOptions table? Options to initialize the machine with
----@return table diffs List of jsondiffpatch Deltas for the factory
+---@return table diffs [TODO: UNUSED: SAFE TO REMOVE] List of jsondiffpatch Deltas for the factory
 local function periphAdd (factory, periphId, initialOptions)
   local newMachine, newGroups = Machine.fromPeriphId(periphId)
 
@@ -166,7 +166,7 @@ end
 ---as well.
 ---@param factory Factory Factory to remove from
 ---@param periphId string CC peripheral ID
----@return table diffs List of jsondiffpatch Deltas for the factory
+---@return table diffs [TODO: UNUSED: SAFE TO REMOVE] List of jsondiffpatch Deltas for the factory
 local function periphDel (factory, periphId)
   local diffs = {}
 
