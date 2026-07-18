@@ -63,27 +63,14 @@ end
 ---@param factory Factory Factory the machine is in
 ---@param group Group New group to add
 ---@param machineId? string ID of machine to add the group to. If provided, the group ID will be added to the machine's group list.
----@return table diffs List of jsondiffpatch Deltas for the factory
 local function groupAdd (factory, group, machineId)
-  local diff = {
-    groups = {
-      [group.id] = {group}
-    }
-  }
-
   factory.groups[group.id] = group
 
   if machineId then
     local machineUpdatedGroups = Utils.shallowCopy(factory.machines[machineId].groups)
     table.insert(machineUpdatedGroups, group.id)
-
-    return Utils.concatArrays(
-      {diff},
-      machineEdit(factory, machineId, { groups=machineUpdatedGroups })
-    )
+    machineEdit(factory, machineId, { groups=machineUpdatedGroups })
   end
-
-  return {diff}
 end
 
 ---Delete a machine from the factory
