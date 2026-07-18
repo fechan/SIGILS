@@ -59,7 +59,7 @@ local function handleGroupEdit (request, factory, sendMessage)
 end
 
 local function handlePeriphAdd(request, factory, sendMessage)
-  trueFactory.periphAdd(factory, request.periphId, request.options)
+  Factory.periphAdd(factory, request.periphId, request.options)
   return true
 end
 
