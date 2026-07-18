@@ -1,5 +1,5 @@
 import { WebSocket, WebSocketServer } from "ws";
-import { ConfirmationResponse, FailResponse, IdleTimeout, Message, MessageType, Request, SessionCloseReq, SessionCreateReq, SessionCreateRes, SessionJoinReq, SessionRejoinReq, SuccessResponse } from "./types/messages";
+import { ConfirmationResponse, FailResponse, IdleTimeout, Message, MessageType, Request, SessionMap, SessionCloseReq, SessionCreateReq, SessionCreateRes, SessionJoinReq, SessionRejoinReq, SuccessResponse } from "./types/messages";
 import { Session, SessionId } from "./types/session";
 import { v4 as uuidv4 } from "uuid";
 import {createServer} from "http";
@@ -36,10 +36,10 @@ type Role = ('CC' | 'editor');
 
 const wss = new WebSocketServer({ server: http });
 
-const sessions: { [key: SessionId]: Session } = {};
+const sessions: SessionMap = {};
 
 wss.on("connection", function connection(ws) {
-  let sessionId: string;
+  let sessionId: string | undefined;
   let role: Role;
 
   ws.on("error", console.error);
@@ -108,7 +108,7 @@ wss.on("connection", function connection(ws) {
             } else if (role === 'editor' && !session.computerCraft) {
               queueRequestForCCForLater(message as Request, session);
             } else {
-              relayMessage(messageData, sessionId, destination);
+              relayMessage(messageData, sessionId!, destination);
             }
             break;
         }
@@ -123,7 +123,7 @@ wss.on("connection", function connection(ws) {
           };
           ws.send(JSON.stringify(res));
         } else {
-          relayMessage(messageData, sessionId, 'editor');
+          relayMessage(messageData, sessionId!, 'editor');
         }
       }
     } catch (error) {
@@ -211,7 +211,7 @@ function sendGenericSuccess(respondingTo: MessageType, reqId: string, ws: WebSoc
  * @param editor Websocket of the editor
  * @returns Session ID on success, undefined on failure
  */
-function joinSession({ reqId, sessionId }: SessionJoinReq, editor: WebSocket): SessionId {  
+function joinSession({ reqId, sessionId }: SessionJoinReq, editor: WebSocket): SessionId | undefined {  
   if (!(sessionId in sessions)) {
     const res: FailResponse = {
       type: "ConfirmationResponse",
@@ -370,11 +370,11 @@ function queueRequestForCCForLater(request: Request, session: Session) {
         error: 'PeerNotConnected',
         message: 'Tried sending a message to ComputerCraft, but it did not connect within 10 seconds.'
       };
-      session.editor.send(JSON.stringify(failResponse));
+      session.editor!.send(JSON.stringify(failResponse));
 
       session.editorOutbox = [];
 
-      session.editor.close();
+      session.editor!.close();
     }, 10 * 1000);
   }
 }

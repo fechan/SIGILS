@@ -1,6 +1,7 @@
 import { WebSocket } from "ws";
 import { Message } from "./messages";
 
+export type SessionMap = {[key: SessionId]: Session};
 export type SessionId = string;
 
 export interface Session {
