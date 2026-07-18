@@ -87,49 +87,34 @@ local function groupDel (factory, groupId)
   local oldGroup = factory.groups[groupId]
   factory.groups[groupId] = nil
 
-  local diff = {
-    groups = {
-      [groupId] = {
-        nil, 0, 0
-      }
-    }
-  }
-
   -- delete all pipes that have this group at either end
-  local pipeDels = {}
   for pipeId, pipe in pairs(factory.pipes) do
     if pipe.from == groupId or pipe.to == groupId then
-      table.insert(pipeDels, pipeDel(factory, pipeId))
+      pipeDel(factory, pipeId)
     end
   end
-  pipeDels = Utils.concatArrays(unpack(pipeDels))
 
   -- find the machine that had the group in it and remove the group from it
-  local machineUpdates = {}
+  local machineFound = false
   for machineId, machine in pairs(factory.machines) do
     for groupIdxInMachine, groupIdInMachine in ipairs(machine.groups) do
       if groupIdInMachine == groupId then
         table.remove(machine.groups, groupIdxInMachine)
         if #machine.groups == 0 then
-          table.insert(machineUpdates, machineDel(factory, machineId))
+          machineDel(factory, machineId)
         else
-          table.insert(machineUpdates, machineEdit(factory, machineId, { groups = machine.groups }))
+          machineEdit(factory, machineId, { groups = machine.groups })
         end
+
+        machineFound = true
         break
       end
     end
 
-    if #machineUpdates > 0 then
+    if machineFound then
       break
     end
   end
-  machineUpdates = Utils.concatArrays(unpack(machineUpdates))
-
-  return Utils.concatArrays(
-    {diff},
-    pipeDels,
-    machineUpdates
-  )
 end
 
 ---Edit a group in the factory
