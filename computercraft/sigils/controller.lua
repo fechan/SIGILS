@@ -14,61 +14,58 @@ local function handleFactoryGet (request, factory, sendMessage)
 end
 
 local function handlePipeAdd (request, factory, sendMessage)
-  local pipe = request.pipe
-  local diff = Factory.pipeAdd(factory, pipe)
-  return diff
+  Factory.pipeAdd(factory, request.pipe)
+  return true
 end
 
 local function handlePipeDel (request, factory, sendMessage)
-  local pipeId = request.pipeId
-  local diff = Factory.pipeDel(factory, pipeId)
-  return diff
+  Factory.pipeDel(factory, request.pipeId)
+  return true
 end
 
 local function handlePipeEdit (request, factory, sendMessage)
-  local diff = Factory.pipeEdit(factory, request.pipeId, request.edits)
-  return diff
+  Factory.pipeEdit(factory, request.pipeId, request.edits)
+  return true
 end
 
 local function handleMachineAdd (request, factory, sendMessage)
-  local machine = request.machine
-  local diff = Factory.machineAdd(factory, machine)
-  return diff
+  Factory.machineAdd(factory, request.machine)
+  return true
 end
 
 local function handleMachineDel (request, factory, sendMessage)
-  local diff = Factory.machineDel(factory, request.machineId)
-  return diff
+  Factory.machineDel(factory, request.machineId)
+  return true
 end
 
 local function handleMachineEdit (request, factory, sendMessage)
-  local diff = Factory.machineEdit(factory, request.machineId, request.edits)
-  return diff
+  Factory.machineEdit(factory, request.machineId, request.edits)
+  return true
 end
 
 local function handleGroupAdd (request, factory, sendMessage)
-  local diff = Factory.groupAdd(factory, request.group, request.machineId)
-  return diff
+  Factory.groupAdd(factory, request.group, request.machineId)
+  return true
 end
 
 local function handleGroupDel (request, factory, sendMessage)
-  local diff = Factory.groupDel(factory, request.groupId)
-  return diff
+  Factory.groupDel(factory, request.groupId)
+  return true
 end
 
 local function handleGroupEdit (request, factory, sendMessage)
-  local diff = Factory.groupEdit(factory, request.groupId, request.edits)
-  return diff
+  Factory.groupEdit(factory, request.groupId, request.edits)
+  return true
 end
 
 local function handlePeriphAdd(request, factory, sendMessage)
-  local diff = Factory.periphAdd(factory, request.periphId, request.options)
-  return diff
+  trueFactory.periphAdd(factory, request.periphId, request.options)
+  return true
 end
 
 local function handlePeriphDel(request, factory, sendMessage)
-  local diff = Factory.periphDel(factory, request.periphId)
-  return diff
+  Factory.periphDel(factory, request.periphId)
+  return true
 end
 
 local function createConfirmationResponse(request, ok, factory)
@@ -83,22 +80,24 @@ end
 
 local function handlePeripheralAttach(periphId, factory, sendMessage)
   local diff = Factory.updateWithPeriphChanges(factory)
-  if #diff == 0 then return end
+  if #diff == 0 then return false end
 
   sendMessage(textutils.serializeJSON({
     type = "CcUpdatedFactory",
     factory = factory
   }))
+  return true
 end
 
 local function handlePeripheralDetach(periphId, factory, sendMessage)
   local diff = Factory.updateWithPeriphChanges(factory)
-  if #diff == 0 then return end
+  if #diff == 0 then return false end
 
   sendMessage(textutils.serializeJSON({
     type = "CcUpdatedFactory",
     factory = factory
   }))
+  return true
 end
 
 ---Forever listens for events that require a factory update, and sends
@@ -139,21 +138,16 @@ local function listenForCcpipesEvents (wsContext, factory)
     }
 
     if event == 'ccpipes-BatchRequest' then
-      local diffs = {}
       for i, request in pairs(message.requests) do
         local handlerName = 'ccpipes-' .. request.type
         if handlers[handlerName] then
-          local diff = Utils.freezeTable(handlers[handlerName](request, factory, sendMessage))
-          if (diff ~= nil) then
-            table.insert(diffs, diff)
-          end
+          handlers[handlerName](request, factory, sendMessage)
         end
       end
-      diffs = Utils.concatArrays(unpack(diffs))
       sendMessage(textutils.serializeJSON(createConfirmationResponse(message, true, factory)))
     elseif handlers[event] then
-      local diff = handlers[event](message, factory, sendMessage)
-      if (diff ~= nil) then
+      local factoryChanged = handlers[event](message, factory, sendMessage)
+      if factoryChanged then
         sendMessage(textutils.serializeJSON(createConfirmationResponse(message, true, factory)))
       end
     elseif event == 'peripheral' then
