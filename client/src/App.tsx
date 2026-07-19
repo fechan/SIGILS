@@ -86,8 +86,8 @@ export default function App() {
   );
 
   const onPipeAdd = useCallback(
-    (pipe: Pipe) => Controller.addPipe(pipe, factoryStore.addPipe, sendMessage),
-    [factoryStore.addPipe, sendMessage]
+    (pipes: Pipe[]) => Controller.addPipes(pipes, factoryStore.addPipes, sendMessage),
+    [factoryStore.addPipes, sendMessage]
   );
 
   const onEdgeUpdate: OnEdgeUpdateFunc = useCallback(

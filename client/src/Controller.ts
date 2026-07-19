@@ -24,13 +24,13 @@ export function deletePipes(
   );
 }
 
-export function addPipe(
-  pipe: Pipe,
-  addPipe: FactoryStore['addPipe'],
+export function addPipes(
+  pipes: Pipe[],
+  addPipes: FactoryStore['addPipes'],
   sendMessage: SendMessage
 ) {
-  addPipe(
-    pipe,
+  addPipes(
+    pipes,
     (factory) => sendFactoryPut(sendMessage, factory)
   );
 }

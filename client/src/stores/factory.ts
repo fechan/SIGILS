@@ -14,8 +14,8 @@ export interface FactoryStore {
   getGroupParents: () => GroupParentsMap,
 
   deletePipes: (pipeIds: PipeId[], callback: PostUpdateCallback) => void,
-  addPipe: (pipe: Pipe, callback: PostUpdateCallback) => void,
-  editPipe: (edits: {[key: PipeId]: Partial<Machine>}, callback: PostUpdateCallback) => void,
+  addPipes: (pipes: Pipe[], callback: PostUpdateCallback) => void,
+  editPipes: (edits: {[key: PipeId]: Partial<Machine>}, callback: PostUpdateCallback) => void,
 };
 
 const emptyFactory: Factory = {
@@ -34,8 +34,8 @@ export const useFactoryStore = create<FactoryStore>()(
     getGroupParents: () => getGroupParents(get().factory),
     
     deletePipes: (pipeIds, callback) => set((draft) => { deletePipes(draft.factory, pipeIds, callback) }),
-    addPipe: (pipe, callback) => set((draft) => { addPipe(draft.factory, pipe, callback) }),
-    editPipe: (edits, callback) => set((draft) => { editPipes(draft.factory, edits, callback) }),
+    addPipes: (pipes, callback) => set((draft) => { addPipes(draft.factory, pipes, callback) }),
+    editPipes: (edits, callback) => set((draft) => { editPipes(draft.factory, edits, callback) }),
   }))
 );
 
@@ -65,12 +65,14 @@ function deletePipes(factory: Factory, pipeIds: PipeId[], callback?: PostUpdateC
   if (callback) callback(factory);
 }
 
-function addPipe(
+function addPipes(
   factory: Factory,
-  pipe: Pipe,
+  pipes: Pipe[],
   callback?: PostUpdateCallback
 ) {
-  factory.pipes[pipe.id] = pipe;
+  for (let pipe of pipes) {
+    factory.pipes[pipe.id] = pipe;
+  }
   if (callback) callback(factory);
 }
 
