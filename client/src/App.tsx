@@ -83,7 +83,7 @@ export default function App() {
   );
 
   const onEdgesDelete: OnEdgesDelete = useCallback(
-    (edges) => Controller.onEdgesDelete(edges, factoryStore.deletePipes, sendMessage),
+    (edges) => Controller.deletePipes(edges, factoryStore.deletePipes, sendMessage),
     [sendMessage, factory, factoryStore.deletePipes]
   );
 

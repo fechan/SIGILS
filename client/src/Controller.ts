@@ -12,7 +12,7 @@ function sendFactoryPut(sendMessage: SendMessage, factory: Factory) {
   } as FactoryPutReq));
 }
 
-function onEdgesDelete(
+function deletePipes(
   edges: Edge[],
   deletePipes: (pipeIds: PipeId[], callback: (factory: Factory) => void) => void,
   sendMessage: SendMessage
@@ -24,5 +24,5 @@ function onEdgesDelete(
 }
 
 export const Controller = {
-  onEdgesDelete: onEdgesDelete,
+  deletePipes: deletePipes,
 }
