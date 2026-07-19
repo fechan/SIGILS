@@ -1,14 +1,21 @@
-import { Factory, GroupId, MachineId, Pipe, PipeId } from "@server/types/core-types";
+import { Factory, Group, GroupId, Machine, MachineId, Pipe, PipeId } from "@server/types/core-types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
+/**
+ * Type of callback to run after the factory updates.
+ */
+type PostUpdateCallback = (factory: Factory) => void;
+
 export interface FactoryStore {
-  /** Factory object */
   factory: Factory,
+  setFactory: PostUpdateCallback,
+
   getGroupParents: () => GroupParentsMap,
-  setFactory: (factory: Factory) => void,
-  deletePipes: (pipeIds: PipeId[], callback: (factory: Factory) => void) => void,
-  addPipe: (pipe: Pipe, callback: (factory: Factory) => void) => void,
+
+  deletePipes: (pipeIds: PipeId[], callback: PostUpdateCallback) => void,
+  addPipe: (pipe: Pipe, callback: PostUpdateCallback) => void,
+  editPipe: (edits: {[key: PipeId]: Partial<Machine>}, callback: PostUpdateCallback) => void,
 };
 
 const emptyFactory: Factory = {
@@ -22,10 +29,13 @@ const emptyFactory: Factory = {
 export const useFactoryStore = create<FactoryStore>()(
   immer((set, get) => ({
     factory: emptyFactory,
-    getGroupParents: () => getGroupParents(get().factory),
     setFactory: (factory) => set((draft) => { draft.factory = factory }),
+
+    getGroupParents: () => getGroupParents(get().factory),
+    
     deletePipes: (pipeIds, callback) => set((draft) => { deletePipes(draft.factory, pipeIds, callback) }),
     addPipe: (pipe, callback) => set((draft) => { addPipe(draft.factory, pipe, callback) }),
+    editPipe: (edits, callback) => set((draft) => { editPipes(draft.factory, edits, callback) }),
   }))
 );
 
@@ -48,14 +58,129 @@ function getGroupParents(factory: Factory) {
   return groupParents;
 }
 
-function deletePipes(factory: Factory, pipeIds: PipeId[], callback: (factory: Factory) => void) {
+function deletePipes(factory: Factory, pipeIds: PipeId[], callback?: PostUpdateCallback) {
   for (let pipeId of pipeIds) {
     delete factory.pipes[pipeId];
   }
-  callback(factory);
+  if (callback) callback(factory);
 }
 
-function addPipe(factory: Factory, pipe: Pipe, callback: (factory: Factory) => void) {
+function addPipe(
+  factory: Factory,
+  pipe: Pipe,
+  callback?: PostUpdateCallback
+) {
   factory.pipes[pipe.id] = pipe;
-  callback(factory);
+  if (callback) callback(factory);
+}
+
+function editPipes(
+  factory: Factory,
+  edits: {[key: PipeId]: Partial<Machine>},
+  callback?: PostUpdateCallback
+) {
+  for (let [pipeId, changes] of Object.entries(edits)) {
+    factory.pipes[pipeId] = { ...(factory.pipes[pipeId]), ...changes};
+  }
+  if (callback) callback(factory);
+}
+
+function deleteMachines(
+  factory: Factory,
+  machineIds: MachineId[],
+  callback?: PostUpdateCallback
+) {
+  for (let machineId of machineIds) {
+    delete factory.machines[machineId];
+  }
+  if (callback) callback(factory);
+}
+
+function editMachines(
+  factory: Factory,
+  edits: {[key: MachineId]: Partial<Machine>},
+  callback?: PostUpdateCallback
+) {
+  for (let [machineId, changes] of Object.entries(edits)) {
+    factory.machines[machineId] = { ...(factory.machines[machineId]), ...changes};
+  }
+  if (callback) callback(factory);
+}
+
+function deleteGroup(
+  factory: Factory, 
+  groupId: GroupId, 
+  callback?: PostUpdateCallback
+) {
+  delete factory.groups[groupId];
+
+  // delete all pipes that have this group at either end
+  for (let [pipeId, pipe] of Object.entries(factory.pipes)) {
+    if (pipe.from === groupId || pipe.to === groupId) {
+      deletePipes(factory, [pipeId]);
+    }
+  }
+
+  // find the machine that had the group in it and remove the group from it
+  for (let [machineId, machine] of Object.entries(factory.machines)) {
+    const groupIndex = machine.groups.indexOf(machineId);
+    if (groupIndex > -1) {
+      machine.groups.splice(groupIndex);
+
+      if (machine.groups.length === 0) {
+        deleteMachines(factory, [machineId]);
+      }
+
+      break
+    }
+  }
+
+  if (callback) callback(factory);
+}
+
+function deleteGroups(
+  factory: Factory, 
+  groupIds: GroupId[], 
+  callback?: PostUpdateCallback
+) {
+  for (let groupId of groupIds) {
+    deleteGroup(factory, groupId, callback);
+  }
+  if (callback) callback(factory);
+}
+
+function editGroups(
+  factory: Factory,
+  edits: {[key: GroupId]: Partial<Group>},
+  callback?: PostUpdateCallback,
+) {
+  for (let [groupId, changes] of Object.entries(edits)) {
+    factory.groups[groupId] = { ...(factory.groups[groupId]), ...changes};
+  }
+  if (callback) callback(factory);
+}
+
+/**
+ * Add groups to the factory, optionally adding them directly to a machine.
+ * @param factory Factory to add to
+ * @param groups New groups to add
+ * @param machineId Machine to add the group to. If provided, all new groups will be added to the machine's group list.
+ * @param callback Callback to run after the factory is updated.
+ */
+function addGroups(
+  factory: Factory,
+  groups: Group[],
+  machineId?: MachineId,
+  callback?: PostUpdateCallback,
+) {
+  for (let group of groups) {
+    factory.groups[group.id] = group;
+  }
+
+  if (machineId) {
+    let groupIds = groups.map(group => group.id);
+    factory.machines[machineId].groups.push(...groupIds);
+  }
+
+  if (callback) callback(factory);
 }
