@@ -1,4 +1,4 @@
-import { Factory, GroupId, MachineId, PipeId } from "@server/types/core-types";
+import { Factory, GroupId, MachineId, Pipe, PipeId } from "@server/types/core-types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -8,6 +8,7 @@ export interface FactoryStore {
   getGroupParents: () => GroupParentsMap,
   setFactory: (factory: Factory) => void,
   deletePipes: (pipeIds: PipeId[], callback: (factory: Factory) => void) => void,
+  addPipe: (pipe: Pipe, callback: (factory: Factory) => void) => void,
 };
 
 const emptyFactory: Factory = {
@@ -24,6 +25,7 @@ export const useFactoryStore = create<FactoryStore>()(
     getGroupParents: () => getGroupParents(get().factory),
     setFactory: (factory) => set((draft) => { draft.factory = factory }),
     deletePipes: (pipeIds, callback) => set((draft) => { deletePipes(draft.factory, pipeIds, callback) }),
+    addPipe: (pipe, callback) => set((draft) => { addPipe(draft.factory, pipe, callback) }),
   }))
 );
 
@@ -50,5 +52,10 @@ function deletePipes(factory: Factory, pipeIds: PipeId[], callback: (factory: Fa
   for (let pipeId of pipeIds) {
     delete factory.pipes[pipeId];
   }
+  callback(factory);
+}
+
+function addPipe(factory: Factory, pipe: Pipe, callback: (factory: Factory) => void) {
+  factory.pipes[pipe.id] = pipe;
   callback(factory);
 }

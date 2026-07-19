@@ -23,7 +23,7 @@ import { getNodesForFactory, nodeTypes } from "./nodes";
 import { EdgeOptions } from "./components/EdgeOptions";
 import { NewSessionModal } from "./components/NewSessionModal";
 import { GraphUpdateCallbacks } from "./GraphUpdateCallbacks";
-import { Controller } from "./Controller";
+import * as Controller from "./Controller";
 import { useDropTargetStore } from "./stores/dropTarget";
 import { useFactoryStore } from "./stores/factory";
 import { GroupOptions } from "./components/GroupOptions";
@@ -35,6 +35,7 @@ import { Toast } from "./components/Toast";
 import { MissingPeriphs } from "./components/MissingPeriphs";
 import { Attribution } from "./components/Attribution";
 import { AvailablePeriphs } from "./components/AvailablePeriphs";
+import { Pipe } from "@server/types/core-types";
 
 const DEFAULT_ENDPOINT = (process.env.NODE_ENV === "production") ? "wss://sigils.fredchan.org" : "ws://localhost:3000";
 
@@ -74,9 +75,6 @@ export default function App() {
 
   const { dropTarget, setDropTarget, clearDropTarget } = useDropTargetStore();
 
-  /**
-   * Handlers for React Flow events
-   */
   const onConnect: OnConnect = useCallback(
     (connection) => GraphUpdateCallbacks.onConnect(connection, setTempEdge, setEdges, factory),
     [factory]
@@ -84,7 +82,12 @@ export default function App() {
 
   const onEdgesDelete: OnEdgesDelete = useCallback(
     (edges) => Controller.deletePipes(edges, factoryStore.deletePipes, sendMessage),
-    [sendMessage, factory, factoryStore.deletePipes]
+    [factoryStore.deletePipes, sendMessage]
+  );
+
+  const onPipeAdd = useCallback(
+    (pipe: Pipe) => Controller.addPipe(pipe, factoryStore.addPipe, sendMessage),
+    [factoryStore.addPipe, sendMessage]
   );
 
   const onEdgeUpdate: OnEdgeUpdateFunc = useCallback(
@@ -258,7 +261,7 @@ export default function App() {
         />
       }
       { tempEdge && <TempEdgeOptions
-          sendMessage={ sendMessage }
+          onPipeAdd={ onPipeAdd }
           setTempEdge={ setTempEdge }
           tempEdge={ tempEdge }
           onCancel={ () => {

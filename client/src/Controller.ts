@@ -1,8 +1,9 @@
 import { FactoryPutReq } from "@server/types/messages";
-import { Factory, PipeId } from "@server/types/core-types";
+import { Factory, Pipe } from "@server/types/core-types";
 import { SendMessage } from "react-use-websocket/dist/lib/types";
 import { Edge } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
+import { FactoryStore } from "./stores/factory";
 
 function sendFactoryPut(sendMessage: SendMessage, factory: Factory) {
   sendMessage(JSON.stringify({
@@ -12,9 +13,9 @@ function sendFactoryPut(sendMessage: SendMessage, factory: Factory) {
   } as FactoryPutReq));
 }
 
-function deletePipes(
+export function deletePipes(
   edges: Edge[],
-  deletePipes: (pipeIds: PipeId[], callback: (factory: Factory) => void) => void,
+  deletePipes: FactoryStore['deletePipes'],
   sendMessage: SendMessage
 ) {
   deletePipes(
@@ -23,6 +24,13 @@ function deletePipes(
   );
 }
 
-export const Controller = {
-  deletePipes: deletePipes,
+export function addPipe(
+  pipe: Pipe,
+  addPipe: FactoryStore['addPipe'],
+  sendMessage: SendMessage
+) {
+  addPipe(
+    pipe,
+    (factory) => sendFactoryPut(sendMessage, factory)
+  );
 }

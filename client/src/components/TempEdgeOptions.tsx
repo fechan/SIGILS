@@ -2,19 +2,18 @@ import { PipeAddReq } from "@server/types/messages";
 import { Dispatch, SetStateAction, useState } from "react";
 import { SendMessage } from "react-use-websocket";
 import { Edge } from "reactflow";
-import { v4 as uuidv4 } from "uuid";
 import { FilterSyntax } from "./FilterSyntax";
 import { useFactoryStore } from "../stores/factory";
-import { PipeMode } from "@server/types/core-types";
+import { Pipe, PipeMode } from "@server/types/core-types";
 
 export interface TempEdgeOptionsProps {
-  sendMessage: SendMessage,
   tempEdge: (Edge | null),
   setTempEdge: Dispatch<SetStateAction<Edge | null>>,
   onCancel: () => void,
+  onPipeAdd: (pipe: Pipe) => void,
 };
 
-export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel }: TempEdgeOptionsProps) {
+export function TempEdgeOptions({ tempEdge, setTempEdge, onCancel, onPipeAdd }: TempEdgeOptionsProps) {
   const [ nickname, setNickname ] = useState("");
   const [ filter, setFilter ] = useState("");
   const [ mode, setMode ] = useState("");
@@ -26,23 +25,18 @@ export function TempEdgeOptions({ tempEdge, setTempEdge, sendMessage, onCancel }
   function onCommit() {
     if (!(tempEdge && tempEdge.source && tempEdge.target)) return;
 
-    const reqId = uuidv4();
-    const pipeAddReq: PipeAddReq = {
-      type: "PipeAdd",
-      reqId: reqId,
-      pipe: {
-        id: tempEdge.id,
-        from: tempEdge.source,
-        to: tempEdge.target,
-      }
-    };
+    const pipe: Pipe = {
+      id: tempEdge.id,
+      from: tempEdge.source,
+      to: tempEdge.target,
+    }
 
-    if (nickname !== "") pipeAddReq.pipe.nickname = nickname;
-    if (filter !== "") pipeAddReq.pipe.filter = filter;
-    if (mode !== "") pipeAddReq.pipe.mode = mode as PipeMode;
+    if (nickname !== "") pipe.nickname = nickname;
+    if (filter !== "") pipe.filter = filter;
+    if (mode !== "") pipe.mode = mode as PipeMode;
 
     setTempEdge(null);
-    sendMessage(JSON.stringify(pipeAddReq));
+    onPipeAdd(pipe);
   }
 
   return (
