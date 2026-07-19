@@ -5,32 +5,38 @@ import { Edge } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import { FactoryStore } from "./stores/factory";
 
-function sendFactoryPut(sendMessage: SendMessage, factory: Factory) {
-  sendMessage(JSON.stringify({
-    reqId: uuidv4(),
-    type: "FactoryPut",
-    factory: factory,
-  } as FactoryPutReq));
-}
+export class Controller {
+  sendMessage: SendMessage; 
 
-export function deletePipes(
-  edges: Edge[],
-  deletePipes: FactoryStore['deletePipes'],
-  sendMessage: SendMessage
-) {
+  constructor(sendMessage: SendMessage) {
+    this.sendMessage = sendMessage;
+  }
+
+  postUpdate(factory: Factory) {
+    this.sendMessage(JSON.stringify({
+      reqId: uuidv4(),
+      type: "FactoryPut",
+      factory: factory,
+    } as FactoryPutReq));
+  }
+
   deletePipes(
-    edges.map(edge => edge.id),
-    (factory) => sendFactoryPut(sendMessage, factory)
-  );
-}
+    edges: Edge[],
+    deletePipes: FactoryStore['deletePipes'],
+  ) {
+    deletePipes(
+      edges.map(edge => edge.id),
+      (factory) => this.postUpdate(factory)
+    );
+  }
 
-export function addPipes(
-  pipes: Pipe[],
-  addPipes: FactoryStore['addPipes'],
-  sendMessage: SendMessage
-) {
   addPipes(
-    pipes,
-    (factory) => sendFactoryPut(sendMessage, factory)
-  );
+    pipes: Pipe[],
+    addPipes: FactoryStore['addPipes'],
+  ) {
+    addPipes(
+      pipes,
+      (factory) => this.postUpdate(factory)
+    );
+  }
 }

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import type { Edge, Node, NodeChange, NodeDragHandler, OnConnect, OnEdgesDelete, OnEdgeUpdateFunc, ReactFlowInstance } from "reactflow";
 
-import { DragEvent, DragEventHandler, MouseEvent, useCallback, useEffect, useState } from "react";
+import { DragEvent, DragEventHandler, MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
   Background,
   Controls, MiniMap,
@@ -23,7 +23,7 @@ import { getNodesForFactory, nodeTypes } from "./nodes";
 import { EdgeOptions } from "./components/EdgeOptions";
 import { NewSessionModal } from "./components/NewSessionModal";
 import { GraphUpdateCallbacks } from "./GraphUpdateCallbacks";
-import * as Controller from "./Controller";
+import { Controller } from "./Controller";
 import { useDropTargetStore } from "./stores/dropTarget";
 import { useFactoryStore } from "./stores/factory";
 import { GroupOptions } from "./components/GroupOptions";
@@ -55,6 +55,8 @@ export default function App() {
   });
   const [ showNewSessionModal, setShowNewSessionModal ] = useState(true);
 
+  const controller = useRef(new Controller(sendMessage));
+
   const factoryStore = useFactoryStore();
   const { factory, setFactory } = factoryStore;
   
@@ -80,14 +82,15 @@ export default function App() {
     [factory]
   );
 
+
   const onEdgesDelete: OnEdgesDelete = useCallback(
-    (edges) => Controller.deletePipes(edges, factoryStore.deletePipes, sendMessage),
-    [factoryStore.deletePipes, sendMessage]
+    (edges) => controller.current.deletePipes(edges, factoryStore.deletePipes),
+    [factoryStore.deletePipes]
   );
 
   const onPipeAdd = useCallback(
-    (pipes: Pipe[]) => Controller.addPipes(pipes, factoryStore.addPipes, sendMessage),
-    [factoryStore.addPipes, sendMessage]
+    (pipe: Pipe) => controller.current.addPipes([pipe], factoryStore.addPipes),
+    [factoryStore.addPipes]
   );
 
   const onEdgeUpdate: OnEdgeUpdateFunc = useCallback(
