@@ -23,6 +23,7 @@ import { getNodesForFactory, nodeTypes } from "./nodes";
 import { EdgeOptions } from "./components/EdgeOptions";
 import { NewSessionModal } from "./components/NewSessionModal";
 import { GraphUpdateCallbacks } from "./GraphUpdateCallbacks";
+import { Controller } from "./Controller";
 import { useDropTargetStore } from "./stores/dropTarget";
 import { useFactoryStore } from "./stores/factory";
 import { GroupOptions } from "./components/GroupOptions";
@@ -53,8 +54,8 @@ export default function App() {
   });
   const [ showNewSessionModal, setShowNewSessionModal ] = useState(true);
 
-  const { factory, version, setFactory } = useFactoryStore();
-
+  const factoryStore = useFactoryStore();
+  const { factory, setFactory } = factoryStore;
   
   // reqsNeedingLayout keys: Request IDs that, when fulfilled, should trigger graph layouting
   // values: Boolean that's true if the Request has been fulfilled
@@ -82,8 +83,8 @@ export default function App() {
   );
 
   const onEdgesDelete: OnEdgesDelete = useCallback(
-    (edges) => GraphUpdateCallbacks.onEdgesDelete(edges, sendMessage),
-    [sendMessage, addReqNeedingLayout]
+    (edges) => Controller.onEdgesDelete(edges, factoryStore.deletePipes, sendMessage),
+    [sendMessage, factory, factoryStore.deletePipes]
   );
 
   const onEdgeUpdate: OnEdgeUpdateFunc = useCallback(
@@ -164,7 +165,7 @@ export default function App() {
         }
       })();
     }
-  }, [factory, version, sendMessage]);
+  }, [factory, sendMessage]);
 
   useEffect(() => {
     if (lastMessage !== null && typeof lastMessage.data === "string") {
@@ -288,6 +289,7 @@ export default function App() {
         <Panel position="top-right">
           <EdgeOptions
             sendMessage={ sendMessage }
+            onDelete={ onEdgesDelete }
             addReqNeedingLayout={ addReqNeedingLayout }
           />
           <GroupOptions sendMessage={ sendMessage } />

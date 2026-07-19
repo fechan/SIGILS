@@ -7,10 +7,11 @@ import { useFactoryStore } from "../stores/factory";
 import { FilterSyntax } from "./FilterSyntax";
 
 interface EdgeOptionsProps {
+  onDelete: (edges: Edge[]) => void,
   sendMessage: SendMessage,
 };
 
-export function EdgeOptions({ sendMessage }: EdgeOptionsProps) {
+export function EdgeOptions({ onDelete, sendMessage }: EdgeOptionsProps) {
   const [ selectedEdges, setSelectedEdges ] = useState([] as Edge[]);
 
   const pipes = useFactoryStore(state => state.factory.pipes);
@@ -119,7 +120,7 @@ export function EdgeOptions({ sendMessage }: EdgeOptionsProps) {
         <div className="text-right box-border">
           <button
             className="mcui-button bg-red-700 w-32 h-10 me-3"
-            onClick={ () => GraphUpdateCallbacks.onEdgesDelete(selectedEdges, sendMessage) }
+            onClick={ () => onDelete(selectedEdges) }
           >
             Delete
           </button>

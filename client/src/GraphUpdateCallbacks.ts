@@ -8,23 +8,6 @@ import { CombineHandlers } from "./CombineHandlers";
 import { splitPeripheralFromMachine, splitSlotFromGroup } from "./SplitHandlers";
 import { AvailablePeripheralBadgeDragData } from "./components/AvailablePeripheralBadge";
 
-import { useFactoryStore } from "./stores/factory";
-const { factory, deletePipe } = useFactoryStore();
-
-
-function onEdgesDelete(
-  edges: Edge[],
-  sendMessage: SendMessage,
-) {
-  for (let edge of edges) {
-    deletePipe(edge.id);
-  }
-  sendMessage(JSON.stringify({
-    type: "FactoryPut",
-    factory: factory,
-  } as FactoryPutReq));
-}
-
 function onConnect(connection: Connection, setTempEdge: Dispatch<SetStateAction<Edge|null>>, setEdges: Dispatch<SetStateAction<Edge[]>>, factory: Factory) {
   if (!connection.source || !connection.target) return;
 
@@ -55,17 +38,18 @@ function onEdgeUpdate(
   sendMessage: SendMessage,
 ) {
   if (newConnection.source !== null && newConnection.target !== null) {
-    const reqId = uuidv4();
-    const pipeEditReq: PipeEditReq = {
-      type: "PipeEdit",
-      reqId: reqId,
-      pipeId: oldEdge.id,
-      edits: {
-        from: newConnection.source,
-        to: newConnection.target,
-      }
-    };
-    sendMessage(JSON.stringify(pipeEditReq));
+    factory.
+    // const reqId = uuidv4();
+    // const pipeEditReq: PipeEditReq = {
+    //   type: "PipeEdit",
+    //   reqId: reqId,
+    //   pipeId: oldEdge.id,
+    //   edits: {
+    //     from: newConnection.source,
+    //     to: newConnection.target,
+    //   }
+    // };
+    sendFactoryPut(sendMessage);
   }
 }
 
@@ -334,7 +318,6 @@ function onDrop(
 }
 
 export const GraphUpdateCallbacks = {
-  onEdgesDelete: onEdgesDelete,
   onEdgeUpdate: onEdgeUpdate,
   onConnect: onConnect,
   onPipeUpdate: onPipeUpdate,
