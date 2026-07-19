@@ -24,7 +24,7 @@ export function GroupNode({ id, selected }: NodeProps) {
     ...state.factory.groups[id],
     numSlots: state.factory.groups[id]?.slots.length,
   })));
-  const parentMachineId = useFactoryStore(state => state.groupParents[id]);
+  const parentMachineId = useFactoryStore(state => state.getGroupParents()[id]);
 
   // HACK: right now React Flow is not notified of deleted groups until the
   // useEffect that listens for addsAndDeletes in App.tsx runs.
