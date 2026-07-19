@@ -13,6 +13,12 @@ local function handleFactoryGet (request, factory, sendMessage)
   sendMessage(textutils.serializeJSON(factoryGetRes))
 end
 
+local function handleFactoryPut (request, factory, sendMessage)
+  factory.pipes = request.factory.pipes -- TODO: make this actually replace the factory object??
+  factory.machines = request.factory.machines
+  factory.groups = request.factory.groups
+end
+
 local function handlePipeAdd (request, factory, sendMessage)
   Factory.pipeAdd(factory, request.pipe)
   return true
@@ -124,6 +130,7 @@ local function listenForCcpipesEvents (wsContext, factory)
 
     local handlers = {
       ['ccpipes-FactoryGet'] = handleFactoryGet,
+      ['ccpipes-FactoryPut'] = handleFactoryPut,
       ['ccpipes-PipeAdd'] = handlePipeAdd,
       ['ccpipes-PipeDel'] = handlePipeDel,
       ['ccpipes-PipeEdit'] = handlePipeEdit,

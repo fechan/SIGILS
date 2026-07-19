@@ -1,5 +1,5 @@
 import { Factory, Group, GroupId, Machine, MachineId, Pipe, PipeId } from "@server/types/core-types";
-import { BatchRequest, GroupEditReq, MachineEditReq, PeriphAddReq, PipeDelReq, PipeEditReq, Request } from "@server/types/messages";
+import { BatchRequest, GroupEditReq, MachineEditReq, PeriphAddReq, PipeDelReq, PipeEditReq, Request, FactoryPutReq } from "@server/types/messages";
 import { Dispatch, DragEvent, MouseEvent, SetStateAction } from "react";
 import { SendMessage } from "react-use-websocket/dist/lib/types";
 import { boxToRect, Connection, Edge, Instance, MarkerType, Node, ReactFlowInstance } from "reactflow";
@@ -8,19 +8,21 @@ import { CombineHandlers } from "./CombineHandlers";
 import { splitPeripheralFromMachine, splitSlotFromGroup } from "./SplitHandlers";
 import { AvailablePeripheralBadgeDragData } from "./components/AvailablePeripheralBadge";
 
+import { useFactoryStore } from "./stores/factory";
+const { factory, deletePipe } = useFactoryStore();
+
+
 function onEdgesDelete(
   edges: Edge[],
   sendMessage: SendMessage,
 ) {
   for (let edge of edges) {
-    const reqId = uuidv4();
-    const pipeDelReq: PipeDelReq = {
-      type: "PipeDel",
-      reqId: reqId,
-      pipeId: edge.id,
-    };
-    sendMessage(JSON.stringify(pipeDelReq));
+    deletePipe(edge.id);
   }
+  sendMessage(JSON.stringify({
+    type: "FactoryPut",
+    factory: factory,
+  } as FactoryPutReq));
 }
 
 function onConnect(connection: Connection, setTempEdge: Dispatch<SetStateAction<Edge|null>>, setEdges: Dispatch<SetStateAction<Edge[]>>, factory: Factory) {

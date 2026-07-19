@@ -13,6 +13,7 @@ local MESSAGE_TYPES = {
   SessionJoin = true,
   FactoryGet = true,
   FactoryGetResponse = true,
+  FactoryPut = true,
   PipeAdd = true,
   PipeEdit = true,
   PipeDel = true,
