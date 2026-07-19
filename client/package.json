@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "elkjs": "^0.9.3",
+    "immer": "^11.1.15",
     "jsondiffpatch": "^0.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
