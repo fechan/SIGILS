@@ -84,9 +84,11 @@ export default function App() {
 
 
   const onEdgesDelete: OnEdgesDelete = useCallback((edges) => controller.current.deletePipes(edges), []);
-  const onPipeAdd = useCallback((pipe: Pipe) => controller.current.addPipes([pipe]), []);
   const onEdgeUpdate: OnEdgeUpdateFunc = useCallback((oldEdge, newConnection) => controller.current.editPipeConnection(oldEdge, newConnection), []);
-  const onPipeEdit = useCallback((pipeIds: PipeId[], edits: Partial<Pipe>) => controller.current.editPipes(pipeIds, edits), []);
+  const onPipeAdd = useCallback((pipe: Pipe) => controller.current.addPipes([pipe]), []);
+  const onPipeEdit: Controller['editPipes'] = useCallback((pipeIds: PipeId[], edits: Partial<Pipe>) => controller.current.editPipes(pipeIds, edits), []);
+
+  const onGroupEdit: Controller['editGroups'] = useCallback((groupIds, edits) => controller.current.editGroups(groupIds, edits), []);
 
   const onNodeDrag: NodeDragHandler = useCallback(
     (mouseEvent: MouseEvent, node: Node) => GraphUpdateCallbacks.onNodeDrag(mouseEvent, node, getIntersectingNodes, reactFlowInstance, setDropTarget),
@@ -287,7 +289,7 @@ export default function App() {
             onDelete={ onEdgesDelete }
             onPipeEdit={ onPipeEdit }
           />
-          <GroupOptions sendMessage={ sendMessage } />
+          <GroupOptions onGroupEdit={ onGroupEdit } />
           <MachineOptions sendMessage={ sendMessage } />
         </Panel>
         <Panel position="top-left">

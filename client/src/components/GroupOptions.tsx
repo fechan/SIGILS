@@ -1,15 +1,15 @@
 import { Group } from "@server/types/core-types";
 import { useState } from "react";
-import { SendMessage } from "react-use-websocket";
 import { Node, useOnSelectionChange, useStoreApi } from "reactflow";
 import { GraphUpdateCallbacks } from "../GraphUpdateCallbacks";
 import { useFactoryStore } from "../stores/factory";
+import { Controller } from "../Controller";
 
 interface GroupOptionsProps {
-  sendMessage: SendMessage,
+  onGroupEdit: Controller['editGroups'],
 };
 
-export function GroupOptions({ sendMessage }: GroupOptionsProps) {
+export function GroupOptions({ onGroupEdit }: GroupOptionsProps) {
   const [ selectedGroups, setSelectedGroups ] = useState([] as Node[]);
 
   const groups = useFactoryStore(state => state.factory.groups);
@@ -36,10 +36,9 @@ export function GroupOptions({ sendMessage }: GroupOptionsProps) {
       edits.nickname = nickname;
       changes = true;
     }
+
     if (changes) {
-      for (let group of selectedGroups) {
-        GraphUpdateCallbacks.onGroupUpdate(group.id, edits, sendMessage)
-      }
+      onGroupEdit(selectedGroups.map(node => node.id), edits);
     }
   }
   

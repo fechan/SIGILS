@@ -15,7 +15,9 @@ export interface FactoryStore {
 
   deletePipes: (pipeIds: PipeId[], callback: PostUpdateCallback) => void,
   addPipes: (pipes: Pipe[], callback: PostUpdateCallback) => void,
-  editPipes: (pipes: PipeId[], edits: Partial<Machine>, callback: PostUpdateCallback) => void,
+  editPipes: (pipes: PipeId[], edits: Partial<Pipe>, callback: PostUpdateCallback) => void,
+
+  editGroups: (groupsIds: GroupId[], edits: Partial<Group>, callback: PostUpdateCallback) => void,
 };
 
 const emptyFactory: Factory = {
@@ -36,6 +38,8 @@ export const useFactoryStore = create<FactoryStore>()(
     deletePipes: (pipeIds, callback) => set((draft) => { deletePipes(draft.factory, pipeIds, callback) }),
     addPipes: (pipes, callback) => set((draft) => { addPipes(draft.factory, pipes, callback) }),
     editPipes: (pipeIds, edits, callback) => set((draft) => { editPipes(draft.factory, pipeIds, edits, callback) }),
+
+    editGroups: (groupIds, edits, callback) => set((draft) => { editGroups(draft.factory, groupIds, edits, callback) }),
   }))
 );
 
