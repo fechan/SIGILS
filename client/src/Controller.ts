@@ -1,5 +1,5 @@
 import { FactoryPutReq } from "@server/types/messages";
-import { Factory, Group, GroupId, Pipe, PipeId } from "@server/types/core-types";
+import { Factory, Group, GroupId, Machine, MachineId, Pipe, PipeId } from "@server/types/core-types";
 import { SendMessage } from "react-use-websocket/dist/lib/types";
 import { Connection, Edge } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
@@ -61,9 +61,17 @@ export class Controller {
     );
   }
 
-  editGroups(groups: GroupId[], edits: Partial<Group>) {
+  editGroups(groupIds: GroupId[], edits: Partial<Group>) {
     this.factoryStore.editGroups(
-      groups,
+      groupIds,
+      edits,
+      (factory) => this.postUpdate(factory)
+    );
+  }
+
+  editMachines(machineIds: MachineId[], edits: Partial<Machine>) {
+    this.factoryStore.editMachines(
+      machineIds,
       edits,
       (factory) => this.postUpdate(factory)
     );

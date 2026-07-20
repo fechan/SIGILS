@@ -1,15 +1,15 @@
-import { SendMessage } from "react-use-websocket";
 import { Node, useOnSelectionChange, useStoreApi } from "reactflow";
 import { GraphUpdateCallbacks } from "../GraphUpdateCallbacks";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Machine } from "@server/types/core-types";
 import { useFactoryStore } from "../stores/factory";
+import { Controller } from "../Controller";
 
 interface MachineOptionsProps {
-  sendMessage: SendMessage,
+  onMachineEdit: Controller['editMachines'],
 };
 
-export function MachineOptions({ sendMessage }: MachineOptionsProps) {
+export function MachineOptions({ onMachineEdit }: MachineOptionsProps) {
   const [ selectedMachines, setSelectedMachines ] = useState([] as Node[]);
 
   const machines = useFactoryStore(state => state.factory.machines);
@@ -36,15 +36,13 @@ export function MachineOptions({ sendMessage }: MachineOptionsProps) {
     const edits: Partial<Machine> = {};
     let changes = false;
 
-    if (nickname !== "") {
+    if (nickname !== "...") {
       edits.nickname = nickname;
       changes = true;
     }
 
     if (changes) {
-      for (let machine of selectedMachines) {
-        GraphUpdateCallbacks.onMachineUpdate(machine.id, edits, sendMessage)
-      }
+      onMachineEdit(selectedMachines.map(machine => machine.id), edits);
     }
   }
   

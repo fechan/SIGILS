@@ -90,6 +90,8 @@ export default function App() {
 
   const onGroupEdit: Controller['editGroups'] = useCallback((groupIds, edits) => controller.current.editGroups(groupIds, edits), []);
 
+  const onMachineEdit: Controller['editMachines'] = useCallback((machineIds, edits) => controller.current.editMachines(machineIds, edits), []);
+
   const onNodeDrag: NodeDragHandler = useCallback(
     (mouseEvent: MouseEvent, node: Node) => GraphUpdateCallbacks.onNodeDrag(mouseEvent, node, getIntersectingNodes, reactFlowInstance, setDropTarget),
     [getIntersectingNodes, reactFlowInstance]
@@ -290,7 +292,7 @@ export default function App() {
             onPipeEdit={ onPipeEdit }
           />
           <GroupOptions onGroupEdit={ onGroupEdit } />
-          <MachineOptions sendMessage={ sendMessage } />
+          <MachineOptions onMachineEdit={ onMachineEdit } />
         </Panel>
         <Panel position="top-left">
           <MissingPeriphs
