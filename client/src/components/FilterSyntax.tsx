@@ -5,8 +5,8 @@ export function FilterSyntax () {
 
       <p>
         Prefix a term with an exclamation mark (!) to exclude it:
-        <blockquote className="ps-5">!cobblestone</blockquote>
       </p>
+      <blockquote className="ps-5">!cobblestone</blockquote>
 
       <p>
         Filter supports JEI prefixes for:
@@ -19,8 +19,8 @@ export function FilterSyntax () {
 
       <p>
         To match multiple filters, use the pipe (|) character:
-        <blockquote className="ps-5">iron ore | dirt | cobblestone</blockquote>
       </p>
+      <blockquote className="ps-5">iron ore | dirt | cobblestone</blockquote>
     </details>
   )
 }
