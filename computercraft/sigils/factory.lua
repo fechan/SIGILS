@@ -129,6 +129,92 @@ local function groupEdit (factory, groupId, edits)
   end
 end
 
+---Add a machine to a factory
+---@param factory Factory Factory to add to
+---@param machine Machine Machine to add
+---@return table diffs List of jsondiffpatch Deltas for the factory
+local function machineAdd (factory, machine)
+  factory.machines[machine.id] = machine
+
+  local diff = {
+    machines = {
+      [machine.id] = {machine}
+    }
+  }
+  return {diff}
+end
+
+---Add a peripheral to the missing peripherals set
+---@param factory Factory Factory to add to
+---@param periphId string CC Peripheral ID
+---@param skipPresenceCheck? boolean Whether to skip checking for if the periphId is already in the factory
+---@return table diffs List of jsondiffpatch Deltas for the factory
+local function missingAdd (factory, periphId, skipPresenceCheck)
+  if skipPresenceCheck then
+    factory.missing[periphId] = true
+
+    local diff = {
+      missing = {
+        [periphId] = {true}
+      }
+    }
+    return {diff}
+  end
+
+  -- try to find periphId in the factory. if it's not there, it doesn't matter
+  -- if it's missing, so we don't change anything.
+  for _, group in pairs(factory.groups) do
+    for _, slot in pairs(group.slots) do
+      if periphId == slot.periphId then
+        factory.missing[periphId] = true
+
+        local diff = {
+          missing = {
+            [periphId] = {true}
+          }
+        }
+        return {diff}
+      end
+    end
+  end
+
+  return {}
+end
+
+---Delete a peripheral from the missing peripherals set
+---@param factory Factory Factory to delete from to
+---@param periphId string CC Peripheral ID
+---@return table diffs List of jsondiffpatch Deltas for the factory
+local function missingDel (factory, periphId)
+  factory.missing[periphId] = nil
+
+  local diff = {
+    missing = {
+      [periphId] = {
+        nil, 0, 0
+      }
+    }
+  }
+  return {diff}
+end
+
+---Delete a peripheral from the available peripherals set
+---@param factory Factory Factory to delete from to
+---@param periphId string CC Peripheral ID
+---@return table diffs List of jsondiffpatch Deltas for the factory
+local function availableDel (factory, periphId)
+  factory.available[periphId] = nil
+
+  local diff = {
+    available = {
+      [periphId] = {
+        nil, 0, 0
+      }
+    }
+  }
+  return {diff}
+end
+
 ---Add a peripheral to the factory as a new machine
 ---@param factory Factory Factory to add the peripheral to
 ---@param periphId string Peripheral to add
