@@ -199,9 +199,13 @@ function onNodeDragStop(
     }
 
     clearDropTarget();
-  } else if (draggedNode.type === "machine" || draggedNode.type === "slot-group") {
+  } else if (draggedNode.type === "machine") {
     // update xy position of node
-    sendMessage(JSON.stringify(getEditMessageForNewPosition(draggedNode)));
+    const { id, position } = draggedNode;
+    controller.editMachines([id], { x: position.x, y: position.y });
+  } else if (draggedNode.type === "slot-group") {
+    const { id, position } = draggedNode;
+    controller.editGroups([id], { x: position.x, y: position.y });
   }
 }
 
