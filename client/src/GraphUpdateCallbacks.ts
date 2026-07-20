@@ -31,16 +31,6 @@ function onConnect(connection: Connection, setTempEdge: Dispatch<SetStateAction<
   setTempEdge(tempEdge);
 }
 
-function onPipeUpdate(pipeId: PipeId, edits: Partial<Pipe>, sendMessage: SendMessage) {
-  const pipeEditReq: PipeEditReq = {
-    type: "PipeEdit",
-    reqId: uuidv4(),
-    pipeId: pipeId,
-    edits: edits,
-  };
-  sendMessage(JSON.stringify(pipeEditReq));
-}
-
 function onGroupUpdate(groupId: GroupId, edits: Partial<Group>, sendMessage: SendMessage) {
   const groupEditReq: GroupEditReq = {
     type: "GroupEdit",
@@ -296,9 +286,7 @@ function onDrop(
 }
 
 export const GraphUpdateCallbacks = {
-  onEdgeUpdate: onEdgeUpdate,
   onConnect: onConnect,
-  onPipeUpdate: onPipeUpdate,
   onGroupUpdate: onGroupUpdate,
   onMachineUpdate: onMachineUpdate,
   onNodeDrag: onNodeDrag,

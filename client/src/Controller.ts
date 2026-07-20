@@ -36,6 +36,14 @@ export class Controller {
     );
   }
 
+  editPipes(pipes: PipeId[], edits: Partial<Pipe>) {
+    this.factoryStore.editPipes(
+      pipes,
+      edits,
+      (factory) => this.postUpdate(factory)
+    );
+  }
+
   editPipeConnection(edge: Edge, newConnection: Connection) {
     if (newConnection.source === null && newConnection.target === null) {
       return;

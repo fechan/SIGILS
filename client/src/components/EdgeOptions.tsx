@@ -1,17 +1,16 @@
 import { Pipe, PipeMode } from "@server/types/core-types";
 import { useState } from "react";
-import { SendMessage } from "react-use-websocket";
 import { Edge, useOnSelectionChange, useStoreApi } from "reactflow";
-import { GraphUpdateCallbacks } from "../GraphUpdateCallbacks";
 import { useFactoryStore } from "../stores/factory";
 import { FilterSyntax } from "./FilterSyntax";
+import { Controller } from "../Controller";
 
 interface EdgeOptionsProps {
-  onDelete: (edges: Edge[]) => void,
-  sendMessage: SendMessage,
+  onDelete: Controller['deletePipes'],
+  onPipeEdit: Controller['editPipes'],
 };
 
-export function EdgeOptions({ onDelete, sendMessage }: EdgeOptionsProps) {
+export function EdgeOptions({ onDelete, onPipeEdit }: EdgeOptionsProps) {
   const [ selectedEdges, setSelectedEdges ] = useState([] as Edge[]);
 
   const pipes = useFactoryStore(state => state.factory.pipes);
@@ -52,9 +51,7 @@ export function EdgeOptions({ onDelete, sendMessage }: EdgeOptionsProps) {
     }
 
     if (changes) {
-      for (let edge of selectedEdges) {
-        GraphUpdateCallbacks.onPipeUpdate(edge.id, edits, sendMessage)
-      }
+      onPipeEdit(selectedEdges.map(edge => edge.id), edits);
     }
   }
 

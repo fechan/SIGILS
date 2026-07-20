@@ -35,7 +35,7 @@ import { Toast } from "./components/Toast";
 import { MissingPeriphs } from "./components/MissingPeriphs";
 import { Attribution } from "./components/Attribution";
 import { AvailablePeriphs } from "./components/AvailablePeriphs";
-import { Pipe } from "@server/types/core-types";
+import { Pipe, PipeId } from "@server/types/core-types";
 
 const DEFAULT_ENDPOINT = (process.env.NODE_ENV === "production") ? "wss://sigils.fredchan.org" : "ws://localhost:3000";
 
@@ -83,17 +83,10 @@ export default function App() {
   );
 
 
-  const onEdgesDelete: OnEdgesDelete = useCallback(
-    (edges) => controller.current.deletePipes(edges), []
-  );
-
-  const onPipeAdd = useCallback(
-    (pipe: Pipe) => controller.current.addPipes([pipe]), []
-  );
-
-  const onEdgeUpdate: OnEdgeUpdateFunc = useCallback(
-    (oldEdge, newConnection) => controller.current.editPipeConnection(oldEdge, newConnection), []
-  );
+  const onEdgesDelete: OnEdgesDelete = useCallback((edges) => controller.current.deletePipes(edges), []);
+  const onPipeAdd = useCallback((pipe: Pipe) => controller.current.addPipes([pipe]), []);
+  const onEdgeUpdate: OnEdgeUpdateFunc = useCallback((oldEdge, newConnection) => controller.current.editPipeConnection(oldEdge, newConnection), []);
+  const onPipeEdit = useCallback((pipeIds: PipeId[], edits: Partial<Pipe>) => controller.current.editPipes(pipeIds, edits), []);
 
   const onNodeDrag: NodeDragHandler = useCallback(
     (mouseEvent: MouseEvent, node: Node) => GraphUpdateCallbacks.onNodeDrag(mouseEvent, node, getIntersectingNodes, reactFlowInstance, setDropTarget),
@@ -291,9 +284,8 @@ export default function App() {
       >
         <Panel position="top-right">
           <EdgeOptions
-            sendMessage={ sendMessage }
             onDelete={ onEdgesDelete }
-            addReqNeedingLayout={ addReqNeedingLayout }
+            onPipeEdit={ onPipeEdit }
           />
           <GroupOptions sendMessage={ sendMessage } />
           <MachineOptions sendMessage={ sendMessage } />
