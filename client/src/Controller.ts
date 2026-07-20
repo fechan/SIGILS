@@ -1,15 +1,17 @@
 import { FactoryPutReq } from "@server/types/messages";
-import { Factory, Pipe } from "@server/types/core-types";
+import { Factory, Pipe, PipeId } from "@server/types/core-types";
 import { SendMessage } from "react-use-websocket/dist/lib/types";
-import { Edge } from "reactflow";
+import { Connection, Edge } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import { FactoryStore } from "./stores/factory";
 
 export class Controller {
   sendMessage: SendMessage; 
+  factoryStore: FactoryStore
 
-  constructor(sendMessage: SendMessage) {
+  constructor(sendMessage: SendMessage, factoryStore: FactoryStore) {
     this.sendMessage = sendMessage;
+    this.factoryStore = factoryStore;
   }
 
   postUpdate(factory: Factory) {
@@ -20,22 +22,33 @@ export class Controller {
     } as FactoryPutReq));
   }
 
-  deletePipes(
-    edges: Edge[],
-    deletePipes: FactoryStore['deletePipes'],
-  ) {
-    deletePipes(
+  deletePipes(edges: Edge[]) {
+    this.factoryStore.deletePipes(
       edges.map(edge => edge.id),
       (factory) => this.postUpdate(factory)
     );
   }
 
-  addPipes(
-    pipes: Pipe[],
-    addPipes: FactoryStore['addPipes'],
-  ) {
-    addPipes(
+  addPipes(pipes: Pipe[]) {
+    this.factoryStore.addPipes(
       pipes,
+      (factory) => this.postUpdate(factory)
+    );
+  }
+
+  editPipeConnection(edge: Edge, newConnection: Connection) {
+    if (newConnection.source === null && newConnection.target === null) {
+      return;
+    }
+
+    const edits: Partial<Pipe> = {
+      from: newConnection.source!,
+      to: newConnection.target!,
+    };
+
+    this.factoryStore.editPipes(
+      [edge.id],
+      edits,
       (factory) => this.postUpdate(factory)
     );
   }

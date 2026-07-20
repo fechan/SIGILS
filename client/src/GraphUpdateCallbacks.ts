@@ -31,28 +31,6 @@ function onConnect(connection: Connection, setTempEdge: Dispatch<SetStateAction<
   setTempEdge(tempEdge);
 }
 
-
-function onEdgeUpdate(
-  oldEdge: Edge,
-  newConnection: Connection,
-  sendMessage: SendMessage,
-) {
-  if (newConnection.source !== null && newConnection.target !== null) {
-    factory.
-    // const reqId = uuidv4();
-    // const pipeEditReq: PipeEditReq = {
-    //   type: "PipeEdit",
-    //   reqId: reqId,
-    //   pipeId: oldEdge.id,
-    //   edits: {
-    //     from: newConnection.source,
-    //     to: newConnection.target,
-    //   }
-    // };
-    sendFactoryPut(sendMessage);
-  }
-}
-
 function onPipeUpdate(pipeId: PipeId, edits: Partial<Pipe>, sendMessage: SendMessage) {
   const pipeEditReq: PipeEditReq = {
     type: "PipeEdit",

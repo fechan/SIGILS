@@ -55,10 +55,10 @@ export default function App() {
   });
   const [ showNewSessionModal, setShowNewSessionModal ] = useState(true);
 
-  const controller = useRef(new Controller(sendMessage));
-
   const factoryStore = useFactoryStore();
   const { factory, setFactory } = factoryStore;
+
+  const controller = useRef(new Controller(sendMessage, factoryStore));
   
   // reqsNeedingLayout keys: Request IDs that, when fulfilled, should trigger graph layouting
   // values: Boolean that's true if the Request has been fulfilled
@@ -84,18 +84,15 @@ export default function App() {
 
 
   const onEdgesDelete: OnEdgesDelete = useCallback(
-    (edges) => controller.current.deletePipes(edges, factoryStore.deletePipes),
-    [factoryStore.deletePipes]
+    (edges) => controller.current.deletePipes(edges), []
   );
 
   const onPipeAdd = useCallback(
-    (pipe: Pipe) => controller.current.addPipes([pipe], factoryStore.addPipes),
-    [factoryStore.addPipes]
+    (pipe: Pipe) => controller.current.addPipes([pipe]), []
   );
 
   const onEdgeUpdate: OnEdgeUpdateFunc = useCallback(
-    (oldEdge, newConnection) => GraphUpdateCallbacks.onEdgeUpdate(oldEdge, newConnection, sendMessage),
-    [sendMessage, addReqNeedingLayout]
+    (oldEdge, newConnection) => controller.current.editPipeConnection(oldEdge, newConnection), []
   );
 
   const onNodeDrag: NodeDragHandler = useCallback(
