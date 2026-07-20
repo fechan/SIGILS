@@ -15,7 +15,7 @@ export interface FactoryStore {
 
   deletePipes: (pipeIds: PipeId[], callback: PostUpdateCallback) => void,
   addPipes: (pipes: Pipe[], callback: PostUpdateCallback) => void,
-  editPipes: (edits: {[key: PipeId]: Partial<Machine>}, callback: PostUpdateCallback) => void,
+  editPipes: (pipes: PipeId[], edits: Partial<Machine>, callback: PostUpdateCallback) => void,
 };
 
 const emptyFactory: Factory = {
@@ -35,7 +35,7 @@ export const useFactoryStore = create<FactoryStore>()(
     
     deletePipes: (pipeIds, callback) => set((draft) => { deletePipes(draft.factory, pipeIds, callback) }),
     addPipes: (pipes, callback) => set((draft) => { addPipes(draft.factory, pipes, callback) }),
-    editPipes: (edits, callback) => set((draft) => { editPipes(draft.factory, edits, callback) }),
+    editPipes: (pipeIds, edits, callback) => set((draft) => { editPipes(draft.factory, pipeIds, edits, callback) }),
   }))
 );
 
@@ -78,11 +78,12 @@ function addPipes(
 
 function editPipes(
   factory: Factory,
-  edits: {[key: PipeId]: Partial<Machine>},
+  pipeIds: PipeId[],
+  edits: Partial<Machine>,
   callback?: PostUpdateCallback
 ) {
-  for (let [pipeId, changes] of Object.entries(edits)) {
-    factory.pipes[pipeId] = { ...(factory.pipes[pipeId]), ...changes};
+  for (let pipeId of pipeIds) {
+    factory.pipes[pipeId] = { ...(factory.pipes[pipeId]), ...edits};
   }
   if (callback) callback(factory);
 }
@@ -100,11 +101,12 @@ function deleteMachines(
 
 function editMachines(
   factory: Factory,
-  edits: {[key: MachineId]: Partial<Machine>},
+  machineIds: MachineId[],
+  edits: Partial<Machine>,
   callback?: PostUpdateCallback
 ) {
-  for (let [machineId, changes] of Object.entries(edits)) {
-    factory.machines[machineId] = { ...(factory.machines[machineId]), ...changes};
+  for (let machineId of machineIds) {
+    factory.machines[machineId] = { ...(factory.machines[machineId]), ...edits};
   }
   if (callback) callback(factory);
 }
@@ -153,11 +155,12 @@ function deleteGroups(
 
 function editGroups(
   factory: Factory,
-  edits: {[key: GroupId]: Partial<Group>},
+  groupIds: GroupId[],
+  edits: Partial<Group>,
   callback?: PostUpdateCallback,
 ) {
-  for (let [groupId, changes] of Object.entries(edits)) {
-    factory.groups[groupId] = { ...(factory.groups[groupId]), ...changes};
+  for (let groupId of groupIds) {
+    factory.groups[groupId] = { ...(factory.groups[groupId]), ...edits};
   }
   if (callback) callback(factory);
 }
