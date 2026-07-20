@@ -98,8 +98,8 @@ export default function App() {
   );
 
   const onNodeDragStop: NodeDragHandler = useCallback(
-    (mouseEvent: MouseEvent, node: Node) => GraphUpdateCallbacks.onNodeDragStop(controller.current.combineGroups.bind(controller.current), mouseEvent, node, dropTarget, clearDropTarget, sendMessage, reactFlowInstance, factory, addReqNeedingLayout),
-    [clearDropTarget, dropTarget, sendMessage, reactFlowInstance, factory, addReqNeedingLayout]
+    (mouseEvent: MouseEvent, node: Node) => GraphUpdateCallbacks.onNodeDragStop(controller.current, mouseEvent, node, dropTarget, clearDropTarget, sendMessage, reactFlowInstance, factory, addReqNeedingLayout),
+    [clearDropTarget, dropTarget, sendMessage, reactFlowInstance, factory, addReqNeedingLayout, controller.current]
   );
 
   const onDragOver: DragEventHandler = useCallback(

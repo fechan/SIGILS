@@ -165,7 +165,7 @@ function getBatchEditMessageForNewPositions(nodes: Node[]) {
 }
 
 function onNodeDragStop(
-  combineGroups: Controller['combineGroups'],
+  controller: Controller,
   mouseEvent: MouseEvent,
   draggedNode: Node,
   dropTarget: Node | null,
@@ -183,7 +183,7 @@ function onNodeDragStop(
       messages = CombineHandlers.combineMachines([draggedNode.id], dropTarget.id, factory.machines, factory.groups);
     } else if (draggedNode.type === "slot-group" && dropTarget.type === "slot-group") {
       // TODO: make this whole handler use the controller instead of only when combining groups
-      combineGroups([draggedNode.id], dropTarget.id);
+      controller.combineGroups([draggedNode.id], dropTarget.id);
       return;
     }
 
