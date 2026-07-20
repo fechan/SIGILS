@@ -1,7 +1,6 @@
 import { Group } from "@server/types/core-types";
 import { useState } from "react";
 import { Node, useOnSelectionChange, useStoreApi } from "reactflow";
-import { GraphUpdateCallbacks } from "../GraphUpdateCallbacks";
 import { useFactoryStore } from "../stores/factory";
 import { Controller } from "../Controller";
 
