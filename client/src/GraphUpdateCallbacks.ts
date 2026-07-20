@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import { CombineHandlers } from "./CombineHandlers";
 import { splitPeripheralFromMachine, splitSlotFromGroup } from "./SplitHandlers";
 import { AvailablePeripheralBadgeDragData } from "./components/AvailablePeripheralBadge";
+import { Controller } from "./Controller";
 
 function onConnect(connection: Connection, setTempEdge: Dispatch<SetStateAction<Edge|null>>, setEdges: Dispatch<SetStateAction<Edge[]>>, factory: Factory) {
   if (!connection.source || !connection.target) return;
@@ -164,6 +165,7 @@ function getBatchEditMessageForNewPositions(nodes: Node[]) {
 }
 
 function onNodeDragStop(
+  combineGroups: Controller['combineGroups'],
   mouseEvent: MouseEvent,
   draggedNode: Node,
   dropTarget: Node | null,
@@ -180,7 +182,9 @@ function onNodeDragStop(
     if (draggedNode.type === "machine" && dropTarget.type === "machine") {
       messages = CombineHandlers.combineMachines([draggedNode.id], dropTarget.id, factory.machines, factory.groups);
     } else if (draggedNode.type === "slot-group" && dropTarget.type === "slot-group") {
-      messages = CombineHandlers.combineGroups([draggedNode.id], dropTarget.id, factory.groups);
+      // TODO: make this whole handler use the controller instead of only when combining groups
+      combineGroups([draggedNode.id], dropTarget.id);
+      return;
     }
 
     if (messages) {

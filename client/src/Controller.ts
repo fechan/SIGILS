@@ -14,6 +14,9 @@ export class Controller {
     this.factoryStore = factoryStore;
   }
 
+  // TODO: wouldn't it make more sense for the model to return the factory draft
+  // and the controller call this method directly rather than having
+  // the model run a callback?
   postUpdate(factory: Factory) {
     this.sendMessage(JSON.stringify({
       reqId: uuidv4(),
@@ -67,6 +70,14 @@ export class Controller {
       edits,
       (factory) => this.postUpdate(factory)
     );
+  }
+
+  combineGroups(sourceGroupIds: GroupId[], targetGroupId: GroupId) {
+    this.factoryStore.combineGroups(
+      sourceGroupIds,
+      targetGroupId,
+      (factory) => this.postUpdate(factory)
+    )
   }
 
   editMachines(machineIds: MachineId[], edits: Partial<Machine>) {

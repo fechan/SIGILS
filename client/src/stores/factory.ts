@@ -1,6 +1,7 @@
 import { Factory, Group, GroupId, Machine, MachineId, Pipe, PipeId } from "@server/types/core-types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { current } from "immer";
 
 /**
  * Type of callback to run after the factory updates.
@@ -18,6 +19,7 @@ export interface FactoryStore {
   editPipes: (pipes: PipeId[], edits: Partial<Pipe>, callback: PostUpdateCallback) => void,
 
   editGroups: (groupIds: GroupId[], edits: Partial<Group>, callback: PostUpdateCallback) => void,
+  combineGroups: ( sourceGroupIds: GroupId[], targetGroupId: GroupId, callback?: PostUpdateCallback) => void,
 
   editMachines: (machineIds: MachineId[], edits: Partial<Machine>, callback: PostUpdateCallback) => void,
 };
@@ -42,6 +44,7 @@ export const useFactoryStore = create<FactoryStore>()(
     editPipes: (pipeIds, edits, callback) => set((draft) => { editPipes(draft.factory, pipeIds, edits, callback) }),
 
     editGroups: (groupIds, edits, callback) => set((draft) => { editGroups(draft.factory, groupIds, edits, callback) }),
+    combineGroups: (sourceGroupIds, targetGroupId, callback) => set((draft) => { combineGroups(draft.factory, sourceGroupIds, targetGroupId, callback) }),
 
     editMachines: (machineIds, edits, callback) => set((draft) => { editMachines(draft.factory, machineIds, edits, callback) }),
   }))
@@ -135,7 +138,7 @@ function deleteGroup(
 
   // find the machine that had the group in it and remove the group from it
   for (let [machineId, machine] of Object.entries(factory.machines)) {
-    const groupIndex = machine.groups.indexOf(machineId);
+    const groupIndex = machine.groups.indexOf(groupId);
     if (groupIndex > -1) {
       machine.groups.splice(groupIndex);
 
@@ -165,7 +168,7 @@ function editGroups(
   factory: Factory,
   groupIds: GroupId[],
   edits: Partial<Group>,
-  callback?: PostUpdateCallback,
+  callback?: PostUpdateCallback
 ) {
   for (let groupId of groupIds) {
     factory.groups[groupId] = { ...(factory.groups[groupId]), ...edits};
@@ -184,7 +187,7 @@ function addGroups(
   factory: Factory,
   groups: Group[],
   machineId?: MachineId,
-  callback?: PostUpdateCallback,
+  callback?: PostUpdateCallback
 ) {
   for (let group of groups) {
     factory.groups[group.id] = group;
@@ -194,6 +197,35 @@ function addGroups(
     let groupIds = groups.map(group => group.id);
     factory.machines[machineId].groups.push(...groupIds);
   }
+
+  if (callback) callback(factory);
+}
+
+function canGroupsCombine(source: Group, target: Group) {
+  return Boolean(source.fluid) === Boolean(target.fluid);
+}
+
+function combineGroups(
+  factory: Factory,
+  sourceGroupIds: GroupId[],
+  targetGroupId: GroupId,
+  callback?: PostUpdateCallback
+) {
+  // find the groups to be combined
+  const targetGroup = factory.groups[targetGroupId];
+
+  let sourceGroups = (sourceGroupIds
+    .map(id => factory.groups[id])
+    .filter(sourceGroup => canGroupsCombine(sourceGroup, targetGroup))); // only combine fluid groups into fluid groups and vice versa
+
+  // set the target's slots to be the union of all their slots
+  const combinedSlots = ([targetGroup, ...sourceGroups]
+    .map(group => group.slots)
+    .flat());
+  targetGroup.slots = combinedSlots;
+
+  // delete the source groups
+  deleteGroups(factory, sourceGroups.map(group => group.id));
 
   if (callback) callback(factory);
 }
