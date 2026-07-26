@@ -31,26 +31,6 @@ function onConnect(connection: Connection, setTempEdge: Dispatch<SetStateAction<
   setTempEdge(tempEdge);
 }
 
-function onGroupUpdate(groupId: GroupId, edits: Partial<Group>, sendMessage: SendMessage) {
-  const groupEditReq: GroupEditReq = {
-    type: "GroupEdit",
-    reqId: uuidv4(),
-    groupId: groupId,
-    edits: edits,
-  };
-  sendMessage(JSON.stringify(groupEditReq));
-}
-
-function onMachineUpdate(machineId: MachineId, edits: Partial<Machine>, sendMessage: SendMessage) {
-  const machineEditReq: MachineEditReq = {
-    type: "MachineEdit",
-    reqId: uuidv4(),
-    machineId: machineId,
-    edits: edits,
-  };
-  sendMessage(JSON.stringify(machineEditReq));
-}
-
 function nodeIsCompatibleDropTarget(draggedNode: Node, targetNode: Node) {
   return (
     (draggedNode.type === "machine" && targetNode.type === "machine") ||
@@ -282,8 +262,6 @@ function onDrop(
 
 export const GraphUpdateCallbacks = {
   onConnect: onConnect,
-  onGroupUpdate: onGroupUpdate,
-  onMachineUpdate: onMachineUpdate,
   onNodeDrag: onNodeDrag,
   onNodeDragStop: onNodeDragStop,
   onDragOver: onDragOver,
