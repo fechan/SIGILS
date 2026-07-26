@@ -164,7 +164,6 @@ function onNodeDragStop(
       controller.combineGroups([draggedNode.id], dropTarget.id);
     }
     clearDropTarget();
-    return;
   } else if (draggedNode.type === "machine") {
     // update xy position of node
     const { id, position } = draggedNode;
