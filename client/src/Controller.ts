@@ -1,9 +1,15 @@
 import { FactoryPutReq } from "@server/types/messages";
 import { Factory, Group, GroupId, Machine, MachineId, Pipe, PipeId } from "@server/types/core-types";
 import { SendMessage } from "react-use-websocket/dist/lib/types";
-import { Connection, Edge } from "reactflow";
+import { Connection, Edge, Node } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import { FactoryStore } from "./stores/factory";
+import { ItemSlotDragData } from "./components/ItemSlot";
+
+export interface XYPosition {
+  x: number;
+  y: number;
+}
 
 export class Controller {
   sendMessage: SendMessage; 
@@ -92,6 +98,32 @@ export class Controller {
     this.factoryStore.combineMachines(
       sourceMachineIds,
       targetMachineId,
+      (factory) => this.postUpdate(factory)
+    );
+  }
+
+  splitSlotFromGroup(slotData: ItemSlotDragData, intersections: Node[], initialPosition: XYPosition) {
+    const { slot, machineId, oldGroupId } = slotData;
+    const factory = this.factoryStore.factory;
+
+    // check if we're over a machine node of the same ID as machineId
+    intersections = intersections.filter(node => node.id === machineId);
+
+    // check if taking the slot out will cause the old group to be empty
+    const oldGroup = factory.groups[oldGroupId];
+    const oldGroupSlots = oldGroup.slots;
+    const oldGroupWillBeEmpty = oldGroupSlots.length === 1;
+
+    if (intersections.length <= 0 || oldGroupWillBeEmpty) {
+      return;
+    }
+
+    this.factoryStore.splitSlotFromGroup(
+      slot,
+      oldGroupId,
+      machineId,
+      initialPosition.x,
+      initialPosition.y,
       (factory) => this.postUpdate(factory)
     );
   }

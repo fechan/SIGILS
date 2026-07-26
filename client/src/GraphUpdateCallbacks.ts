@@ -180,6 +180,7 @@ function onDragOver(event: DragEvent) {
 }
 
 function onDrop(
+  controller: Controller,
   event: DragEvent,
   reactFlowInstance: (ReactFlowInstance | null),
   factory: Factory,
@@ -206,17 +207,16 @@ function onDrop(
     y2: mousePosition.y+50
   }));
 
-  const slotData = event.dataTransfer.getData("application/ccpipes-slotmove");
-  if (slotData) {
-    const { machineId } = JSON.parse(slotData);
-    const parentMachine = reactFlowInstance.getNode(machineId);
+  const slotDataJson = event.dataTransfer.getData("application/ccpipes-slotmove");
+  if (slotDataJson) {
+    const slotData = JSON.parse(slotDataJson);
+    const parentMachine = reactFlowInstance.getNode(slotData.machineId);
     
-    requests = splitSlotFromGroup(
-      JSON.parse(slotData),
+    controller.splitSlotFromGroup(
+      slotData,
       intersections,
-      factory,
       {x: mousePosition.x - parentMachine!.position.x, y: mousePosition.y - parentMachine!.position.y}
-    );
+    )
   }
 
   const peripheralMoveData = event.dataTransfer.getData("application/ccpipes-peripheralmove");

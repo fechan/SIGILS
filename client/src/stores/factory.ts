@@ -1,6 +1,7 @@
-import { Factory, Group, GroupId, Machine, MachineId, Pipe, PipeId } from "@server/types/core-types";
+import { Factory, Group, GroupId, Machine, MachineId, Pipe, PipeId, Slot } from "@server/types/core-types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { v4 as uuidv4 } from "uuid";
 import { current } from "immer";
 
 /**
@@ -19,7 +20,15 @@ export interface FactoryStore {
   editPipes: (pipes: PipeId[], edits: Partial<Pipe>, callback: PostUpdateCallback) => void,
 
   editGroups: (groupIds: GroupId[], edits: Partial<Group>, callback: PostUpdateCallback) => void,
-  combineGroups: ( sourceGroupIds: GroupId[], targetGroupId: GroupId, callback?: PostUpdateCallback) => void,
+  combineGroups: (sourceGroupIds: GroupId[], targetGroupId: GroupId, callback?: PostUpdateCallback) => void,
+  splitSlotFromGroup: (
+    slot: Slot,
+    groupId: GroupId,
+    machineId: MachineId,
+    newGroupX: number,
+    newGroupY: number,
+    callback?: PostUpdateCallback,
+  ) => void,
   
   editMachines: (machineIds: MachineId[], edits: Partial<Machine>, callback: PostUpdateCallback) => void,
   combineMachines: ( sourceMachineIds: MachineId[], targetMachineId: GroupId, callback?: PostUpdateCallback) => void,
@@ -46,6 +55,7 @@ export const useFactoryStore = create<FactoryStore>()(
 
     editGroups: (groupIds, edits, callback) => set((draft) => { editGroups(draft.factory, groupIds, edits, callback) }),
     combineGroups: (sourceGroupIds, targetGroupId, callback) => set((draft) => { combineGroups(draft.factory, sourceGroupIds, targetGroupId, callback) }),
+    splitSlotFromGroup: (slot, groupId, machineId, newGroupX, newGroupY, callback) => set((draft) => { splitSlotFromGroup(draft.factory, slot, groupId, machineId, newGroupX, newGroupY, callback) }),
 
     editMachines: (machineIds, edits, callback) => set((draft) => { editMachines(draft.factory, machineIds, edits, callback) }),
     combineMachines: ( sourceMachineIds, targetMachineId, callback) => set((draft) => { combineMachines(draft.factory, sourceMachineIds, targetMachineId, callback) }),
@@ -306,6 +316,36 @@ function combineMachines(
 
   // delete the source machines
   deleteMachines(factory, sourceMachineIds);
+
+  if (callback) callback(factory);
+}
+
+function splitSlotFromGroup(
+  factory: Factory,
+  slot: Slot,
+  groupId: GroupId,
+  machineId: MachineId,
+  newGroupX: number,
+  newGroupY: number,
+  callback?: PostUpdateCallback,
+) {
+  const oldGroup = factory.groups[groupId];
+
+  // make a new group containing the slot
+  const newGroup = {
+    id: uuidv4(),
+    nickname: oldGroup.nickname,
+    slots: [slot],
+    x: newGroupX,
+    y: newGroupY,
+    fluid: oldGroup.fluid,
+  };
+  addGroups(factory, [newGroup], machineId);
+
+  // delete the slot from the old group
+  const oldGroupSlots = oldGroup.slots;
+  const oldGroupSlotsUpdated = oldGroupSlots.filter((oldSlot: Slot) => oldSlot.periphId !== slot.periphId || oldSlot.slot !== slot.slot);
+  editGroups(factory, [oldGroup.id], { slots: oldGroupSlotsUpdated });
 
   if (callback) callback(factory);
 }

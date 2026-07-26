@@ -108,7 +108,7 @@ export default function App() {
   );
 
   const onDrop: DragEventHandler = useCallback(
-    (event: DragEvent) => GraphUpdateCallbacks.onDrop(event, reactFlowInstance, factory, sendMessage, addReqNeedingLayout),
+    (event: DragEvent) => GraphUpdateCallbacks.onDrop(controller.current, event, reactFlowInstance, factory, sendMessage, addReqNeedingLayout),
     [reactFlowInstance, factory, sendMessage, addReqNeedingLayout]
   );
 
