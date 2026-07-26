@@ -77,13 +77,21 @@ export class Controller {
       sourceGroupIds,
       targetGroupId,
       (factory) => this.postUpdate(factory)
-    )
+    );
   }
 
   editMachines(machineIds: MachineId[], edits: Partial<Machine>) {
     this.factoryStore.editMachines(
       machineIds,
       edits,
+      (factory) => this.postUpdate(factory)
+    );
+  }
+
+  combineMachines(sourceMachineIds: MachineId[], targetMachineId: MachineId) {
+    this.factoryStore.combineMachines(
+      sourceMachineIds,
+      targetMachineId,
       (factory) => this.postUpdate(factory)
     );
   }

@@ -20,8 +20,9 @@ export interface FactoryStore {
 
   editGroups: (groupIds: GroupId[], edits: Partial<Group>, callback: PostUpdateCallback) => void,
   combineGroups: ( sourceGroupIds: GroupId[], targetGroupId: GroupId, callback?: PostUpdateCallback) => void,
-
+  
   editMachines: (machineIds: MachineId[], edits: Partial<Machine>, callback: PostUpdateCallback) => void,
+  combineMachines: ( sourceMachineIds: MachineId[], targetMachineId: GroupId, callback?: PostUpdateCallback) => void,
 };
 
 const emptyFactory: Factory = {
@@ -47,6 +48,7 @@ export const useFactoryStore = create<FactoryStore>()(
     combineGroups: (sourceGroupIds, targetGroupId, callback) => set((draft) => { combineGroups(draft.factory, sourceGroupIds, targetGroupId, callback) }),
 
     editMachines: (machineIds, edits, callback) => set((draft) => { editMachines(draft.factory, machineIds, edits, callback) }),
+    combineMachines: ( sourceMachineIds, targetMachineId, callback) => set((draft) => { combineMachines(draft.factory, sourceMachineIds, targetMachineId, callback) }),
   }))
 );
 
@@ -202,9 +204,14 @@ function addGroups(
 }
 
 function canGroupsCombine(source: Group, target: Group) {
-  return Boolean(source.fluid) === Boolean(target.fluid);
+  return Boolean(target.fluid) === Boolean(source.fluid);
 }
 
+/**
+ * Combine one or more source groups with the target group.
+ * - Slots from the source will become part of the target.
+ * - The source groups will be deleted.
+ */
 function combineGroups(
   factory: Factory,
   sourceGroupIds: GroupId[],
@@ -226,6 +233,79 @@ function combineGroups(
 
   // delete the source groups
   deleteGroups(factory, sourceGroups.map(group => group.id));
+
+  if (callback) callback(factory);
+}
+
+/**
+ * Combine one or more source machines into a target machine.
+ * - Groups from the source machines will be moved into the target
+ *   - Groups that are named the same across machines will be combined
+ * - The source machines will be deleted
+ */
+function combineMachines(
+  factory: Factory,
+  sourceMachineIds: MachineId[],
+  targetMachineId: MachineId,
+  callback?: PostUpdateCallback,
+) {
+  // sort groups into should combine/should not combine
+  const namedGroups: {[nick: string]: GroupId[]} = {}; // named groups with the same nickname will be combined into the first group of that name encountered
+  const namedFluidGroups: {[nick: string]: GroupId[]} = {};
+  const unnamedGroups: GroupId[] = []; // unnamed groups will just be added to the target without changing its slots
+
+  for (let machineId of [targetMachineId].concat(sourceMachineIds)) {
+    for (let groupId of factory.machines[machineId].groups) {
+      const group = factory.groups[groupId];
+
+      if (!group.nickname) {
+        unnamedGroups.push(groupId);
+        continue;
+      }
+
+      if (group.fluid) {
+        if (!(group.nickname in namedFluidGroups)) {
+          namedFluidGroups[group.nickname] = [];
+        }
+      } else {
+        if (!(group.nickname in namedGroups)) {
+          namedGroups[group.nickname] = [];
+        }
+      }
+
+      if (group.fluid) {
+        namedFluidGroups[group.nickname].push(groupId);
+      } else {
+        namedGroups[group.nickname].push(groupId);
+      }
+    }
+  }
+
+  // combine like-named source groups into the target groups
+  const finalNamedGroups: GroupId[] = []; // named groups that have been combined
+  for (const groupIds of Object.values(namedGroups)) {
+    if (groupIds.length > 1) {
+      combineGroups(factory, groupIds.slice(1), groupIds[0]);
+    }
+    finalNamedGroups.push(groupIds[0]);
+  }
+
+  const finalNamedFluidGroups: GroupId[] = []; // named fluid groups that have been combined
+  for (const groupIds of Object.values(namedFluidGroups)) {
+    if (groupIds.length > 1) {
+      combineGroups(factory, groupIds.slice(1), groupIds[0])
+    }
+    finalNamedFluidGroups.push(groupIds[0]);
+  }
+
+  factory.machines[targetMachineId].groups = [
+    ...finalNamedGroups,
+    ...finalNamedFluidGroups,
+    ...unnamedGroups
+  ];
+
+  // delete the source machines
+  deleteMachines(factory, sourceMachineIds);
 
   if (callback) callback(factory);
 }

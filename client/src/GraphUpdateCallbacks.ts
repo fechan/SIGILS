@@ -4,7 +4,6 @@ import { Dispatch, DragEvent, MouseEvent, SetStateAction } from "react";
 import { SendMessage } from "react-use-websocket/dist/lib/types";
 import { boxToRect, Connection, Edge, Instance, MarkerType, Node, ReactFlowInstance } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
-import { CombineHandlers } from "./CombineHandlers";
 import { splitPeripheralFromMachine, splitSlotFromGroup } from "./SplitHandlers";
 import { AvailablePeripheralBadgeDragData } from "./components/AvailablePeripheralBadge";
 import { Controller } from "./Controller";
@@ -175,29 +174,17 @@ function onNodeDragStop(
   factory: Factory,
   addReqNeedingLayout: (reqId: string) => void
 ) {
+  // TODO: move all this to controller
   if (!reactFlowInstance) return;
 
   if (dropTarget) {
-    let messages: Request[] | undefined;
     if (draggedNode.type === "machine" && dropTarget.type === "machine") {
-      messages = CombineHandlers.combineMachines([draggedNode.id], dropTarget.id, factory.machines, factory.groups);
+      controller.combineMachines([draggedNode.id], dropTarget.id);
+      return
     } else if (draggedNode.type === "slot-group" && dropTarget.type === "slot-group") {
-      // TODO: make this whole handler use the controller instead of only when combining groups
       controller.combineGroups([draggedNode.id], dropTarget.id);
       return;
     }
-
-    if (messages) {
-      const reqId = uuidv4();
-      const batchReq: BatchRequest = {
-        type: "BatchRequest",
-        reqId: reqId,
-        requests: messages,
-      };
-      addReqNeedingLayout(reqId);
-      sendMessage(JSON.stringify(batchReq));
-    }
-
     clearDropTarget();
   } else if (draggedNode.type === "machine") {
     // update xy position of node
