@@ -12,20 +12,34 @@ function getEmptyFactory() {
   } as Factory;
 }
 
-test("Adding a new group with a machine specified adds the group to machine's group list", () => {
-  const factory = getEmptyFactory();
-  addMachines(factory, [{
-    id: 'machine0',
-    groups: [],
-  }]);
+describe('addGroups', () => {
+  test("adds the group to the machine's group list if a machine is specified", () => {
+    const factory = getEmptyFactory();
+    addMachines(factory, [{
+      id: 'machine0',
+      groups: [],
+    }]);
 
-  addGroups(factory, [{
-    id: 'group0',
-    nickname: 'group0',
-    slots: [{periphId: 'periph0', slot: 0}],
-  }], 'machine0');
+    addGroups(factory, [{
+      id: 'group0',
+      nickname: 'group0',
+      slots: [{periphId: 'periph0', slot: 0}],
+    }], 'machine0');
 
-  expect(factory.machines['machine0'].groups).contain('group0');
+    expect(factory.machines['machine0'].groups).contain('group0');
+  });
+});
+
+describe('combineGroups', () => {
+  test("slots from the source become part of the target", { todo: true }, () => {});
+  test("deletes the source groups", { todo: true }, () => {});
+});
+
+describe('combineMachines', () => {
+  test("groups with unique names from the source machines are moved into the target", { todo: true }, () => {});
+  test("groups that are named the same are combined at the target", { todo: true }, () => {});
+  test("deletes the source machines", { todo: true }, () => {});
+  test("target machine's groups has all the slots", { todo: true }, () => {});
 });
 
 describe('splitSlotFromGroup', () => {
@@ -79,9 +93,14 @@ describe('splitSlotFromGroup', () => {
 });
 
 describe('splitPeripheralFromMachine', () => {
-  test("creates a new machine", { todo: true }, () => {});
+  test("adds a new machine", { todo: true }, () => {});
   test("new machine's groups named like the source machine's groups", { todo: true }, () => {});
   test("new machine has no empty groups", { todo: true }, () => {});
   test("removes the peripheral's slots from the source machine", { todo: true }, () => {});
   test("removes newly emptied groups from the source machine", { todo: true }, () => {});
 });
+
+describe('addPeripheral', () => {
+  test("adds a machine with all the peripheral's item slots", { todo: true }, () => {});
+  test("adds a machine with all the peripheral's fluid slots", { todo: true }, () => {});
+})
