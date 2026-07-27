@@ -14,11 +14,11 @@ export interface FactoryStore {
 
   getGroupParents: () => GroupParentsMap,
 
-  deletePipes: (pipeIds: PipeId[], callback: PostUpdateCallback) => void,
-  addPipes: (pipes: Pipe[], callback: PostUpdateCallback) => void,
-  editPipes: (pipes: PipeId[], edits: Partial<Pipe>, callback: PostUpdateCallback) => void,
+  deletePipes: (pipeIds: PipeId[], callback?: PostUpdateCallback) => void,
+  addPipes: (pipes: Pipe[], callback?: PostUpdateCallback) => void,
+  editPipes: (pipes: PipeId[], edits: Partial<Pipe>, callback?: PostUpdateCallback) => void,
 
-  editGroups: (groupIds: GroupId[], edits: Partial<Group>, callback: PostUpdateCallback) => void,
+  editGroups: (groupIds: GroupId[], edits: Partial<Group>, callback?: PostUpdateCallback) => void,
   combineGroups: (sourceGroupIds: GroupId[], targetGroupId: GroupId, callback?: PostUpdateCallback) => void,
   splitSlotFromGroup: (
     slot: Slot,
@@ -29,7 +29,8 @@ export interface FactoryStore {
     callback?: PostUpdateCallback,
   ) => void,
   
-  editMachines: (machineIds: MachineId[], edits: Partial<Machine>, callback: PostUpdateCallback) => void,
+  addMachines: (machines: Machine[], callback?: PostUpdateCallback) => void,
+  editMachines: (machineIds: MachineId[], edits: Partial<Machine>, callback?: PostUpdateCallback) => void,
   combineMachines: ( sourceMachineIds: MachineId[], targetMachineId: GroupId, callback?: PostUpdateCallback) => void,
   splitPeripheralFromMachine: (
     periphId: PeriphId,
@@ -63,6 +64,7 @@ export const useFactoryStore = create<FactoryStore>()(
     combineGroups: (sourceGroupIds, targetGroupId, callback) => set((draft) => { combineGroups(draft.factory, sourceGroupIds, targetGroupId, callback) }),
     splitSlotFromGroup: (slot, groupId, machineId, newGroupX, newGroupY, callback) => set((draft) => { splitSlotFromGroup(draft.factory, slot, groupId, machineId, newGroupX, newGroupY, callback) }),
 
+    addMachines: (machines, callback) => set((draft) => { addMachines(draft.factory, machines, callback) }),
     editMachines: (machineIds, edits, callback) => set((draft) => { editMachines(draft.factory, machineIds, edits, callback) }),
     combineMachines: (sourceMachineIds, targetMachineId, callback) => set((draft) => { combineMachines(draft.factory, sourceMachineIds, targetMachineId, callback) }),
     splitPeripheralFromMachine: (periphId, machineId, newMachineX, newMachineY, callback) => set((draft) => { splitPeripheralFromMachine(draft.factory, periphId, machineId, newMachineX, newMachineY, callback) }),
