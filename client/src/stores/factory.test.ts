@@ -28,7 +28,8 @@ test("Adding a new group with a machine specified adds the group to machine's gr
   expect(factory.machines['machine0'].groups).contain('group0');
 });
 
-function getFactory_OneMachine_OneGroup_TwoSlots() {
+describe('splitSlotFromGroup', () => {
+  function getFactory_OneMachine_OneGroup_TwoSlots() {
     const factory = getEmptyFactory();
     addMachines(factory, [{
       id: 'machine0',
@@ -44,10 +45,9 @@ function getFactory_OneMachine_OneGroup_TwoSlots() {
     }], 'machine0');
 
     return factory;
-}
+  }
 
-describe('splitSlotFromGroup', () => {
-  test('creates a new group in the same machine', () => {
+  test("creates a new group in the same machine", () => {
     const factory = getFactory_OneMachine_OneGroup_TwoSlots();
 
     splitSlotFromGroup(factory, {periphId: 'periph0', slot: 1}, 'group0', 'machine0', 0, 0);
@@ -60,7 +60,7 @@ describe('splitSlotFromGroup', () => {
     }
   });
 
-  test('removes the slot from the original group', () => {
+  test("removes the slot from the source group", () => {
     const factory = getFactory_OneMachine_OneGroup_TwoSlots();
     
     splitSlotFromGroup(factory, {periphId: 'periph0', slot: 1}, 'group0', 'machine0', 0, 0);
@@ -69,11 +69,19 @@ describe('splitSlotFromGroup', () => {
       .not.toContainEqual({periphId: 'periph0', slot: 1});
   });
 
-  test('leaves the other slots in the old group', () => {
+  test("leaves the other slots in the source group", () => {
     const factory = getFactory_OneMachine_OneGroup_TwoSlots();
     
     splitSlotFromGroup(factory, {periphId: 'periph0', slot: 1}, 'group0', 'machine0', 0, 0);
 
     expect(factory.groups['group0'].slots).toContainEqual({periphId: 'periph0', slot: 0});
   });
+});
+
+describe('splitPeripheralFromMachine', () => {
+  test("creates a new machine", { todo: true }, () => {});
+  test("new machine's groups named like the source machine's groups", { todo: true }, () => {});
+  test("new machine has no empty groups", { todo: true }, () => {});
+  test("removes the peripheral's slots from the source machine", { todo: true }, () => {});
+  test("removes newly emptied groups from the source machine", { todo: true }, () => {});
 });
