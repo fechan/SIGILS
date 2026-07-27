@@ -21,9 +21,9 @@ export class Controller {
     this.factoryStore = factoryStore;
   }
 
-  // TODO: wouldn't it make more sense for the model to return the factory draft
-  // and the controller call this method directly rather than having
-  // the model run a callback?
+  // TODO: it probably makes more sense to send the message AFTER React has
+  // picked up on the factory store's changes, since we're not waiting on any
+  // response data from the ComputerCraft side anymore
   postUpdate(factory: Factory) {
     this.sendMessage(JSON.stringify({
       reqId: uuidv4(),
