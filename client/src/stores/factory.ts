@@ -18,6 +18,7 @@ export interface FactoryStore {
   addPipes: (pipes: Pipe[], callback?: PostUpdateCallback) => void,
   editPipes: (pipes: PipeId[], edits: Partial<Pipe>, callback?: PostUpdateCallback) => void,
 
+  addGroups: (groups: Group[], machineId?: MachineId, callback?: PostUpdateCallback) => void,
   editGroups: (groupIds: GroupId[], edits: Partial<Group>, callback?: PostUpdateCallback) => void,
   combineGroups: (sourceGroupIds: GroupId[], targetGroupId: GroupId, callback?: PostUpdateCallback) => void,
   splitSlotFromGroup: (
@@ -60,6 +61,7 @@ export const useFactoryStore = create<FactoryStore>()(
     addPipes: (pipes, callback) => set((draft) => { addPipes(draft.factory, pipes, callback) }),
     editPipes: (pipeIds, edits, callback) => set((draft) => { editPipes(draft.factory, pipeIds, edits, callback) }),
 
+    addGroups: (groups, machineId, callback) => set((draft) => { addGroups(draft.factory, groups, machineId, callback) }),
     editGroups: (groupIds, edits, callback) => set((draft) => { editGroups(draft.factory, groupIds, edits, callback) }),
     combineGroups: (sourceGroupIds, targetGroupId, callback) => set((draft) => { combineGroups(draft.factory, sourceGroupIds, targetGroupId, callback) }),
     splitSlotFromGroup: (slot, groupId, machineId, newGroupX, newGroupY, callback) => set((draft) => { splitSlotFromGroup(draft.factory, slot, groupId, machineId, newGroupX, newGroupY, callback) }),
