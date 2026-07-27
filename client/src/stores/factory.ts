@@ -2,8 +2,6 @@ import { Factory, Group, GroupId, Machine, MachineId, PeriphId, Pipe, PipeId, Sl
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { v4 as uuidv4 } from "uuid";
-import { current } from "immer";
-import { PeripheralBadgeDragData } from "../components/PeripheralBadge";
 
 /**
  * Type of callback to run after the factory updates.
@@ -120,7 +118,7 @@ function editPipes(
   if (callback) callback(factory);
 }
 
-function addMachine(
+function addMachines(
   factory: Factory,
   machines: Machine[],
   callback?: PostUpdateCallback
@@ -380,7 +378,7 @@ function splitPeripheralFromMachine(
 ) {
   // create a machine for the split peripheral
   const newMachineId = uuidv4();
-  addMachine(factory, [{
+  addMachines(factory, [{
     id: newMachineId,
     nickname: periphId,
     groups: [],
