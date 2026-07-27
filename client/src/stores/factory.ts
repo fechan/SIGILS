@@ -82,7 +82,7 @@ export interface GroupParentsMap {
  * @param factory Factory the groups and machines are in
  * @returns Map from group IDs to parent machine IDs
  */
-function getGroupParents(factory: Factory) {
+export function getGroupParents(factory: Factory) {
   const groupParents: GroupParentsMap = {};
   for (const machine of Object.values(factory.machines)) {
     for (const groupId of machine.groups) {
@@ -92,14 +92,14 @@ function getGroupParents(factory: Factory) {
   return groupParents;
 }
 
-function deletePipes(factory: Factory, pipeIds: PipeId[], callback?: PostUpdateCallback) {
+export function deletePipes(factory: Factory, pipeIds: PipeId[], callback?: PostUpdateCallback) {
   for (let pipeId of pipeIds) {
     delete factory.pipes[pipeId];
   }
   if (callback) callback(factory);
 }
 
-function addPipes(
+export function addPipes(
   factory: Factory,
   pipes: Pipe[],
   callback?: PostUpdateCallback
@@ -110,7 +110,7 @@ function addPipes(
   if (callback) callback(factory);
 }
 
-function editPipes(
+export function editPipes(
   factory: Factory,
   pipeIds: PipeId[],
   edits: Partial<Machine>,
@@ -122,7 +122,7 @@ function editPipes(
   if (callback) callback(factory);
 }
 
-function addMachines(
+export function addMachines(
   factory: Factory,
   machines: Machine[],
   callback?: PostUpdateCallback
@@ -133,7 +133,7 @@ function addMachines(
   if (callback) callback(factory);
 }
 
-function deleteMachines(
+export function deleteMachines(
   factory: Factory,
   machineIds: MachineId[],
   callback?: PostUpdateCallback
@@ -144,7 +144,7 @@ function deleteMachines(
   if (callback) callback(factory);
 }
 
-function editMachines(
+export function editMachines(
   factory: Factory,
   machineIds: MachineId[],
   edits: Partial<Machine>,
@@ -156,7 +156,7 @@ function editMachines(
   if (callback) callback(factory);
 }
 
-function deleteGroup(
+export function deleteGroup(
   factory: Factory, 
   groupId: GroupId, 
   callback?: PostUpdateCallback
@@ -187,7 +187,7 @@ function deleteGroup(
   if (callback) callback(factory);
 }
 
-function deleteGroups(
+export function deleteGroups(
   factory: Factory, 
   groupIds: GroupId[], 
   callback?: PostUpdateCallback
@@ -198,7 +198,7 @@ function deleteGroups(
   if (callback) callback(factory);
 }
 
-function editGroups(
+export function editGroups(
   factory: Factory,
   groupIds: GroupId[],
   edits: Partial<Group>,
@@ -217,7 +217,7 @@ function editGroups(
  * @param machineId Machine to add the group to. If provided, all new groups will be added to the machine's group list.
  * @param callback Callback to run after the factory is updated.
  */
-function addGroups(
+export function addGroups(
   factory: Factory,
   groups: Group[],
   machineId?: MachineId,
@@ -235,7 +235,7 @@ function addGroups(
   if (callback) callback(factory);
 }
 
-function canGroupsCombine(source: Group, target: Group) {
+export function canGroupsCombine(source: Group, target: Group) {
   return Boolean(target.fluid) === Boolean(source.fluid);
 }
 
@@ -244,7 +244,7 @@ function canGroupsCombine(source: Group, target: Group) {
  * - Slots from the source will become part of the target.
  * - The source groups will be deleted.
  */
-function combineGroups(
+export function combineGroups(
   factory: Factory,
   sourceGroupIds: GroupId[],
   targetGroupId: GroupId,
@@ -275,7 +275,7 @@ function combineGroups(
  *   - Groups that are named the same across machines will be combined
  * - The source machines will be deleted
  */
-function combineMachines(
+export function combineMachines(
   factory: Factory,
   sourceMachineIds: MachineId[],
   targetMachineId: MachineId,
@@ -342,7 +342,7 @@ function combineMachines(
   if (callback) callback(factory);
 }
 
-function splitSlotFromGroup(
+export function splitSlotFromGroup(
   factory: Factory,
   slot: Slot,
   groupId: GroupId,
@@ -372,7 +372,7 @@ function splitSlotFromGroup(
   if (callback) callback(factory);
 }
 
-function splitPeripheralFromMachine(
+export function splitPeripheralFromMachine(
   factory: Factory,
   periphId: PeriphId,
   machineId: MachineId,
