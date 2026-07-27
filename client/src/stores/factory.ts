@@ -1,8 +1,9 @@
-import { Factory, Group, GroupId, Machine, MachineId, Pipe, PipeId, Slot } from "@server/types/core-types";
+import { Factory, Group, GroupId, Machine, MachineId, PeriphId, Pipe, PipeId, Slot } from "@server/types/core-types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { v4 as uuidv4 } from "uuid";
 import { current } from "immer";
+import { PeripheralBadgeDragData } from "../components/PeripheralBadge";
 
 /**
  * Type of callback to run after the factory updates.
@@ -32,6 +33,13 @@ export interface FactoryStore {
   
   editMachines: (machineIds: MachineId[], edits: Partial<Machine>, callback: PostUpdateCallback) => void,
   combineMachines: ( sourceMachineIds: MachineId[], targetMachineId: GroupId, callback?: PostUpdateCallback) => void,
+  splitPeripheralFromMachine: (
+    periphId: PeriphId,
+    machineId: MachineId,
+    newMachineX: number,
+    newMachineY: number,
+    callback?: PostUpdateCallback
+  ) => void;
 };
 
 const emptyFactory: Factory = {
@@ -58,7 +66,8 @@ export const useFactoryStore = create<FactoryStore>()(
     splitSlotFromGroup: (slot, groupId, machineId, newGroupX, newGroupY, callback) => set((draft) => { splitSlotFromGroup(draft.factory, slot, groupId, machineId, newGroupX, newGroupY, callback) }),
 
     editMachines: (machineIds, edits, callback) => set((draft) => { editMachines(draft.factory, machineIds, edits, callback) }),
-    combineMachines: ( sourceMachineIds, targetMachineId, callback) => set((draft) => { combineMachines(draft.factory, sourceMachineIds, targetMachineId, callback) }),
+    combineMachines: (sourceMachineIds, targetMachineId, callback) => set((draft) => { combineMachines(draft.factory, sourceMachineIds, targetMachineId, callback) }),
+    splitPeripheralFromMachine: (periphId, machineId, newMachineX, newMachineY, callback) => set((draft) => { splitPeripheralFromMachine(draft.factory, periphId, machineId, newMachineX, newMachineY, callback) }),
   }))
 );
 
@@ -107,6 +116,17 @@ function editPipes(
 ) {
   for (let pipeId of pipeIds) {
     factory.pipes[pipeId] = { ...(factory.pipes[pipeId]), ...edits};
+  }
+  if (callback) callback(factory);
+}
+
+function addMachine(
+  factory: Factory,
+  machines: Machine[],
+  callback?: PostUpdateCallback
+) {
+  for (const machine of machines) {
+    factory.machines[machine.id] = machine;
   }
   if (callback) callback(factory);
 }
@@ -327,7 +347,7 @@ function splitSlotFromGroup(
   machineId: MachineId,
   newGroupX: number,
   newGroupY: number,
-  callback?: PostUpdateCallback,
+  callback?: PostUpdateCallback
 ) {
   const oldGroup = factory.groups[groupId];
 
@@ -346,6 +366,49 @@ function splitSlotFromGroup(
   const oldGroupSlots = oldGroup.slots;
   const oldGroupSlotsUpdated = oldGroupSlots.filter((oldSlot: Slot) => oldSlot.periphId !== slot.periphId || oldSlot.slot !== slot.slot);
   editGroups(factory, [oldGroup.id], { slots: oldGroupSlotsUpdated });
+
+  if (callback) callback(factory);
+}
+
+function splitPeripheralFromMachine(
+  factory: Factory,
+  periphId: PeriphId,
+  machineId: MachineId,
+  newMachineX: number,
+  newMachineY: number,
+  callback?: PostUpdateCallback
+) {
+  // create a machine for the split peripheral
+  const newMachineId = uuidv4();
+  addMachine(factory, [{
+    id: newMachineId,
+    nickname: periphId,
+    groups: [],
+    x: newMachineX,
+    y: newMachineY,
+  }]);
+
+  for (let groupId of factory.machines[machineId].groups) {
+    const oldGroup = factory.groups[groupId];
+    const slotsFromPeripheral = oldGroup.slots.filter(slot => slot.periphId === periphId);
+    if (slotsFromPeripheral.length > 0) {
+      // make new group with all slots from this peripheral that were in the old group
+      addGroups(factory, [{
+        id: uuidv4(),
+        nickname: oldGroup.nickname,
+        slots: slotsFromPeripheral,
+        fluid: oldGroup.fluid,
+      }], newMachineId);
+
+      // remove slots from this peripheral from the old group
+      const oldGroupUpdatedSlots = oldGroup.slots.filter(slot => slot.periphId !== periphId)
+      if (oldGroupUpdatedSlots.length > 0) {
+        editGroups(factory, [oldGroup.id], { slots: oldGroupUpdatedSlots });
+      } else {
+        deleteGroup(factory, oldGroup.id);
+      }
+    }
+  } 
 
   if (callback) callback(factory);
 }

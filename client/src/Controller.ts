@@ -5,6 +5,7 @@ import { Connection, Edge, Node } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import { FactoryStore } from "./stores/factory";
 import { ItemSlotDragData } from "./components/ItemSlot";
+import { PeripheralBadgeDragData } from "./components/PeripheralBadge";
 
 export interface XYPosition {
   x: number;
@@ -122,6 +123,37 @@ export class Controller {
       slot,
       oldGroupId,
       machineId,
+      initialPosition.x,
+      initialPosition.y,
+      (factory) => this.postUpdate(factory)
+    );
+  }
+
+  splitPeripheralFromMachine(peripheralData: PeripheralBadgeDragData, intersections: Node[], initialPosition: XYPosition) {
+    const { periphId, oldMachineId } = peripheralData;
+    
+    // don't do anything if dragging to the same machine
+    intersections = intersections.filter(node => node.id === oldMachineId);
+    if (intersections.length > 0) {
+      return;
+    }
+
+    // don't do anything if there's only one peripheral in the machine
+    const factory = this.factoryStore.factory;
+    const peripheralIds = new Set<string>();
+    for (let groupId of factory.machines[oldMachineId].groups) {
+      const group = factory.groups[groupId];
+      for (let slot of group.slots) {
+        peripheralIds.add(slot.periphId);
+      }
+    }
+    if (peripheralIds.size === 1) {
+      return;
+    }
+
+    this.factoryStore.splitPeripheralFromMachine(
+      periphId,
+      oldMachineId,
       initialPosition.x,
       initialPosition.y,
       (factory) => this.postUpdate(factory)

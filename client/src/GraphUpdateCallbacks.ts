@@ -193,8 +193,6 @@ function onDrop(
     return;
   }
 
-  let requests: Request[] | undefined;
-
   const mousePosition = reactFlowInstance.screenToFlowPosition({
     x: event.clientX,
     y: event.clientY,
@@ -221,23 +219,11 @@ function onDrop(
 
   const peripheralMoveData = event.dataTransfer.getData("application/ccpipes-peripheralmove");
   if (peripheralMoveData) {
-    requests = splitPeripheralFromMachine(
+    controller.splitPeripheralFromMachine(
       JSON.parse(peripheralMoveData),
       intersections,
-      factory,
       mousePosition
     );
-  }
-
-  if (requests && requests.length > 0) {
-    const reqId = uuidv4();
-    const batchReq: BatchRequest = {
-      type: "BatchRequest",
-      reqId: reqId,
-      requests: requests,
-    }
-    addReqNeedingLayout(reqId);
-    sendMessage(JSON.stringify(batchReq));
   }
 
   const peripheralAddData = event.dataTransfer.getData("application/ccpipes-peripheraladd");
