@@ -179,7 +179,7 @@ describe('splitPeripheralFromMachine', () => {
         nickname: 'Group with no periph0 slots',
         slots: [{ periphId: 'periph1', slot: 1 }]
       },
-    ]);
+    ], 'machine0');
 
     return factory;
   }
