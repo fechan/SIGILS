@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { Factory } from '@server/types/core-types.js';
-import { addGroups, addMachines, splitSlotFromGroup } from './factory.js';
+import { addGroups, addMachines, combineGroups, splitSlotFromGroup } from './factory.js';
 
 function getEmptyFactory() {
   return {
@@ -31,8 +31,58 @@ describe('addGroups', () => {
 });
 
 describe('combineGroups', () => {
-  test("slots from the source become part of the target", { todo: true }, () => {});
-  test("deletes the source groups", { todo: true }, () => {});
+  /**
+   * @returns A factory with one machine `machine0`, which contains 3 groups
+   *          `group-target`, `group-source0`, and `group-source1` containing
+   *          slots 0, 1, and 2 from `periph0` respectively.
+   */
+  function getFactoryForTest_combineGroups() {
+    const factory = getEmptyFactory();
+
+    addMachines(factory, [{ id: 'machine0', groups: [] }]);
+
+    addGroups(factory, [
+      {
+        id: 'group-target',
+        slots: [{ periphId: 'periph0', slot: 0 }]
+      },
+      {
+        id: 'group-source0',
+        slots: [
+          { periphId: 'periph0', slot: 1 },
+        ]
+      },
+      {
+        id: 'group-source1',
+        slots: [
+          { periphId: 'periph0', slot: 2 },
+        ]
+      },
+    ], 'machine0');
+
+    return factory;
+  }
+
+  test("slots from the source become part of the target", () => {
+    const factory = getFactoryForTest_combineGroups();
+
+    combineGroups(factory, ['group-source0', 'group-source1'], 'group-target');
+
+    for (const slotNbr of [0, 1, 2]) {
+      expect(factory.groups['group-target'].slots)
+        .toContainEqual({ periphId: 'periph0', slot: slotNbr });
+    }
+  });
+
+  test("deletes the source groups", () => {
+    const factory = getFactoryForTest_combineGroups();
+
+    combineGroups(factory, ['group-source0', 'group-source1'], 'group-target');
+
+    for (const sourceGroupId of ['group-source0', 'group-source1']) {
+      expect(Object.keys(factory.groups)).not.toContain(sourceGroupId);
+    }
+  });
 });
 
 describe('combineMachines', () => {
@@ -43,7 +93,11 @@ describe('combineMachines', () => {
 });
 
 describe('splitSlotFromGroup', () => {
-  function getFactory_OneMachine_OneGroup_TwoSlots() {
+  /**
+   * @returns A factory containing 1 machine `machine0`, which has 1 group `group0`.
+   *          The group contains slots 0 and 1 from `periph0`.
+   */
+  function getFactoryForTest_splitSlotFromGroup() {
     const factory = getEmptyFactory();
     addMachines(factory, [{
       id: 'machine0',
@@ -62,7 +116,7 @@ describe('splitSlotFromGroup', () => {
   }
 
   test("creates a new group in the same machine", () => {
-    const factory = getFactory_OneMachine_OneGroup_TwoSlots();
+    const factory = getFactoryForTest_splitSlotFromGroup();
 
     splitSlotFromGroup(factory, {periphId: 'periph0', slot: 1}, 'group0', 'machine0', 0, 0);
 
@@ -75,7 +129,7 @@ describe('splitSlotFromGroup', () => {
   });
 
   test("removes the slot from the source group", () => {
-    const factory = getFactory_OneMachine_OneGroup_TwoSlots();
+    const factory = getFactoryForTest_splitSlotFromGroup();
     
     splitSlotFromGroup(factory, {periphId: 'periph0', slot: 1}, 'group0', 'machine0', 0, 0);
 
@@ -84,7 +138,7 @@ describe('splitSlotFromGroup', () => {
   });
 
   test("leaves the other slots in the source group", () => {
-    const factory = getFactory_OneMachine_OneGroup_TwoSlots();
+    const factory = getFactoryForTest_splitSlotFromGroup();
     
     splitSlotFromGroup(factory, {periphId: 'periph0', slot: 1}, 'group0', 'machine0', 0, 0);
 
@@ -93,6 +147,43 @@ describe('splitSlotFromGroup', () => {
 });
 
 describe('splitPeripheralFromMachine', () => {
+
+  /**
+   * @returns A factory containing 1 machine `machine0`, which has 3 groups
+   *          `group-allPeriph0`, `group-mixedPeriphs`, and `group-noPeriph0`.
+   *          - `group-allPeriph0` has only 1 slot from `periph0`.
+   *          - `group-mixedPeriphs` has 1 slot each from `periph0` and `periph1`.
+   *          - `group-noPeriph0` has no slots from `periph0`, only a slot from `periph1`.
+   */
+  function getFactoryForTest_splitPeripheralFromMachine() {
+    const factory = getEmptyFactory();
+
+    addMachines(factory, [{ id: 'machine0', groups: [] }]);
+
+    addGroups(factory, [
+      {
+        id: 'group-allPeriph0',
+        nickname: 'Group of only periph0 slots',
+        slots: [{ periphId: 'periph0', slot: 0 }]
+      },
+      {
+        id: 'group-mixedPeriphs',
+        nickname: 'Group with mixed periph0 and periph1 slots',
+        slots: [
+          { periphId: 'periph0', slot: 1 },
+          { periphId: 'periph1', slot: 0 },
+        ]
+      },
+      {
+        id: 'group-noPeriph0',
+        nickname: 'Group with no periph0 slots',
+        slots: [{ periphId: 'periph1', slot: 1 }]
+      },
+    ]);
+
+    return factory;
+  }
+
   test("adds a new machine", { todo: true }, () => {});
   test("new machine's groups named like the source machine's groups", { todo: true }, () => {});
   test("new machine has no empty groups", { todo: true }, () => {});
