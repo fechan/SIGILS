@@ -1,10 +1,9 @@
-import { Factory, Group, GroupId, Machine, MachineId, Pipe, PipeId } from "@server/types/core-types";
+import { Factory } from "@server/types/core-types";
 import { BatchRequest, GroupEditReq, MachineEditReq, PeriphAddReq, PipeDelReq, PipeEditReq, Request, FactoryPutReq } from "@server/types/messages";
 import { Dispatch, DragEvent, MouseEvent, SetStateAction } from "react";
 import { SendMessage } from "react-use-websocket/dist/lib/types";
 import { boxToRect, Connection, Edge, Instance, MarkerType, Node, ReactFlowInstance } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
-import { splitPeripheralFromMachine, splitSlotFromGroup } from "./SplitHandlers";
 import { AvailablePeripheralBadgeDragData } from "./components/AvailablePeripheralBadge";
 import { Controller } from "./Controller";
 
