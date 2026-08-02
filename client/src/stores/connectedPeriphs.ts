@@ -25,7 +25,7 @@ export function createConnectedPeriphsStore() {
 function getMissing(connected: PeriphMap, periphsInFactory: Set<PeriphId>) {
   const missing = new Set<PeriphId>();
 
-  for (const factoryPeriph in periphsInFactory) {
+  for (const factoryPeriph of periphsInFactory) {
     if (!(factoryPeriph in connected)) {
       missing.add(factoryPeriph);
     }
@@ -37,7 +37,7 @@ function getMissing(connected: PeriphMap, periphsInFactory: Set<PeriphId>) {
 function getAvailable(connected: PeriphMap, periphsInFactory: Set<PeriphId>) {
   const available = new Set<PeriphId>();
 
-  for (const connectedPeriph in Object.keys(connected)) {
+  for (const connectedPeriph of Object.keys(connected)) {
     if (!periphsInFactory.has(connectedPeriph)) {
       available.add(connectedPeriph);
     }
