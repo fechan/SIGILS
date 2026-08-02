@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest';
 import { Factory } from '@server/types/core-types.js';
 import { addGroups, addMachines, combineGroups, splitSlotFromGroup } from './factory.js';
 
