@@ -3,9 +3,7 @@ import { ErrorType } from "./errors";
 import { SessionId } from "./session";
 
 export const FACTORY_UPDATE_REQUEST_TYPES = [
-  "PipeAdd", "PipeEdit", "PipeDel",
-  "MachineAdd", "MachineEdit", "MachineDel",
-  "GroupAdd", "GroupEdit", "GroupDel",
+  "GroupEdit", "MachineEdit",
   "PeriphAdd", "PeriphDel",
 ] as const;
 
@@ -156,52 +154,6 @@ export interface FactoryUpdateRes extends SuccessResponse {
 }
 
 /**
- * Request to add a Pipe to the factory.
- * 
- * - Not emitted from CC
- * - Emitted from the editor if a new pipe is added by the user
- */
-export interface PipeAddReq extends Request {
-  type: "PipeAdd",
-  pipe: Pipe,
-}
-
-/**
- * Request to edit a Pipe in the factory.
- * 
- * - Not emitted from CC
- * - Emitted from the editor if a pipe is edited by the user
- */
-export interface PipeEditReq extends Request {
-  type: "PipeEdit",
-  pipeId: PipeId,
-  edits: Partial<Pipe>,
-}
-
-/**
- * Request to delete a Pipe in the factory.
- * 
- * - Not emitted from CC
- * - Emitted from the editor if a pipe is deleted by the user
- */
-export interface PipeDelReq extends Request {
-  type: "PipeDel",
-  pipeId: PipeId,
-}
-
-/**
- * Request to add a Machine to the factory.
- * 
- * - Emitted from CC if it detects a new peripheral is connected to the
- * network
- * - Emitted from the editor if a peripheral is split off from a Machine pool
- */
-export interface MachineAddReq extends Request {
-  type: "MachineAdd",
-  machine: Machine,
-}
-
-/**
  * Request to edit a Machine in the factory.
  * 
  * - Emitted from the editor when Machines are combined or Machine attributes are edited by the user
@@ -213,26 +165,6 @@ export interface MachineEditReq extends Request {
 }
 
 /**
- * Request to delete a Machine in the factory
- * 
- * - Emitted from the editor when Machines are combined
- */
-export interface MachineDelReq extends Request {
-  type: "MachineDel",
-  machineId: MachineId,
-}
-
-/**
- * Request to delete a Group in the factory
- * 
- * - Emitted from the editor when Groups are combined, or when Machines with similarly named Groups are combined
- */
-export interface GroupDelReq extends Request {
-  type: "GroupDel",
-  groupId: GroupId,
-}
-
-/**
  * Request to edit a Group in the factory.
  * 
  * - Emitted from the editor when Groups are combined, Machines with similar Groups are combined, or Group attributes are edited by the user
@@ -241,15 +173,6 @@ export interface GroupEditReq extends Request {
   type: "GroupEdit",
   groupId: GroupId,
   edits: Partial<Group>,
-}
-
-/**
- * Request to add a Group to the factory under a Machine
- */
-export interface GroupAddReq extends Request {
-  type: "GroupAdd",
-  group: Group,
-  machineId: MachineId,
 }
 
 /**

@@ -1,6 +1,4 @@
-import { PipeAddReq } from "@server/types/messages";
 import { Dispatch, SetStateAction, useState } from "react";
-import { SendMessage } from "react-use-websocket";
 import { Edge } from "reactflow";
 import { FilterSyntax } from "./FilterSyntax";
 import { useFactoryStore } from "../stores/factory";
