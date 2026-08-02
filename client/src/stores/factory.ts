@@ -92,6 +92,18 @@ export function getGroupParents(factory: Factory) {
   return groupParents;
 }
 
+export function getPeripheralNames(factory: Factory) {
+  const periphNames = new Set<PeriphId>();
+
+  for (const group of Object.values(factory.groups)) {
+    for (const slot of group.slots) {
+      periphNames.add(slot.periphId);
+    }
+  }
+
+  return periphNames;
+}
+
 export function deletePipes(factory: Factory, pipeIds: PipeId[], callback?: PostUpdateCallback) {
   for (let pipeId of pipeIds) {
     delete factory.pipes[pipeId];
