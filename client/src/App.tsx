@@ -86,7 +86,7 @@ export default function App() {
   const onEdgesDelete: OnEdgesDelete = useCallback((edges) => controller.current.deletePipes(edges), []);
   const onEdgeUpdate: OnEdgeUpdateFunc = useCallback((oldEdge, newConnection) => controller.current.editPipeConnection(oldEdge, newConnection), []);
   const onPipeAdd = useCallback((pipe: Pipe) => controller.current.addPipes([pipe]), []);
-  const onPipeEdit: Controller['editPipes'] = useCallback((pipeIds: PipeId[], edits: Partial<Pipe>) => controller.current.editPipes(pipeIds, edits), []);
+  const onPipeEdit: Controller['editPipes'] = useCallback((pipeIds, edits) => controller.current.editPipes(pipeIds, edits), []);
 
   const onGroupEdit: Controller['editGroups'] = useCallback((groupIds, edits) => controller.current.editGroups(groupIds, edits), []);
 
