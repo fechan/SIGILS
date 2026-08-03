@@ -103,8 +103,8 @@ export default function App() {
   );
 
   const onNodeDragStop: NodeDragHandler = useCallback(
-    (mouseEvent: MouseEvent, node: Node) => GraphUpdateCallbacks.onNodeDragStop(controller.current, mouseEvent, node, dropTarget, clearDropTarget, sendMessage, reactFlowInstance, factory, addReqNeedingLayout),
-    [clearDropTarget, dropTarget, sendMessage, reactFlowInstance, factory, addReqNeedingLayout, controller.current]
+    (mouseEvent: MouseEvent, node: Node) => GraphUpdateCallbacks.onNodeDragStop(controller.current, node, dropTarget, clearDropTarget, reactFlowInstance),
+    [clearDropTarget, dropTarget, reactFlowInstance]
   );
 
   const onDragOver: DragEventHandler = useCallback(
@@ -113,8 +113,8 @@ export default function App() {
   );
 
   const onDrop: DragEventHandler = useCallback(
-    (event: DragEvent) => GraphUpdateCallbacks.onDrop(controller.current, event, reactFlowInstance, factory, sendMessage, addReqNeedingLayout),
-    [reactFlowInstance, factory, sendMessage, addReqNeedingLayout]
+    (event: DragEvent) => GraphUpdateCallbacks.onDrop(controller.current, event, reactFlowInstance),
+    [reactFlowInstance]
   );
 
   const beforeNodesChange = useCallback(

@@ -144,14 +144,10 @@ function getBatchEditMessageForNewPositions(nodes: Node[]) {
 
 function onNodeDragStop(
   controller: Controller,
-  mouseEvent: MouseEvent,
   draggedNode: Node,
   dropTarget: Node | null,
   clearDropTarget: () => void,
-  sendMessage: SendMessage,
   reactFlowInstance: (ReactFlowInstance | null),
-  factory: Factory,
-  addReqNeedingLayout: (reqId: string) => void
 ) {
   // TODO: move all this to controller
   if (!reactFlowInstance) return;
@@ -182,9 +178,6 @@ function onDrop(
   controller: Controller,
   event: DragEvent,
   reactFlowInstance: (ReactFlowInstance | null),
-  factory: Factory,
-  sendMessage: SendMessage,
-  addReqNeedingLayout: (reqId: string) => void
 ) {
   event.preventDefault();
 
