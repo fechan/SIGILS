@@ -1,7 +1,7 @@
-import { Factory, Group, GroupId, Machine, MachineId, PeriphId, Pipe, PipeId, Slot } from "@server/types/core-types";
-import { create } from "zustand";
-import { immer } from "zustand/middleware/immer";
-import { v4 as uuidv4 } from "uuid";
+import { Factory, Group, GroupId, Machine, MachineId, Peripheral, PeriphId, Pipe, PipeId, Slot } from '@server/types/core-types';
+import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Type of callback to run after the factory updates.
@@ -13,6 +13,7 @@ export interface FactoryStore {
   setFactory: PostUpdateCallback,
 
   getGroupParents: () => GroupParentsMap,
+  getPeripheralNames: () => Set<PeriphId>,
 
   deletePipes: (pipeIds: PipeId[], callback?: PostUpdateCallback) => void,
   addPipes: (pipes: Pipe[], callback?: PostUpdateCallback) => void,
@@ -40,14 +41,16 @@ export interface FactoryStore {
     newMachineY: number,
     callback?: PostUpdateCallback
   ) => void;
+  addPeripheralAsMachine: (
+    periphId: PeriphId,
+    initialOptions: Partial<Machine>,
+    callback?: PostUpdateCallback) => void,
 };
 
 const emptyFactory: Factory = {
   machines: {},
   pipes: {},
   groups: {},
-  missing: {},
-  available: {},
 };
 
 export const useFactoryStore = create<FactoryStore>()(
@@ -56,6 +59,7 @@ export const useFactoryStore = create<FactoryStore>()(
     setFactory: (factory) => set((draft) => { draft.factory = factory }),
 
     getGroupParents: () => getGroupParents(get().factory),
+    getPeripheralNames: () => getPeripheralNames(get().factory),
     
     deletePipes: (pipeIds, callback) => set((draft) => { deletePipes(draft.factory, pipeIds, callback) }),
     addPipes: (pipes, callback) => set((draft) => { addPipes(draft.factory, pipes, callback) }),
@@ -70,6 +74,7 @@ export const useFactoryStore = create<FactoryStore>()(
     editMachines: (machineIds, edits, callback) => set((draft) => { editMachines(draft.factory, machineIds, edits, callback) }),
     combineMachines: (sourceMachineIds, targetMachineId, callback) => set((draft) => { combineMachines(draft.factory, sourceMachineIds, targetMachineId, callback) }),
     splitPeripheralFromMachine: (periphId, machineId, newMachineX, newMachineY, callback) => set((draft) => { splitPeripheralFromMachine(draft.factory, periphId, machineId, newMachineX, newMachineY, callback) }),
+    addPeripheralAsMachine: (periphId, initialOptions, callback) => set((draft) => { addPeripheralAsMachine(draft.factory, periphId, initialOptions, callback) }),
   }))
 );
 
@@ -423,6 +428,60 @@ export function splitPeripheralFromMachine(
       }
     }
   } 
+
+  if (callback) callback(factory);
+}
+
+function initializeMachine(periphId: PeriphId, periph: Peripheral) {
+  // TODO: move this function to a separate module
+
+  const groups: Group[] = [];
+
+  // initialize inventory slots
+  if (periph.size) {
+    for (let i=1; i <= periph.size; i++) {
+      groups.push({
+        'id': `${periphId}:g${i}`,
+        'slots': [{
+          'periphId': periphId,
+          'slot': i,
+        }],
+      } as Group);
+    }
+  }
+
+  // initialize fluid tank
+  if (periph.fluidTank) {
+    groups.push({
+      'id': periphId + 'fluid',
+      'nickname': 'Fluid tank',
+      'fluid': true,
+      'slots': [{
+        periphId: periphId,
+      }],
+    } as Group)
+  }
+
+  const machine: Machine = {
+    'id': periphId,
+    'groups': groups.map(group => group.id),
+  };
+
+  return { machine, groups }
+}
+
+export function addPeripheralAsMachine(
+  factory: Factory,
+  periphId: PeriphId,
+  periph: Peripheral,
+  initialOptions: Partial<Machine>,
+  callback?: PostUpdateCallback
+) {
+  let { machine, groups } = initializeMachine(periphId, periph);
+  machine = { ...initialOptions, ...machine };
+
+  addGroups(factory, groups);
+  addMachines(factory, [machine]);
 
   if (callback) callback(factory);
 }
