@@ -1,14 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import { Factory } from '@server/types/core-types.js';
-import { addGroups, addMachines, combineGroups, splitSlotFromGroup } from './factory.js';
+import { addGroups, addMachines, addPeripheralAsMachine, combineGroups, splitSlotFromGroup } from './factory.js';
 
 function getEmptyFactory() {
   return {
     machines: {},
     pipes: {},
     groups: {},
-    missing: {},
-    available: {},
   } as Factory;
 }
 
@@ -191,7 +189,72 @@ describe('splitPeripheralFromMachine', () => {
   test("removes newly emptied groups from the source machine", { todo: true }, () => {});
 });
 
-describe('addPeripheral', () => {
-  test("adds a machine with all the peripheral's item slots", { todo: true }, () => {});
-  test("adds a machine with all the peripheral's fluid slots", { todo: true }, () => {});
+describe('addPeripheralAsMachine', () => {
+  test("creates a new machine", () => {
+    const factory = getEmptyFactory();
+    const peripheral = { size: 3, fluidTank: true };
+
+    addPeripheralAsMachine(factory, 'mod:liquefier', peripheral, {});
+
+    expect(Object.keys(factory.machines).length).toBe(1);
+  });
+
+  test("adds all item slots when peripheral has both item slots and fluid tanks", () => {
+    const factory = getEmptyFactory();
+    const peripheral = { size: 3, fluidTank: true };
+
+    addPeripheralAsMachine(factory, 'mod:liquefier', peripheral);
+
+    const newGroups = Object.values(factory.groups).filter(g => !g.fluid);
+    expect(newGroups.length).toBe(peripheral.size);
+    for (const group of newGroups) {
+      expect(Object.values(factory.machines)[0].groups).toContain(group.id);
+    }
+  });
+
+  test("adds a fluid tanks when peripheral has both item slots and fluid tanks", () => {
+    const factory = getEmptyFactory();
+    const peripheral = { size: 3, fluidTank: true };
+
+    addPeripheralAsMachine(factory, 'mod:liquefier', peripheral);
+
+    const newFluidGroups = Object.values(factory.groups).filter(g => g.fluid);
+    expect(newFluidGroups.length).toBe(1);
+    expect(Object.values(factory.machines)[0].groups).toContain(newFluidGroups[0].id);
+  });
+
+  test("adds only item slots when peripheral has only item slots", () => {
+    const factory = getEmptyFactory();
+    const peripheral = { size: 3 };
+
+    addPeripheralAsMachine(factory, 'mod:liquefier', peripheral);
+
+    const newGroups = Object.values(factory.groups);
+    expect(newGroups.length).toBe(peripheral.size);
+    for (const group of newGroups) {
+      expect(Object.values(factory.machines)[0].groups).toContain(group.id);
+    }
+  });
+
+  test("adds only a fluid tank when peripheral has only fluid tanks", () => {
+    const factory = getEmptyFactory();
+    const peripheral = { fluidTank: true };
+
+    addPeripheralAsMachine(factory, 'mod:liquefier', peripheral);
+
+    const newGroups = Object.values(factory.groups);
+    expect(newGroups.length).toBe(1);
+  });
+
+  test("sets provided initial options on the new machine", () => {
+    const factory = getEmptyFactory();
+    const peripheral = { fluidTank: true };
+    const initialOptions = { x: 1, y: 2 };
+
+    addPeripheralAsMachine(factory, 'mod:liquefier', peripheral, initialOptions);
+
+    const newMachine = Object.values(factory.machines)[0];
+    expect(newMachine.x).toBe(initialOptions.x);
+    expect(newMachine.y).toBe(initialOptions.y);
+  });
 })

@@ -474,11 +474,13 @@ export function addPeripheralAsMachine(
   factory: Factory,
   periphId: PeriphId,
   periph: Peripheral,
-  initialOptions: Partial<Machine>,
+  initialOptions?: Partial<Machine>,
   callback?: PostUpdateCallback
 ) {
   let { machine, groups } = initializeMachine(periphId, periph);
-  machine = { ...initialOptions, ...machine };
+  if (initialOptions) {
+    machine = { ...initialOptions, ...machine };
+  }
 
   addGroups(factory, groups);
   addMachines(factory, [machine]);
