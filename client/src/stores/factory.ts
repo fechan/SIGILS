@@ -441,10 +441,10 @@ function initializeMachine(periphId: PeriphId, periph: Peripheral) {
   if (periph.size) {
     for (let i=1; i <= periph.size; i++) {
       groups.push({
-        'id': `${periphId}:g${i}`,
-        'slots': [{
-          'periphId': periphId,
-          'slot': i,
+        id: `${periphId}:g${i}`,
+        slots: [{
+          periphId: periphId,
+          slot: i,
         }],
       } as Group);
     }
@@ -453,18 +453,18 @@ function initializeMachine(periphId: PeriphId, periph: Peripheral) {
   // initialize fluid tank
   if (periph.fluidTank) {
     groups.push({
-      'id': periphId + 'fluid',
-      'nickname': 'Fluid tank',
-      'fluid': true,
-      'slots': [{
+      id: periphId + 'fluid',
+      nickname: 'Fluid tank',
+      fluid: true,
+      slots: [{
         periphId: periphId,
       }],
     } as Group)
   }
 
   const machine: Machine = {
-    'id': periphId,
-    'groups': groups.map(group => group.id),
+    id: periphId,
+    groups: groups.map(group => group.id),
   };
 
   return { machine, groups }
