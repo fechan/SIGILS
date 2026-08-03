@@ -43,7 +43,7 @@ export type PeriphId = string;
 
 export interface Peripheral {
     size?: number,
-    fluidTanks?: number,
+    fluidTank?: boolean,
 }
 
 export type PeriphManifest = {[periphId: PeriphId]: Peripheral};

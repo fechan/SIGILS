@@ -21,16 +21,16 @@ function ConnectedPeriphs.new()
     local allConnected = peripheral.getNames()
     for _, periphId in pairs(allConnected) do
       local periph = peripheral.wrap(periphId)
-      local periphDescriptor = {size = 0, fluidTanks = 0}
+      local periphDescriptor = {size = 0}
 
       if periph.pushItems then
         periphDescriptor.size = periph.size()
       end
       if periph.tanks then
-        periphDescriptor.fluidTanks = #(periph.tanks())
+        periphDescriptor.fluidTank = true
       end
 
-      if periphDescriptor.size > 0 or periphDescriptor.fluidTanks > 0 then
+      if periphDescriptor.size > 0 or periphDescriptor.fluidTank then
         o.periphs[periphId] = periphDescriptor
       end
     end
