@@ -20,7 +20,7 @@ end
 function ItemDetailAndLimitCache.new (connectedPeriphs, initialMap)
   local o = {
     map = initialMap or {},
-    missingPeriphs = connectedPeriphs.missing,
+    connectedPeriphs = connectedPeriphs,
     detailsByItemId = {},
   }
 
@@ -29,7 +29,7 @@ function ItemDetailAndLimitCache.new (connectedPeriphs, initialMap)
   ---@param slot Slot slot to check for
   ---@return boolean isConnected True if connected
   function o:slotConnected (slot)
-    return not o.missingPeriphs[slot.periphId]
+    return not connectedPeriphs.missing[slot.periphId]
   end
 
   ---Fetches the non-detailed item lists for each inventory in the group
