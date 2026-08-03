@@ -52,6 +52,13 @@ export type PeriphId = string;
  */
 export type PeriphMap = { [key: PeriphId]: boolean }
 
+export interface Peripheral {
+    size?: number,
+    fluidTanks?: number,
+}
+
+export type PeriphManifest = {[periphId: PeriphId]: Peripheral};
+
 /**
  * Data structure representing a slot on a particular peripheral
  */
