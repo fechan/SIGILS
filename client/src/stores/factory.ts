@@ -487,3 +487,20 @@ export function addPeripheralAsMachine(
 
   if (callback) callback(factory);
 }
+
+export function deletePeripheralFromFactory(
+  factory: Factory,
+  periphId: PeriphId,
+  callback?: PostUpdateCallback
+) {
+  for (const group of Object.values(factory.groups)) {
+    const remainingSlots = group.slots.filter(slot => slot.periphId !== periphId);
+    if (remainingSlots.length === 0) {
+      deleteGroup(factory, group.id);
+    } else {
+      group.slots = remainingSlots;
+    }
+  }
+
+  if (callback) callback(factory);
+}

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { Factory } from '@server/types/core-types.js';
-import { addGroups, addMachines, addPeripheralAsMachine, combineGroups, splitSlotFromGroup } from './factory.js';
+import { addGroups, addMachines, addPeripheralAsMachine, combineGroups, deletePeripheralFromFactory, splitSlotFromGroup } from './factory.js';
 
 function getEmptyFactory() {
   return {
@@ -258,3 +258,96 @@ describe('addPeripheralAsMachine', () => {
     expect(newMachine.y).toBe(initialOptions.y);
   });
 })
+
+
+describe('deletePeripheralFromFactory', () => {
+  /**
+   * @returns 
+   */
+  function getFactoryForTest_splitSlotFromGroup() {
+    const factory = getEmptyFactory();
+
+    addMachines(factory, [{
+      id: 'machine-persists',
+      groups: [],
+    }]);
+
+    addGroups(
+      factory,
+      [
+        {
+          id: 'group-willdelete0',
+          nickname: 'group-willdelete0',
+          slots: [
+            {periphId: 'periph-willdelete', slot: 0},
+            {periphId: 'periph-willdelete', slot: 1},
+          ],
+        },
+        {
+          id: 'group-persists',
+          nickname: 'group-persists',
+          slots: [
+            {periphId: 'periph-willdelete', slot: 2},
+            {periphId: 'periph-willdelete', slot: 3},
+            {periphId: 'periph-persists', slot: 4},
+            {periphId: 'periph-persists', slot: 5},
+          ],
+        }
+      ],
+      'machine-persists'
+    );
+
+    addMachines(factory, [{
+      id: 'machine-willdelete',
+      groups: [],
+    }]);
+
+    addGroups(
+      factory,
+      [
+        {
+          id: 'group-willdelete1',
+          nickname: 'group-willdelete1',
+          slots: [
+            {periphId: 'periph-willdelete', slot: 2},
+            {periphId: 'periph-willdelete', slot: 3},
+          ],
+        },
+      ],
+      'machine-willdelete'
+    );
+
+    return factory;
+  }
+
+  test("deletes the peripheral's slots from all groups", () => {
+    const factory = getFactoryForTest_splitSlotFromGroup();
+
+    deletePeripheralFromFactory(factory, 'periph-willdelete');
+
+    for (const group of Object.values(factory.groups)) {
+      for (const slot of group.slots) {
+        expect(slot.periphId).not.toBe('periph-willdelete');
+      }
+    }
+  });
+  test("deletes groups that are left empty afterwards", () => {
+    const factory = getFactoryForTest_splitSlotFromGroup();
+
+    deletePeripheralFromFactory(factory, 'periph-willdelete');
+
+    for (const group of Object.values(factory.groups)) {
+      expect(group.slots.length).toBeGreaterThan(0);
+    }
+  });
+
+  test("deletes machines that are left empty afterwards", () => {
+    const factory = getFactoryForTest_splitSlotFromGroup();
+
+    deletePeripheralFromFactory(factory, 'periph-willdelete');
+
+    for (const machine of Object.values(factory.machines)) {
+      expect(machine.groups.length).toBeGreaterThan(0);
+    }
+  });
+});
