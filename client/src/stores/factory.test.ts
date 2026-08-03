@@ -227,7 +227,7 @@ describe('addPeripheralAsMachine', () => {
     const factory = getEmptyFactory();
     const peripheral = { size: 3 };
 
-    addPeripheralAsMachine(factory, 'mod:liquefier', peripheral);
+    addPeripheralAsMachine(factory, 'mod:depot', peripheral);
 
     const newGroups = Object.values(factory.groups);
     expect(newGroups.length).toBe(peripheral.size);
@@ -240,7 +240,7 @@ describe('addPeripheralAsMachine', () => {
     const factory = getEmptyFactory();
     const peripheral = { fluidTank: true };
 
-    addPeripheralAsMachine(factory, 'mod:liquefier', peripheral);
+    addPeripheralAsMachine(factory, 'mod:tank', peripheral);
 
     const newGroups = Object.values(factory.groups);
     expect(newGroups.length).toBe(1);
