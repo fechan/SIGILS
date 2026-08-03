@@ -1,12 +1,9 @@
-import { PeriphId } from '@server/types/core-types';
+import { PeriphId, PeriphManifest } from '@server/types/core-types';
 import { createStore } from 'zustand/vanilla';
 
-// TODO: this might become a core type
-export type PeriphMap = {[periphName: string]: number};
-
 export interface ConnectedPeriphsStore {
-  periphs: PeriphMap,
-  setPeriphs: (periphs: PeriphMap) => void,
+  periphs: PeriphManifest,
+  setPeriphs: (periphs: PeriphManifest) => void,
   getMissing: (periphsInFactory: Set<PeriphId>) => Set<PeriphId>,
   getAvailable: (periphsInFactory: Set<PeriphId>) => Set<PeriphId>,
 };
@@ -22,7 +19,7 @@ export function createConnectedPeriphsStore() {
   );
 }
 
-function getMissing(connected: PeriphMap, periphsInFactory: Set<PeriphId>) {
+function getMissing(connected: PeriphManifest, periphsInFactory: Set<PeriphId>) {
   const missing = new Set<PeriphId>();
 
   for (const factoryPeriph of periphsInFactory) {
@@ -34,7 +31,7 @@ function getMissing(connected: PeriphMap, periphsInFactory: Set<PeriphId>) {
   return missing;
 }
 
-function getAvailable(connected: PeriphMap, periphsInFactory: Set<PeriphId>) {
+function getAvailable(connected: PeriphManifest, periphsInFactory: Set<PeriphId>) {
   const available = new Set<PeriphId>();
 
   for (const connectedPeriph of Object.keys(connected)) {

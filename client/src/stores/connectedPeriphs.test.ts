@@ -6,8 +6,8 @@ describe('setPeriphs', () => {
     const store = createConnectedPeriphsStore();
 
     const newPeriphs = {
-      'periph1': 1,
-      'periph2': 2,
+      'periph1': {size: 1},
+      'periph2': {size: 2},
     };
     store.getState().setPeriphs(newPeriphs);
 
@@ -31,9 +31,9 @@ describe('getMissing', () => {
       'periph4',
     ]);
     const connectedPeriphs = {
-      'periph1': 1,
-      'periph2': 2,
-      'periph5': 5,
+      'periph1': {size: 1},
+      'periph2': {size: 2},
+      'periph5': {size: 5},
     };
     store.getState().setPeriphs(connectedPeriphs);
 
@@ -73,10 +73,10 @@ describe('getAvailable', () => {
       'periph5',
     ]);
     const connectedPeriphs = {
-      'periph1': 1,
-      'periph2': 2,
-      'periph3': 3,
-      'periph4': 4,
+      'periph1': {size: 1},
+      'periph2': {size: 2},
+      'periph3': {size: 3},
+      'periph4': {size: 4},
     };
     store.getState().setPeriphs(connectedPeriphs);
 
