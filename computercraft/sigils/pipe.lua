@@ -74,7 +74,7 @@ local function processPipe (pipe, groupMap, inventoryInfo)
   end
 end
 
-local function processAllPipes (factory, inventoryInfo)
+local function processAllPipes (factory, inventoryInfo, connectedPeriphs)
   local batches = PipeBatcher.batchPipes(factory)
 
   for _, batchedPipeIds in pairs(batches) do
@@ -85,7 +85,7 @@ local function processAllPipes (factory, inventoryInfo)
       local pipe = factory.pipes[pipeId]
 
       if factory.groups[pipe.from].fluid then
-        table.insert(pipeCoros, function () processFluidPipe(pipe, factory.groups, factory.missing) end)
+        table.insert(pipeCoros, function () processFluidPipe(pipe, factory.groups, connectedPeriphs.missing) end)
       else
         table.insert(pipeCoros, function () processPipe(pipe, factory.groups, inventoryInfo) end)
         table.insert(itemPipes, pipe)
@@ -97,11 +97,11 @@ local function processAllPipes (factory, inventoryInfo)
   end
 end
 
-local function processAllPipesForever (factory)
-  local inventoryInfo = ItemDetailAndLimitCache.new(factory.missing)
+local function processAllPipesForever (factory, connectedPeriphs)
+  local inventoryInfo = ItemDetailAndLimitCache.new(connectedPeriphs)
 
   while true do
-    local ok, err = pcall(function () processAllPipes(factory, inventoryInfo) end)
+    local ok, err = pcall(function () processAllPipes(factory, inventoryInfo, connectedPeriphs) end)
     if not ok then
       LOGGER:warn("pipe.lua#processAllPipesForever() caught error " .. err)
     end

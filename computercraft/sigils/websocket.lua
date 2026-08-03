@@ -23,8 +23,6 @@ local MESSAGE_TYPES = {
   GroupAdd = true,
   GroupEdit = true,
   GroupDel = true,
-  PeriphAdd = true,
-  PeriphDel = true
 }
 
 ---Close the editor session

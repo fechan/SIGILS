@@ -14,13 +14,13 @@ local function getFullItemId (itemId, nbtHash)
 end
 
 ---Create a new ItemDetailAndLimitCache
----@param missingPeriphs table Set of missing peripheral IDs
+---@param connectedPeriphs ConnectedPeriphs Connected peripheral tracker
 ---@param initialMap? table? Initial map of slot IDs and their item limits/details
 ---@return ItemDetailAndLimitCache itemDetailAndLimitCache New cache
-function ItemDetailAndLimitCache.new (missingPeriphs, initialMap)
+function ItemDetailAndLimitCache.new (connectedPeriphs, initialMap)
   local o = {
     map = initialMap or {},
-    missingPeriphs = missingPeriphs or {},
+    missingPeriphs = connectedPeriphs.missing,
     detailsByItemId = {},
   }
 

@@ -15,17 +15,11 @@
  * - Each machine has one or more slot Groups, which group together the
  * peripherals' slots so they're collectively addressable.
  * - Pipes connect Groups together to transfer items between them.
- * - Missing peripherals are peripherals that may be part of some Machine(s) but
- *   are disconnected from the network
- * - Available peripherals are peripherals that are connected to the CC network
- *   but not part of any Machine
  */
 export interface Factory {
     pipes: PipeMap,
     machines: MachineMap,
     groups: GroupMap,
-    missing: PeriphMap,
-    available: PeriphMap,
 }
 
 export type PipeId = string;
@@ -46,11 +40,6 @@ export interface Pipe {
 };
 
 export type PeriphId = string;
-
-/**
- * A Lua-style set of Peripheral IDs
- */
-export type PeriphMap = { [key: PeriphId]: boolean }
 
 export interface Peripheral {
     size?: number,

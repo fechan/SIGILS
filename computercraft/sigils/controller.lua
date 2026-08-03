@@ -64,16 +64,6 @@ local function handleGroupEdit (request, factory, sendMessage)
   return true
 end
 
-local function handlePeriphAdd(request, factory, sendMessage)
-  Factory.periphAdd(factory, request.periphId, request.options)
-  return true
-end
-
-local function handlePeriphDel(request, factory, sendMessage)
-  Factory.periphDel(factory, request.periphId)
-  return true
-end
-
 local function createConfirmationResponse(request, ok, factory)
   return {
     type = 'ConfirmationResponse',
@@ -84,32 +74,32 @@ local function createConfirmationResponse(request, ok, factory)
   }
 end
 
-local function handlePeripheralAttach(periphId, factory, sendMessage)
-  local factoryChanged = Factory.updateWithPeriphChanges(factory)
-  if not factoryChanged then return false end
+local function handlePeripheralAttach(periphId, factory, connectedPeriphs, sendMessage)
+  connectedPeriphs:updateAll(factory)
 
-  sendMessage(textutils.serializeJSON({
-    type = "CcUpdatedFactory",
-    factory = factory
-  }))
-  return true
+  sendMessage(textutils.serializeJSON{
+    type = "CcUpdatedPeriphs",
+    periphs = connectedPeriphs.periphs
+  })
+
+  return false
 end
 
-local function handlePeripheralDetach(periphId, factory, sendMessage)
-  local factoryChanged = Factory.updateWithPeriphChanges(factory)
-  if not factoryChanged then return false end
+local function handlePeripheralDetach(periphId, factory, connectedPeriphs, sendMessage)
+  connectedPeriphs:updateAll(factory)
 
-  sendMessage(textutils.serializeJSON({
-    type = "CcUpdatedFactory",
-    factory = factory
-  }))
-  return true
+  sendMessage(textutils.serializeJSON{
+    type = "CcUpdatedPeriphs",
+    periphs = connectedPeriphs.periphs
+  })
+
+  return false
 end
 
 ---Forever listens for events that require a factory update, and sends
 ---WebSocket messages to the client to inform it of the changes, if the channel
 ---is available
-local function listenForCcpipesEvents (wsContext, factory)
+local function listenForCcpipesEvents (wsContext, factory, connectedPeriphs)
 
   ---This function safely wraps the WebSocket send function so SIGILS doesn't crash
   ---if the WebSocket is closed. The function signature is identical to
@@ -140,8 +130,6 @@ local function listenForCcpipesEvents (wsContext, factory)
       ['ccpipes-GroupAdd'] = handleGroupAdd,
       ['ccpipes-GroupDel'] = handleGroupDel,
       ['ccpipes-GroupEdit'] = handleGroupEdit,
-      ['ccpipes-PeriphAdd'] = handlePeriphAdd,
-      ['ccpipes-PeriphDel'] = handlePeriphDel,
     }
 
     if event == 'ccpipes-BatchRequest' then
@@ -158,9 +146,9 @@ local function listenForCcpipesEvents (wsContext, factory)
         sendMessage(textutils.serializeJSON(createConfirmationResponse(message, true, factory)))
       end
     elseif event == 'peripheral' then
-      handlePeripheralAttach(message, factory, sendMessage)
+      handlePeripheralAttach(message, factory, connectedPeriphs, sendMessage)
     elseif event == 'peripheral_detach' then
-      handlePeripheralDetach(message, factory, sendMessage)
+      handlePeripheralDetach(message, factory, connectedPeriphs, sendMessage)
     end
 
     if (handlers[event] or event == 'ccpipes-BatchRequest' or event == 'peripheral' or event == 'peripheral_detach') and event ~= 'ccpipes-FactoryGet' then

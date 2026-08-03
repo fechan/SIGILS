@@ -1,10 +1,9 @@
-import { Factory, Group, GroupId, Machine, MachineId, PeriphId, Pipe, PipeId } from "./core-types"
+import { Factory, Group, GroupId, Machine, MachineId, PeriphId, PeriphManifest, Pipe, PipeId } from "./core-types"
 import { ErrorType } from "./errors";
 import { SessionId } from "./session";
 
 export const FACTORY_UPDATE_REQUEST_TYPES = [
   "GroupEdit", "MachineEdit",
-  "PeriphAdd", "PeriphDel",
 ] as const;
 
 export type FactoryUpdateRequest = typeof FACTORY_UPDATE_REQUEST_TYPES[number];
@@ -17,7 +16,7 @@ export type MessageType = (
   "FactoryGet" | "FactoryGetResponse" |
   "FactoryPut" |
   FactoryUpdateRequest |
-  "CcUpdatedFactory"
+  "CcUpdatedPeriphs"
 )
 
 export interface Message {
@@ -176,31 +175,11 @@ export interface GroupEditReq extends Request {
 }
 
 /**
- * Request to add a peripheral to the factory as a Machine
- * You can optionally specify machine options to initialize the Machine with
- */
-export interface PeriphAddReq extends Request {
-  type: "PeriphAdd",
-  periphId: PeriphId,
-  options?: Partial<Machine>,
-}
-
-/**
- * Request to delete a peripheral from the factory.
- * 
- * - Emitted from the editor when the user wants to delete a missing peripheral
- */
-export interface PeriphDelReq extends Request {
-  type: "PeriphDel",
-  periphId: PeriphId,
-}
-
-/**
- * Unilateral declaration by ComputerCraft that it has updated the factory.
+ * Unilateral declaration by ComputerCraft that peripherals have been attached/detached
  * 
  * - Emitted from CC when peripherals are attached or detached from the network.
  */
-export interface CcUpdatedFactory extends Message {
-  type: "CcUpdatedFactory",
-  factory: Factory,
+export interface CcUpdatedPeriphs extends Message {
+  type: "CcUpdatedPeriphs",
+  periphs: PeriphManifest,
 }

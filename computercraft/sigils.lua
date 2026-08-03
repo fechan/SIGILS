@@ -1,4 +1,5 @@
 local Controller = require('sigils.controller')
+local ConnectedPeriphs = require('sigils.ConnectedPeriphs')
 local Factory = require('sigils.factory')
 local Pipe = require('sigils.pipe')
 local WebSocket = require('sigils.websocket')
@@ -61,9 +62,12 @@ local function init ()
     factory = textutils.unserializeJSON(factoryJsonFile:read('a'))
     io.close(factoryJsonFile)
 
-    Factory.updateWithPeriphChanges(factory)
     Factory.saveFactory(factory)
   end
+
+  -- track connected and missing peripherals
+  local connectedPeriphs = ConnectedPeriphs.new()
+  connectedPeriphs:updateAll(factory)
 
   -- When attachSession is called, the wsContext updates wsContext.ws with a
   -- CC WebSocket handle.
@@ -79,8 +83,8 @@ local function init ()
 
   parallel.waitForAll(
     function () WebSocket.doWebSocket(wsContext) end,
-    function () Controller.listenForCcpipesEvents(wsContext, factory) end,
-    function () Pipe.processAllPipesForever(factory) end,
+    function () Controller.listenForCcpipesEvents(wsContext, factory, connectedPeriphs) end,
+    function () Pipe.processAllPipesForever(factory, connectedPeriphs) end,
     function () waitForQuitKey(wsContext) end,
     function () while true do os.sleep(0.05) end end -- forces the OS not to lock up
   )
