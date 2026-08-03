@@ -24,10 +24,10 @@ function ConnectedPeriphs.new()
       local periphDescriptor = {size = 0, fluidTanks = 0}
 
       if periph.pushItems then
-        periphSize.size = periphSize()
+        periphDescriptor.size = periph.size()
       end
       if periph.tanks then
-        periphSize.fluidTanks = #(periph.tanks())
+        periphDescriptor.fluidTanks = #(periph.tanks())
       end
 
       if periphDescriptor.size > 0 or periphDescriptor.fluidTanks > 0 then
