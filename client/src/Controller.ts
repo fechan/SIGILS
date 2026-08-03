@@ -1,11 +1,12 @@
 import { FactoryPutReq } from "@server/types/messages";
-import { Factory, Group, GroupId, Machine, MachineId, Pipe, PipeId } from "@server/types/core-types";
+import { Factory, Group, GroupId, Machine, MachineId, Peripheral, PeriphId, Pipe, PipeId } from "@server/types/core-types";
 import { SendMessage } from "react-use-websocket/dist/lib/types";
 import { Connection, Edge, Node } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import { FactoryStore } from "./stores/factory";
 import { ItemSlotDragData } from "./components/ItemSlot";
 import { PeripheralBadgeDragData } from "./components/PeripheralBadge";
+import { ConnectedPeriphsStore } from "./stores/connectedPeriphs";
 
 export interface XYPosition {
   x: number;
@@ -14,11 +15,13 @@ export interface XYPosition {
 
 export class Controller {
   sendMessage: SendMessage; 
-  factoryStore: FactoryStore
+  factoryStore: FactoryStore;
+  connectedPeriphsStore: ConnectedPeriphsStore;
 
-  constructor(sendMessage: SendMessage, factoryStore: FactoryStore) {
+  constructor(sendMessage: SendMessage, factoryStore: FactoryStore, connectedPeriphsStore: ConnectedPeriphsStore) {
     this.sendMessage = sendMessage;
     this.factoryStore = factoryStore;
+    this.connectedPeriphsStore = connectedPeriphsStore;
   }
 
   // TODO: it probably makes more sense to send the message AFTER React has
@@ -156,6 +159,34 @@ export class Controller {
       oldMachineId,
       initialPosition.x,
       initialPosition.y,
+      (factory) => this.postUpdate(factory)
+    );
+  }
+
+  addPeripheralAsMachine(periphId: PeriphId, periph: Peripheral, initialOptions?: Partial<Machine>) {
+    const periphsInFactory = this.factoryStore.getPeripheralNames();
+    const availablePeriphs = this.connectedPeriphsStore.getAvailable(periphsInFactory);
+    if (!availablePeriphs.has(periphId)) {
+      throw Error("Attempted to add a peripheral to the factory that is either disconnected or already in the factory!");
+    }
+
+    this.factoryStore.addPeripheralAsMachine(
+      periphId,
+      periph,
+      initialOptions,
+      (factory) => this.postUpdate(factory)
+    );
+  }
+
+  deletePeripheralFromFactory(periphId: PeriphId) {
+    const periphsInFactory = this.factoryStore.getPeripheralNames();
+    const missingPeriphs = this.connectedPeriphsStore.getMissing(periphsInFactory);
+    if (!missingPeriphs.has(periphId)) {
+      throw Error("Attempted to delete a peripheral from the factory that is still connected!");
+    }
+
+    this.factoryStore.deletePeripheralFromFactory(
+      periphId,
       (factory) => this.postUpdate(factory)
     );
   }
