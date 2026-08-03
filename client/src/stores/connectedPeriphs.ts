@@ -6,6 +6,7 @@ export interface ConnectedPeriphsStore {
   setPeriphs: (periphs: PeriphManifest) => void,
   getMissing: (periphsInFactory: Set<PeriphId>) => Set<PeriphId>,
   getAvailable: (periphsInFactory: Set<PeriphId>) => Set<PeriphId>,
+  isPeriphMissing: (periphId: PeriphId, periphsInFactory: Set<PeriphId>) => boolean,
 };
 
 export function createConnectedPeriphsStore() {
@@ -15,9 +16,12 @@ export function createConnectedPeriphsStore() {
       setPeriphs: (periphs) => set({periphs}),
       getMissing: (periphsInFactory) => getMissing(get().periphs, periphsInFactory),
       getAvailable: (periphsInFactory) => getAvailable(get().periphs, periphsInFactory),
+      isPeriphMissing: (periphId, periphsInFactory) => isPeriphMissing(periphId, get().periphs, periphsInFactory),
     })
   );
 }
+
+export const connectedPeriphsStore = createConnectedPeriphsStore();
 
 function getMissing(connected: PeriphManifest, periphsInFactory: Set<PeriphId>) {
   const missing = new Set<PeriphId>();
@@ -41,4 +45,9 @@ function getAvailable(connected: PeriphManifest, periphsInFactory: Set<PeriphId>
   }
 
   return available;
+}
+
+function isPeriphMissing(periphId: PeriphId, connected: PeriphManifest, periphsInFactory: Set<PeriphId>) {
+  const missing = getMissing(connected, periphsInFactory);
+  return missing.has(periphId);
 }

@@ -1,4 +1,4 @@
-import { CcUpdatedFactory, ConfirmationResponse, FactoryGetReq, FactoryGetRes, FactoryUpdateRes, FailResponse, IdleTimeout, Message, SessionJoinReq, SuccessResponse } from "@server/types/messages";
+import { CcUpdatedPeriphs, ConfirmationResponse, FactoryGetReq, FactoryGetRes, FactoryUpdateRes, FailResponse, IdleTimeout, Message, SessionJoinReq, SuccessResponse } from "@server/types/messages";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { v4 as uuidv4 } from "uuid";
 
@@ -36,6 +36,8 @@ import { MissingPeriphs } from "./components/MissingPeriphs";
 import { Attribution } from "./components/Attribution";
 import { AvailablePeriphs } from "./components/AvailablePeriphs";
 import { Pipe, PipeId } from "@server/types/core-types";
+import { useStore } from "zustand";
+import { connectedPeriphsStore } from "./stores/connectedPeriphs";
 
 const DEFAULT_ENDPOINT = (process.env.NODE_ENV === "production") ? "wss://sigils.fredchan.org" : "ws://localhost:3000";
 
@@ -58,7 +60,9 @@ export default function App() {
   const factoryStore = useFactoryStore();
   const { factory, setFactory } = factoryStore;
 
-  const controller = useRef(new Controller(sendMessage, factoryStore));
+  const connectedPeriphs = useStore(connectedPeriphsStore);
+
+  const controller = useRef(new Controller(sendMessage, factoryStore, connectedPeriphs));
   
   // reqsNeedingLayout keys: Request IDs that, when fulfilled, should trigger graph layouting
   // values: Boolean that's true if the Request has been fulfilled
@@ -91,6 +95,7 @@ export default function App() {
   const onGroupEdit: Controller['editGroups'] = useCallback((groupIds, edits) => controller.current.editGroups(groupIds, edits), []);
 
   const onMachineEdit: Controller['editMachines'] = useCallback((machineIds, edits) => controller.current.editMachines(machineIds, edits), []);
+  const onMissingPeriphDelete: Controller['deletePeripheralFromFactory'] = useCallback((periphId) => controller.current.deletePeripheralFromFactory(periphId), []);
 
   const onNodeDrag: NodeDragHandler = useCallback(
     (mouseEvent: MouseEvent, node: Node) => GraphUpdateCallbacks.onNodeDrag(mouseEvent, node, getIntersectingNodes, reactFlowInstance, setDropTarget),
@@ -217,15 +222,9 @@ export default function App() {
           />);
           return;
         }
-      } else if (message.type === "CcUpdatedFactory") {
-        const ccUpdatedFactory = message as CcUpdatedFactory;
-        setReqsNeedingLayout({...reqsNeedingLayout, ["force-update-layout"]: true});
-        // HACK: setTimeout makes sure setReqsNeedingLayout happens before patchFactory.
-        // I have no idea why this is necessary, because the race condition doesn't happen
-        // when I need to update both states in other situations, like after receiving
-        // a FactoryUpdateRes
-        setTimeout(() => setFactory(ccUpdatedFactory.factory), 100);
-        return;
+      } else if (message.type === "CcUpdatedPeriphs") {
+        const ccUpdatedPeriphs = message as CcUpdatedPeriphs;
+        connectedPeriphs.setPeriphs(ccUpdatedPeriphs.periphs);
       } else if (message.type === "IdleTimeout") {
         const idleTimeout = message as IdleTimeout;
         toast.custom((t) => <Toast
@@ -296,8 +295,7 @@ export default function App() {
         </Panel>
         <Panel position="top-left">
           <MissingPeriphs
-            sendMessage={ sendMessage }
-            addReqNeedingLayout={addReqNeedingLayout}
+            onDeletePeriph={ onMissingPeriphDelete }
           />
           <AvailablePeriphs />
         </Panel>

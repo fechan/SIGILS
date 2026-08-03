@@ -1,5 +1,5 @@
 import { Factory } from "@server/types/core-types";
-import { BatchRequest, GroupEditReq, MachineEditReq, PeriphAddReq } from "@server/types/messages";
+import { BatchRequest, GroupEditReq, MachineEditReq } from "@server/types/messages";
 import { Dispatch, DragEvent, MouseEvent, SetStateAction } from "react";
 import { SendMessage } from "react-use-websocket/dist/lib/types";
 import { boxToRect, Connection, Edge, Instance, MarkerType, Node, ReactFlowInstance } from "reactflow";
@@ -227,19 +227,15 @@ function onDrop(
 
   const peripheralAddData = event.dataTransfer.getData("application/ccpipes-peripheraladd");
   if (peripheralAddData) {
-    const { periphId } = JSON.parse(peripheralAddData) as AvailablePeripheralBadgeDragData;
-    const reqId = uuidv4();
-    const periphAddReq: PeriphAddReq = {
-      type: "PeriphAdd",
-      reqId: reqId,
-      periphId: periphId,
-      options: {
+    const { periphId, periph } = JSON.parse(peripheralAddData) as AvailablePeripheralBadgeDragData;
+    controller.addPeripheralAsMachine(
+      periphId,
+      periph,
+      {
         x: mousePosition.x,
         y: mousePosition.y+50,
       }
-    }
-    addReqNeedingLayout(reqId);
-    sendMessage(JSON.stringify(periphAddReq));
+    )
   }
 }
 

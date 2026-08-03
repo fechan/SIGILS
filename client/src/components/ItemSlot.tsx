@@ -4,6 +4,8 @@ import { DragEvent } from "react";
 import { stringToColor } from "../StringToColor";
 import { useFactoryStore } from "../stores/factory";
 import { useShallow } from "zustand/react/shallow";
+import { connectedPeriphsStore } from "../stores/connectedPeriphs";
+import { useStore } from "zustand";
 
 export interface ItemSlotProps {
   slotIdx: number,
@@ -19,7 +21,9 @@ export interface ItemSlotDragData {
 }
 
 export function ItemSlot ({ slotIdx, slot, machineId, oldGroupId }: ItemSlotProps) {
-  const isMissing = useFactoryStore(useShallow(state => state.factory.missing[slot.periphId]));
+  const factory = useFactoryStore();
+  const { isPeriphMissing } = useStore(connectedPeriphsStore);
+  const isMissing = isPeriphMissing(slot.periphId, factory.getPeripheralNames());
 
   function onDragStart(event: DragEvent<HTMLDivElement>) {
     const dragData: ItemSlotDragData = {

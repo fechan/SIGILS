@@ -44,10 +44,9 @@ export interface FactoryStore {
   addPeripheralAsMachine: (
     periphId: PeriphId,
     periph: Peripheral,
-    initialOptions: Partial<Machine>,
+    initialOptions?: Partial<Machine>,
     callback?: PostUpdateCallback) => void,
   deletePeripheralFromFactory: (
-    factory: Factory,
     periphId: PeriphId,
     callback?: PostUpdateCallback
   ) => void,
@@ -81,7 +80,7 @@ export const useFactoryStore = create<FactoryStore>()(
     combineMachines: (sourceMachineIds, targetMachineId, callback) => set((draft) => { combineMachines(draft.factory, sourceMachineIds, targetMachineId, callback) }),
     splitPeripheralFromMachine: (periphId, machineId, newMachineX, newMachineY, callback) => set((draft) => { splitPeripheralFromMachine(draft.factory, periphId, machineId, newMachineX, newMachineY, callback) }),
     addPeripheralAsMachine: (periphId, periph, initialOptions, callback) => set((draft) => { addPeripheralAsMachine(draft.factory, periphId, periph, initialOptions, callback) }),
-    deletePeripheralFromFactory: (factory, periphId, callback) => set((draft) => { deletePeripheralFromFactory(draft.factory, periphId, callback) }),
+    deletePeripheralFromFactory: (periphId, callback) => set((draft) => { deletePeripheralFromFactory(draft.factory, periphId, callback) }),
   }))
 );
 

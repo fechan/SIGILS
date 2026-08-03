@@ -112,7 +112,7 @@ wss.on("connection", function connection(ws) {
             }
             break;
         }
-      } else if (message.type === "CcUpdatedFactory") {
+      } else if (message.type === "CcUpdatedPeriphs") {
         if (!session.editor) {
           const res: FailResponse = {
             type: "ConfirmationResponse",
